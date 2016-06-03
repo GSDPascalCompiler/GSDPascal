@@ -68,5 +68,7 @@ typedef struct{
 		node_id n_id;
 		node_type n_type;
 		node_nonleaf node_nonleaf;
-	};
-}node;
+	}data;
+}pnode;
+
+#define YYSTYPE pnode;

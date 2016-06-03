@@ -5,6 +5,7 @@
 */
 #include <stdio.h>
 #include "y.tab.h"
+#include "define.h"
 %}
 
 digit     [0-9]
