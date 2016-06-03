@@ -49,7 +49,7 @@ sub_routine	: routine_head routine_body
 
 
 
-routine_head	: label_part const_part type_part var_part routine_part
+routine_head	: label_part const_part type_part var_part routine_part 
 				;
 
 label_part	:
@@ -143,8 +143,8 @@ var_decl 	: name_list COLON type_decl SEMI
 
 routine_part	: routine_part function_decl
 				| routine_part procedure_decl
-				| function_decl
-				| procedure_decl
+				| function_decl	
+				| procedure_decl 
 				|
 				;
 
@@ -189,7 +189,7 @@ val_para_list	: name_list
 
 
 
-routine_body	: compound_stmt
+routine_body	: compound_stmt 
 				;
 
 compound_stmt	: BEG stmt_list END
@@ -204,7 +204,7 @@ stmt 		: INTEGER COLON non_label_stmt
 			;
 
 non_label_stmt	: assign_stmt
-				| proc_stmt
+				| proc_stmt 
 				| compound_stmt
 				| if_stmt
 				| repeat_stmt
@@ -220,7 +220,7 @@ assign_stmt 	: ID ASSIGN expression
 				;
 
 proc_stmt		: ID
-				| ID LP args_list RP
+				| ID LP args RP 
 				| SYS_PROC
 				| SYS_PROC LP expression_list RP
 				| READ LP factor RP
@@ -295,8 +295,14 @@ factor	: NAME
 		| NOT factor
 		| MINUS factor
 		| ID LB expression RB
+		| ID LP args RP{/*new added*/}
 		| ID DOT ID
+		| ID{/*new added*/}
 		;
+
+args 		: args_list {/*new added*/}
+			|
+			;
 
 args_list	: args_list COMMA expression
 			| expression
