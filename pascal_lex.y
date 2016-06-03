@@ -62,7 +62,7 @@ id        ({letter}|\_)({digit}|{letter}|\_)*
 ":"           {printf("COLON"); return COLON;}
 ","           {printf("COMMA"); return COMMA;}
 "of"          {printf("OF"); return OF;}
-"begin"       {printf("BEGIN1"); return BEGIN1;}
+"begin"       {printf("BEGIN1"); return BEG;}
 "end"         {printf("END"); return END;}
 "to"          {printf("TO"); return TO;}
 "downto"      {printf("DOWNTO"); return DOWNTO;}
