@@ -81,9 +81,8 @@ id        ({letter}|\_)({digit}|{letter}|\_)*
 "\t"           {printf("%s", yytext);}
 
 %%
-int main()
-{
-    do{
-        yylex();
-    }while(1);
-}
+
+/*int main(){
+	while(1)
+		yylex();
+}*/
