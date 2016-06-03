@@ -189,7 +189,7 @@ val_para_list	: name_list
 routine_body	: compound_stmt
 				;
 
-compound_stmt	: BEGIN stmt_list END
+compound_stmt	: BEG stmt_list END
 				;
 
 stmt_list	: stmt_list stmt SEMI
