@@ -1,5 +1,6 @@
 %{
 #include "define.h"
+#include <stdio.h>
 %}
 
 %token READ TYPE //
@@ -13,18 +14,20 @@
 %token OF BEG END TO DOWNTO//
 %token IF THEN ELSE REPEAT UNTIL WHILE DO FOR GOTO CASE//
 
+
+
 %%
 program 	: program_head routine DOT
 			;
 
 
-program_head	: PROGRAM ID SEMI
+program_head	: PROGRAM ID SEMI 
 				;
 
-routine		: routine_head routine_body
+routine		: routine_head routine_body 
 			;
 
-sub_routine	: routine_head routine_body
+sub_routine	: routine_head routine_body 
 			;
 
 
@@ -299,6 +302,12 @@ args_list	: args_list COMMA expression
 			| expression
 			;
 %%
+extern int yylex();
+int yyerror(const char *s){
+	printf("%s\n", s);
+	return 0;
+}
 int main(){
 	return yyparse();
 }
+
