@@ -41,7 +41,7 @@
 #define COLON 297
 #define COMMA 298
 #define OF 299
-#define BEGIN 300
+#define BEG 300
 #define END 301
 #define TO 302
 #define DOWNTO 303
@@ -55,3 +55,4 @@
 #define FOR 311
 #define GOTO 312
 #define CASE 313
+#define BEGIN 314
