@@ -5,7 +5,6 @@
 */
 #include <stdio.h>
 #include "y.tab.h"
-#include "define.h"
 %}
 
 digit     [0-9]
@@ -82,7 +81,7 @@ id        ({letter}|\_)({digit}|{letter}|\_)*
 "\t"           {printf("%s", yytext);}
 
 %%
-main()
+int main()
 {
     do{
         yylex();

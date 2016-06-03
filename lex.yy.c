@@ -565,8 +565,7 @@ char *yytext;
 */
 #include <stdio.h>
 #include "y.tab.h"
-#include "define.h"
-#line 570 "lex.yy.c"
+#line 569 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -748,9 +747,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 23 "pascal_lex.y"
+#line 22 "pascal_lex.y"
 
-#line 754 "lex.yy.c"
+#line 753 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -835,307 +834,307 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 24 "pascal_lex.y"
+#line 23 "pascal_lex.y"
 {printf("READ"); return READ;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 25 "pascal_lex.y"
+#line 24 "pascal_lex.y"
 {printf("LP"); return LP;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 26 "pascal_lex.y"
+#line 25 "pascal_lex.y"
 {printf("RP"); return RP;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 27 "pascal_lex.y"
+#line 26 "pascal_lex.y"
 {printf("LB"); return LB;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 28 "pascal_lex.y"
+#line 27 "pascal_lex.y"
 {printf("RB"); return RB;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 29 "pascal_lex.y"
+#line 28 "pascal_lex.y"
 {printf("PLUS"); return PLUS;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 30 "pascal_lex.y"
+#line 29 "pascal_lex.y"
 {printf("MINUS"); return MINUS;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 31 "pascal_lex.y"
+#line 30 "pascal_lex.y"
 {printf("MUL"); return MUL;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 32 "pascal_lex.y"
+#line 31 "pascal_lex.y"
 {printf("DIV"); return DIV;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 33 "pascal_lex.y"
+#line 32 "pascal_lex.y"
 {printf("MOD"); return MOD;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 34 "pascal_lex.y"
+#line 33 "pascal_lex.y"
 {printf("AND"); return AND;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 35 "pascal_lex.y"
+#line 34 "pascal_lex.y"
 {printf("OR"); return OR;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 36 "pascal_lex.y"
+#line 35 "pascal_lex.y"
 {printf("NOT"); return NOT;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 37 "pascal_lex.y"
+#line 36 "pascal_lex.y"
 {printf("ASSIGN"); return ASSIGN;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 38 "pascal_lex.y"
+#line 37 "pascal_lex.y"
 {printf("GE"); return GE;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 39 "pascal_lex.y"
+#line 38 "pascal_lex.y"
 {printf("GT"); return GT;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 40 "pascal_lex.y"
+#line 39 "pascal_lex.y"
 {printf("LE"); return LE;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 41 "pascal_lex.y"
+#line 40 "pascal_lex.y"
 {printf("LT"); return LT;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 42 "pascal_lex.y"
+#line 41 "pascal_lex.y"
 {printf("EQUAL"); return EQUAL;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 43 "pascal_lex.y"
+#line 42 "pascal_lex.y"
 {printf("UNEQUAL"); return UNEQUAL;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 44 "pascal_lex.y"
+#line 43 "pascal_lex.y"
 {printf("INTEGER"); return INTEGER;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 45 "pascal_lex.y"
+#line 44 "pascal_lex.y"
 {printf("REAL"); return REAL;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 46 "pascal_lex.y"
+#line 45 "pascal_lex.y"
 {printf("CHAR"); return CHAR;}
 	YY_BREAK
 case 24:
 /* rule 24 can match eol */
 YY_RULE_SETUP
-#line 47 "pascal_lex.y"
+#line 46 "pascal_lex.y"
 {printf("STRING"); return STRING;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 48 "pascal_lex.y"
+#line 47 "pascal_lex.y"
 {printf("CONST"); return CONST;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 49 "pascal_lex.y"
+#line 48 "pascal_lex.y"
 {printf("ARRAY"); return ARRAY;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 50 "pascal_lex.y"
+#line 49 "pascal_lex.y"
 {printf("SYS_CON"); return SYS_CON;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 51 "pascal_lex.y"
+#line 50 "pascal_lex.y"
 {printf("SYS_TYPE"); return SYS_TYPE;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 52 "pascal_lex.y"
+#line 51 "pascal_lex.y"
 {printf("SYS_PROC"); return SYS_PROC;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 53 "pascal_lex.y"
+#line 52 "pascal_lex.y"
 {printf("SYS_FUNCT"); return SYS_FUNCT;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 54 "pascal_lex.y"
+#line 53 "pascal_lex.y"
 {printf("PROGRAM"); return PROGRAM;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 55 "pascal_lex.y"
+#line 54 "pascal_lex.y"
 {printf("FUNCTION"); return FUNCTION;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 56 "pascal_lex.y"
+#line 55 "pascal_lex.y"
 {printf("PROCEDURE"); return PROCEDURE;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 57 "pascal_lex.y"
+#line 56 "pascal_lex.y"
 {printf("RECORD"); return RECORD;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 58 "pascal_lex.y"
+#line 57 "pascal_lex.y"
 {printf("NAME"); return NAME;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 59 "pascal_lex.y"
+#line 58 "pascal_lex.y"
 {printf("VAR"); return VAR;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 60 "pascal_lex.y"
+#line 59 "pascal_lex.y"
 {printf("DOT"); return DOT;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 61 "pascal_lex.y"
+#line 60 "pascal_lex.y"
 {printf("SEMI"); return SEMI;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 62 "pascal_lex.y"
+#line 61 "pascal_lex.y"
 {printf("COLON"); return COLON;}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 63 "pascal_lex.y"
+#line 62 "pascal_lex.y"
 {printf("COMMA"); return COMMA;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 64 "pascal_lex.y"
+#line 63 "pascal_lex.y"
 {printf("OF"); return OF;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 65 "pascal_lex.y"
-{printf("BEGIN1"); return BEGIN1;}
+#line 64 "pascal_lex.y"
+{printf("BEGIN1"); return BEG;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 66 "pascal_lex.y"
+#line 65 "pascal_lex.y"
 {printf("END"); return END;}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 67 "pascal_lex.y"
+#line 66 "pascal_lex.y"
 {printf("TO"); return TO;}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 68 "pascal_lex.y"
+#line 67 "pascal_lex.y"
 {printf("DOWNTO"); return DOWNTO;}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 69 "pascal_lex.y"
+#line 68 "pascal_lex.y"
 {printf("IF"); return IF;}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 70 "pascal_lex.y"
+#line 69 "pascal_lex.y"
 {printf("THEN"); return THEN;}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 71 "pascal_lex.y"
+#line 70 "pascal_lex.y"
 {printf("ELSE"); return ELSE;}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 72 "pascal_lex.y"
+#line 71 "pascal_lex.y"
 {printf("REPEAT"); return REPEAT;}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 73 "pascal_lex.y"
+#line 72 "pascal_lex.y"
 {printf("UNTIL"); return UNTIL;}
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 74 "pascal_lex.y"
+#line 73 "pascal_lex.y"
 {printf("WHILE"); return WHILE;}
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 75 "pascal_lex.y"
+#line 74 "pascal_lex.y"
 {printf("DO"); return DO;}
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 76 "pascal_lex.y"
+#line 75 "pascal_lex.y"
 {printf("FOR"); return FOR;}
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 77 "pascal_lex.y"
+#line 76 "pascal_lex.y"
 {printf("GOTO"); return GOTO;}
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 78 "pascal_lex.y"
+#line 77 "pascal_lex.y"
 {printf("CASE"); return CASE;}
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 79 "pascal_lex.y"
+#line 78 "pascal_lex.y"
 {printf("ID"); return ID;}
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 80 "pascal_lex.y"
+#line 79 "pascal_lex.y"
 {printf("%s", yytext);}
 	YY_BREAK
 case 58:
 /* rule 58 can match eol */
 YY_RULE_SETUP
-#line 81 "pascal_lex.y"
+#line 80 "pascal_lex.y"
 {printf("%s", yytext);}
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 82 "pascal_lex.y"
+#line 81 "pascal_lex.y"
 {printf("%s", yytext);}
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 84 "pascal_lex.y"
+#line 83 "pascal_lex.y"
 ECHO;
 	YY_BREAK
-#line 1139 "lex.yy.c"
+#line 1138 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2132,10 +2131,10 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 84 "pascal_lex.y"
+#line 83 "pascal_lex.y"
 
 
-main()
+int main()
 {
     do{
         yylex();

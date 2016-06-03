@@ -1,6 +1,7 @@
-#include <stdio>
-#include <vector>
-#include <string>
+#ifndef _DEFINE_H_
+#define _DEFINE_H_
+
+enum{N_INTEGER,N_REAL,N_CHAR,N_STRING,N_CONST,N_ARRAY,N_ID,N_TYPE,N_NONLEAF}NODE_TYPE;
 
 /*Leaf node types*/
 /*The node for INTEGER*/
@@ -18,9 +19,9 @@ typedef struct{
 	char c;
 }node_char;
 
-/*The node for STRING*/
+/*The node for std::string*/
 typedef struct{
-	string s;
+	char s[256];
 }node_string;
 
 /*The node for CONST*/
@@ -29,18 +30,18 @@ typedef struct{
 		int i;
 		double r;
 		char c;
-		string s;
-	}
+		char s[256];
+	}data;
 }node_const;
 
 /*The node for ARR*/
 typedef struct{
-	string arrname;
+	char s[256];
 }node_array;
 
 /*The node for IDENTIFIER*/
 typedef struct{
-	string id;
+	char id[256];
 }node_id;
 
 /*The node for VARIOUS TYPES*/
@@ -48,16 +49,16 @@ typedef struct{
 	int type;
 }node_type;
 
-typedef struct node;
+typedef struct tag_pnode pnode;
 
 /*Non-leaf node types*/
-typedef struct{
-	node *child;
+typedef struct tag_nonleaf{
+	tag_pnode *child;
 }node_nonleaf;
 
 /*The general node in parsetree*/
-typedef struct{
-	int type;
+typedef struct tag_pnode{
+	NODE_TYPE node_type;
 	union{
 		node_integer n_integer;
 		node_real n_real;
@@ -67,8 +68,10 @@ typedef struct{
 		node_array n_array;
 		node_id n_id;
 		node_type n_type;
-		node_nonleaf node_nonleaf;
+		node_nonleaf n_nonleaf;
 	}data;
 }pnode;
 
 #define YYSTYPE pnode;
+
+#endif;

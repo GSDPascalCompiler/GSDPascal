@@ -55,4 +55,3 @@
 #define FOR 311
 #define GOTO 312
 #define CASE 313
-#define BEGIN 314
