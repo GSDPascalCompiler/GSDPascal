@@ -48,6 +48,7 @@ typedef struct TagNonleaf{
 /*The general node in parsetree*/
 typedef struct tag_pnode{
 	TokenType tokenType;
+	int lineno;
 	union{
 		NodeInteger nodeInteger;
 		NodeReal nodeReal;
