@@ -1,5 +1,6 @@
 %{
-#include "define.h"
+#include "global.h"
+#include "parser.h"
 #include <stdio.h>
 %}
 
@@ -21,13 +22,16 @@ program 	: program_head routine DOT
 			;
 
 
-program_head	: PROGRAM ID SEMI 
+program_head	: PROGRAM ID SEMI
+{
+	$$=newParentNode();
+}
 				;
 
-routine		: routine_head routine_body 
+routine		: routine_head routine_body
 			;
 
-sub_routine	: routine_head routine_body 
+sub_routine	: routine_head routine_body
 			;
 
 
@@ -49,7 +53,7 @@ sub_routine	: routine_head routine_body
 
 
 
-routine_head	: label_part const_part type_part var_part routine_part 
+routine_head	: label_part const_part type_part var_part routine_part
 				;
 
 label_part	:
@@ -143,8 +147,8 @@ var_decl 	: name_list COLON type_decl SEMI
 
 routine_part	: routine_part function_decl
 				| routine_part procedure_decl
-				| function_decl	
-				| procedure_decl 
+				| function_decl
+				| procedure_decl
 				|
 				;
 
@@ -189,7 +193,7 @@ val_para_list	: name_list
 
 
 
-routine_body	: compound_stmt 
+routine_body	: compound_stmt
 				;
 
 compound_stmt	: BEG stmt_list END
@@ -204,7 +208,7 @@ stmt 		: INTEGER COLON non_label_stmt
 			;
 
 non_label_stmt	: assign_stmt
-				| proc_stmt 
+				| proc_stmt
 				| compound_stmt
 				| if_stmt
 				| repeat_stmt
@@ -220,7 +224,7 @@ assign_stmt 	: ID ASSIGN expression
 				;
 
 proc_stmt		: ID
-				| ID LP args RP 
+				| ID LP args RP
 				| SYS_PROC
 				| SYS_PROC LP expression_list RP
 				| READ LP factor RP
@@ -316,4 +320,3 @@ int yyerror(const char *s){
 int main(){
 	return yyparse();
 }
-

@@ -46,9 +46,10 @@ typedef struct TagNonleaf{
 }NodeNonleaf;
 
 /*The general node in parsetree*/
-typedef struct tag_pnode{
+typedef struct TagTreeNode{
 	TokenType tokenType;
 	int lineno;
+	int column;
 	union{
 		NodeInteger nodeInteger;
 		NodeReal nodeReal;
@@ -59,6 +60,13 @@ typedef struct tag_pnode{
 	}value;
 }TreeNode;
 
-#define YYSTYPE TreeNode
+typedef struct{
+	int lineno;
+	int column;
+	string data;
+	TreeNode *treeNode;
+}DataNode;
+
+#define YYSTYPE DataNode;
 
 #endif
