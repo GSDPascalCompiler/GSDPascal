@@ -1,8 +1,8 @@
 #ifndef _DEFINE_H_
 #define _DEFINE_H_
 
-enum{N_INTEGER,N_REAL,N_CHAR,N_STRING,N_CONST,N_ARRAY,N_ID,N_TYPE,N_NONLEAF}NODE_TYPE;
-
+enum NODE_TYPE{N_INTEGER,N_REAL,N_CHAR,N_STRING,N_ID,N_TYPE,N_NONLEAF};
+	
 /*Leaf node types*/
 /*The node for INTEGER*/
 typedef struct{
@@ -24,21 +24,6 @@ typedef struct{
 	char s[256];
 }node_string;
 
-/*The node for CONST*/
-typedef struct{
-	union{
-		int i;
-		double r;
-		char c;
-		char s[256];
-	}data;
-}node_const;
-
-/*The node for ARR*/
-typedef struct{
-	char s[256];
-}node_array;
-
 /*The node for IDENTIFIER*/
 typedef struct{
 	char id[256];
@@ -46,8 +31,8 @@ typedef struct{
 
 /*The node for VARIOUS TYPES*/
 typedef struct{
-	int type;
-}node_type;
+	int various;
+}node_various;
 
 typedef struct tag_pnode pnode;
 
@@ -64,14 +49,12 @@ typedef struct tag_pnode{
 		node_real n_real;
 		node_char n_char;
 		node_string n_string;
-		node_const n_const;
-		node_array n_array;
 		node_id n_id;
-		node_type n_type;
+		node_various n_type;
 		node_nonleaf n_nonleaf;
 	}data;
 }pnode;
 
-#define YYSTYPE pnode;
+#define YYSTYPE pnode
 
-#endif;
+#endif
