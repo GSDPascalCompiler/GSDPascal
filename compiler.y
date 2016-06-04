@@ -627,15 +627,7 @@ term	: term MUL factor
 		}
 		;
 
-factor	: ID
-		{
-			$$=newTreeNode({$1},NODE_STMT,S_FACTOR_ID,E_NONE);
-		}
-		| ID LP args_list RP
-		{
-			$$=newTreeNode({$3},NODE_STMT,S_FACTOR_SYS_ID_ARG,E_NONE);
-		}
-		| SYS_FUNCT
+factor	:SYS_FUNCT
 		{
 			$$=newTreeNode({$1},NODE_STMT,S_FACTOR_SYS,E_NONE);
 		}
@@ -671,7 +663,7 @@ factor	: ID
 		{
 			$$=newTreeNode({$1,$3},NODE_STMT,S_FACTOR_RECORD,E_NONE);
 		}
-		| ID{/*new added*/}
+		| ID
 		{
 			$$=newTreeNode({$1},NODE_STMT,S_FACTOR_ID,E_NONE);
 		}
