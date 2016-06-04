@@ -4,29 +4,50 @@
 #include <stdio.h>
 %}
 
-%token READ TYPE //
-%token LP RP LB RB //
-%token PLUS MINUS MUL DIV MOD AND OR NOT ASSIGN //
-%token GE GT LE LT EQUAL UNEQUAL //
-%token INTEGER REAL CHAR STRING CONST ARRAY //Leaf
-%token SYS_CON SYS_TYPE SYS_PROC SYS_FUNCT //
-%token PROGRAM FUNCTION PROCEDURE RECORD ID NAME VAR//
-%token DOT SEMI COLON COMMA//
-%token OF BEG END TO DOWNTO//
-%token IF THEN ELSE REPEAT UNTIL WHILE DO FOR GOTO CASE//
+%union {
+	struct{
+		union{
+			TreeNode *treeNode;
+			double r;
+			int i;
+			char c;
+			char s[MAX_STR_LEN];
+		}data;
+		int lineno;
+		int column;
+	}value;
+}
 
-
+%token READ TYPE
+%token LP RP LB RB
+%token PLUS MINUS MUL DIV MOD AND OR NOT ASSIGN
+%token GE GT LE LT EQUAL UNEQUAL
+%token INTEGER
+%token REAL
+%token CHAR
+%token STRING
+%token CONST ARRAY
+%token SYS_CON SYS_TYPE SYS_PROC SYS_FUNCT
+%token PROGRAM FUNCTION PROCEDURE RECORD
+%token ID
+%token NAME VAR
+%token DOT SEMI COLON COMMA
+%token OF BEG END TO DOWNTO
+%token IF THEN ELSE REPEAT UNTIL WHILE DO FOR GOTO CASE
 
 %%
 program 	: program_head routine DOT
+{
+
+}
 			;
 
 
 program_head	: PROGRAM ID SEMI
 {
-	$$=newParentNode();
+	$$=newProgramHeadNode($1,$2);
 }
-				;
+			;
 
 routine		: routine_head routine_body
 			;
@@ -68,6 +89,9 @@ const_expr_list	: const_expr_list NAME EQUAL const_value SEMI
 				;
 
 const_value	: INTEGER
+{
+	$$=newIntegerNode($1);
+}
 			| REAL
 			| CHAR
 			| STRING
