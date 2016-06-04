@@ -1,7 +1,7 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
-#define MAX_STR_LEN 255
-#define MAX_CHILD_LENGTH 10
+#define MAX_STR_LEN 256
+#define MAX_CHILD_NUM 10
 
 enum NodeType{NODE_TOKEN, NODE_EXP, NODE_STMT};
 
@@ -49,7 +49,7 @@ typedef struct TagTreeNode TreeNode;
 
 /*Non-leaf node types*/
 typedef struct TagNonleaf{
-	TagTreeNode *child[MAX_CHILD_LENGTH];
+	TagTreeNode *child[MAX_CHILD_NUM];
 }NodeNonleaf;
 
 /*The general node in parsetree*/
