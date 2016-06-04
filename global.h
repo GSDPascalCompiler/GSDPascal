@@ -24,11 +24,11 @@ enum TokeType{T_READ, T_TYPE, //
 
               };
 
-enum SysConVal{
-  FALSE,
-  MAXINT,
-  TRUE
-};
+enum SysConVal{FALSE, MAXINT, TRUE};
+enum SysFunctVal{ABS, CHR, ODD, ORD, PRED, SQR, SQRT, SUCC};
+enum SysProcVal{WRITE, WRITELN};
+enum SysType{BOOLEAN, CHAR, INTEGER, REAL};
+
 /*Leaf node types*/
 /*The node for INTEGER*/
 typedef struct{
@@ -59,6 +59,18 @@ typedef struct{
   SysConVal sysConVal;
 }NodeSysConVal;
 
+typedef struct{
+  SysConVal sysConVal;
+}NodeSysFunctVal;
+
+typedef struct{
+  SysConVal sysConVal;
+}NodeSysProcVal;
+
+typedef struct{
+  SysConVal sysConVal;
+}NodeSysTypeVal;
+
 typedef struct TagTreeNode TreeNode;
 
 /*Non-leaf node types*/
@@ -83,6 +95,10 @@ typedef struct TagTreeNode{
 		NodeString nodeString;
 		NodeId nodeId;
     NodeSysConVal nodeSysConVal;
+    NodeSysFunctVal nodeSysFunctVal;
+    NodeSysTypeVal nodeSysTypeVal;
+    NodeSysProcVal nodeSysProcVal;
+    NodeSysTypeVal nodeSysTypeVal;
 		NodeNonleaf nodeNonleaf;
 	}value;
 }TreeNode;
@@ -95,7 +111,9 @@ typedef struct{
 		char c;
 		char s[MAX_STR_LEN];
     SysConVal sysConVal;
-    
+    SysFunctVal sysFunctVal;
+    SysProcVal sysProcVal;
+    SysTypeVal sysTypeVal;
 	}data;
   TokeType tokenType;
 	int lineno;
