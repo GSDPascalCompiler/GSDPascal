@@ -2,6 +2,7 @@
 #include "global.h"
 #include "parsetree.h"
 #include <stdio.h>
+#include "util.h"
 
 extern int yylex();
 int yyerror(const char *s){
@@ -31,6 +32,8 @@ int yyerror(const char *s){
 program 	: program_head routine DOT
 {
 	$$ = newTreeNode({$1, $2}, NODE_STMT, S_PROGRAM, E_NONE);
+	printf("%p\n", $$.data.treeNode);
+	printTreeNodes(*($$.data.treeNode), 1);
 }
 			;
 

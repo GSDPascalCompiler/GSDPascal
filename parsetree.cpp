@@ -66,6 +66,6 @@ YYSTYPE newTreeNode(const initializer_list<YYSTYPE> &children, \
     }
     ++i;
   }
-
+  newNode.data.treeNode = treeNode;
   return newNode;
 }
