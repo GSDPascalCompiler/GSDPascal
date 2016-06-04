@@ -5,8 +5,37 @@
 */
 #include <stdio.h>
 #include "y.tab.h"
+#include "global.h"
+#include <initialzer_list>
+#include <string>
+#include <map>
+
 int lineno = 1;
 int column = 0;
+std::map<std::string, SysConVal> sysConValMap = {
+  "false":FALSE,
+  "maxint":MAXINT,
+  "true":TRUE
+};
+std::map<std::string, SysFunctVal> sysFunctValMap = {
+  "abs": ABS,
+  "chr": CHR,
+  "odd": ODD,
+  "pred": PRED,
+  "sqr": SQR,
+  "sqrt":SQRT,
+  "succ":SUCC
+};
+std::map<std::string, SysProcVal> sysProcValMap = {
+  "write": WRITE,
+  "writeln": WRITELN
+};
+std::map<std::string, sysTypeVal> sysTypeValMap = {
+  "boolean": BOOLEAN,
+  "char": CHAR,
+  "integer":INTEGER,
+  "real": REAL
+};
 %}
 
 digit     [0-9]
@@ -48,10 +77,10 @@ id        ({letter}|\_)({digit}|{letter}|\_)*
 {string}      {printf("STRING");	  yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	snprintf(yyval.data.s, strlen(yytext)-2, yytext+1); return STRING;}
 "const"       {printf("CONST");		  yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	return CONST;}
 "array"       {printf("ARRAY");		  yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	return ARRAY;}
-{sys_con}     {printf("SYS_CON");	  yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	return SYS_CON;}
-{sys_type}    {printf("SYS_TYPE");	yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	return SYS_TYPE;}
-{sys_proc}    {printf("SYS_PROC");	yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	return SYS_PROC;}
-{sys_funct}   {printf("SYS_FUNCT");	yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	return SYS_FUNCT;}
+{sys_con}     {printf("SYS_CON");	  yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	yyval.data.sysConVal = sysConValMap[std::string(yytext)]; return SYS_CON;}
+{sys_type}    {printf("SYS_TYPE");	yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	yyval.data.sysFunctVal = sysFunctValMap[std::string(yytext)];return SYS_TYPE;}
+{sys_proc}    {printf("SYS_PROC");	yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	yyval.data.sysProcVal = sysProcValMap[std::string(yytext)];return SYS_PROC;}
+{sys_funct}   {printf("SYS_FUNCT");	yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	yyval.data.sysTypeVal = sysTypeValMap[std::string(yytext)];return SYS_FUNCT;}
 "program"     {printf("PROGRAM");	  yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	return PROGRAM;}
 "function"    {printf("FUNCTION");	yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	return FUNCTION;}
 "procedure"   {printf("PROCEDURE");	yyval.lineno=lineno;	yyval.column=column; column+=strlen(yytext);	return PROCEDURE;}
