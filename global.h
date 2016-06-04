@@ -1,5 +1,6 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
+#define MAX_STR_LEN
 
 enum NodeType{NODE_TOKEN, NODE_EXP, NODE_STMT};
 
@@ -15,9 +16,7 @@ enum TokeType{T_READ, T_TYPE, //
  T_IF, T_THEN, T_ELSE, T_REPEAT, T_UNTIL, T_WHILE, T_DO, T_FOR, T_GOTO, T_CASE,
  T_NONLEAF};
 
- enum ExpType{E_ADD,E_SUB};
-
- enum StmtType{S_FUNC};
+ enum StmtType{S_PROGRAM, S_PROGRAM_HEAD, };
 
 /*Leaf node types*/
 /*The node for INTEGER*/
@@ -72,4 +71,17 @@ typedef struct TagTreeNode{
 	}value;
 }TreeNode;
 
+typedef struct{
+	union{
+		TreeNode *treeNode;
+		double r;
+		int i;
+		char c;
+		char s[MAX_STR_LEN];
+	}data;
+	int lineno;
+	int column;
+}Value;
+
+#define YYSTYPE Value;
 #endif

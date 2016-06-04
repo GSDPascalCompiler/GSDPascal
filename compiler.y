@@ -4,20 +4,6 @@
 #include <stdio.h>
 %}
 
-%union {
-	struct{
-		union{
-			TreeNode *treeNode;
-			double r;
-			int i;
-			char c;
-			char s[MAX_STR_LEN];
-		}data;
-		int lineno;
-		int column;
-	}value;
-}
-
 %token READ TYPE
 %token LP RP LB RB
 %token PLUS MINUS MUL DIV MOD AND OR NOT ASSIGN
@@ -45,7 +31,7 @@ program 	: program_head routine DOT
 
 program_head	: PROGRAM ID SEMI
 {
-	$$=newProgramHeadNode($1,$2);
+	$$=newProgramHeadNode($1.data.s);
 }
 			;
 
