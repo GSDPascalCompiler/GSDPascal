@@ -31,7 +31,7 @@ program 	: program_head routine DOT
 
 program_head	: PROGRAM ID SEMI
 {
-	$$=newProgramHeadNode($1);
+	$$=newProgramHeadNode($2);
 }
 			;
 

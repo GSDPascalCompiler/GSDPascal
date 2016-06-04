@@ -2,6 +2,7 @@
 #define _GLOBAL_H_
 #define MAX_STR_LEN 256
 #define MAX_CHILD_NUM 10
+
 enum NodeType{NODE_TOKEN, NODE_EXP, NODE_STMT};
 
 enum TokeType{T_READ, T_TYPE, //
