@@ -396,6 +396,9 @@ stmt_list	: stmt_list stmt SEMI
 				$$=newTreeNode({$1,$2},NODE_STMT,S_STMT_LIST,E_NONE);
 			}
 			|
+			{
+				$$=newTreeNode({}, NODE_STMT, S_STMT_LIST_NULL, E_NONE);
+			}
 			;
 
 stmt 		: INTEGER COLON non_label_stmt

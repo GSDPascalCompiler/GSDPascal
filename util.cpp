@@ -39,8 +39,27 @@ void Print(StmtType type){
 		case S_FUNCTION_HEAD: printf("FUNCTION_HEAD"); break;
 		case S_PROCEDURE_DECL: printf("PROCEDURE_DECL"); break;
 		case S_PROCEDURE_HEAD: printf("PROCEDURE_HEAD"); break;
-
-
+		case S_PARAMETERS_NULL: case S_PARA_DECL_MULTI_LIST: printf("VAR_DECL_LIST"); break;
+		case S_PARA_TYPE_LIST_VAR: case S_PARA_TYPE_LIST_VAL: printf("PARA_TYPE_LIST"); break;
+		case S_COMPOUND_STMT: printf("COUNPOUND_STMT"); break;
+		case S_STMT_LIST: case S_STMT_LIST_NULL: printf("STMT_LIST"); break;
+		case S_STMT: printf("STMT");
+		case S_ASSIGN: case S_ASSIGN_ARRAY: case S_ASSIGN_RECORD: printf("ASSIGN_STMT"); break;
+		case S_PROC: case S_PROC_FUNC: case S_PROC_SYS: case S_PROC_SYS_ARG: case S_PROC_READ: printf("PROC_STMT"); break;
+		case S_IF: printf("IF_STMT"); break;
+		case S_ELSE: printf("ELSE_CLAUSE"); break;
+		case S_REPEAT: printf("REPEATE_STMT"); break;
+		case S_WHILE: printf("WHILE_STMT"); break;
+		case S_FOR: printf("FOR_STMT"); break;
+		case S_DIRECTION_TO: case S_DIRECTION_DOWNTO: printf("DIRECTION"); break;
+		case S_CASE_EXPR_LIST: printf("CASE_EXPR_LIST"); break;
+		case S_CASE_EXPR_CONST: case S_CASE_EXPR_ID: printf("CASE_EXPR"); break;
+		case S_GOTO: printf("GOTO_STMT"); break;
+		case S_EXPRESSION_LIST: printf("EXPRESSION_LIST"); break;
+		case S_FACTOR_SYS: case S_FACTOR_SYS_ARG: case S_FACTOR_NOT: case S_FACTOR_MINUS: case S_FACTOR_ARRAY: case S_FACTOR_FUNC:
+		case S_FACTOR_RECORD: case S_FACTOR_ID: printf("FACTOR"); break;
+		case S_ARGS: printf("ARGS"); break;
+		case S_ARGS_LIST: case S_ARGS_LIST_EXP: printf("ARGS_LIST"); break;
 		default: printf("OTHERS"); break;
 	}
 }
