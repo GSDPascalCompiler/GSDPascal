@@ -5,7 +5,7 @@
 
 enum NodeType{NODE_TOKEN, NODE_EXP, NODE_STMT};
 
-enum TokeType{T_READ, T_TYPE, //
+enum TokenType{T_READ, T_TYPE, //
  T_LP, T_RP, T_LB, T_RB, //
  T_PLUS, T_MINUS, T_MUL, T_DIV, MOD, AND, OR, NOT, ASSIGN, //
  T_GE, T_GT, T_LE, T_LT, T_EQUAL, T_UNEQUAL, //
@@ -34,7 +34,7 @@ enum ExpType{E_AND,E_MOD,E_DIV,E_MUL,E_OR,E_MINUS,E_PLUS,E_UNEQUAL,E_EQUAL,E_LT,
 enum SysConVal{FALSE, MAXINT, TRUE};
 enum SysFunctVal{ABS, CHR, ODD, ORD, PRED, SQR, SQRT, SUCC};
 enum SysProcVal{WRITE, WRITELN};
-enum SysType{BOOLEAN, CHAR, INTEGER, REAL};
+enum SysTypeVal{BOOLEAN, CHAR, INTEGER, REAL};
 
 /*Leaf node types*/
 /*The node for INTEGER*/
@@ -67,15 +67,15 @@ typedef struct{
 }NodeSysConVal;
 
 typedef struct{
-  SysConVal sysConVal;
+  SysFunctVal sysConVal;
 }NodeSysFunctVal;
 
 typedef struct{
-  SysConVal sysConVal;
+  SysProcVal sysConVal;
 }NodeSysProcVal;
 
 typedef struct{
-  SysConVal sysConVal;
+  SysTypeVal sysConVal;
 }NodeSysTypeVal;
 
 typedef struct TagTreeNode TreeNode;
@@ -105,7 +105,6 @@ typedef struct TagTreeNode{
     NodeSysFunctVal nodeSysFunctVal;
     NodeSysTypeVal nodeSysTypeVal;
     NodeSysProcVal nodeSysProcVal;
-    NodeSysTypeVal nodeSysTypeVal;
 		NodeNonleaf nodeNonleaf;
 	}value;
 }TreeNode;
@@ -122,10 +121,10 @@ typedef struct{
     SysProcVal sysProcVal;
     SysTypeVal sysTypeVal;
 	}data;
-  TokeType tokenType;
+  TokenType tokenType;
 	int lineno;
 	int column;
 }Value;
 
-#define YYSTYPE Value;
+#define YYSTYPE Value
 #endif

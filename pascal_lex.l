@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "y.tab.h"
 #include "global.h"
-#include <initialzer_list>
+#include <initializer_list>
 #include <string>
 #include <map>
 

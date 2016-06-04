@@ -1,6 +1,6 @@
 %{
 #include "global.h"
-#include "parser.h"
+#include "parsetree.h"
 #include <stdio.h>
 %}
 
@@ -448,7 +448,7 @@ assign_stmt 	: ID ASSIGN expression
 				}
 				| ID DOT ID ASSIGN expression
 				{
-					$$=newTreeNode({$2,$4,$5,$6},NODE_STMT,S_ASSIGN_RECORD,E_NONE);
+					$$=newTreeNode({$1,$3,$5},NODE_STMT,S_ASSIGN_RECORD,E_NONE);
 				}
 				;
 
@@ -476,7 +476,7 @@ proc_stmt		: ID
 
 if_stmt			: IF expression THEN stmt else_clause
 				{
-					$$=newTreeNode({$2,$4,$5,$6},NODE_STMT,S_IF,E_NONE);
+					$$=newTreeNode({$2,$4,$5},NODE_STMT,S_IF,E_NONE);
 				}
 				;
 
