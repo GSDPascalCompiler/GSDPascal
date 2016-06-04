@@ -1,16 +1,23 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 
-enum TokeType{ N_READ, N_TYPE, //
- N_LP, N_RP, N_LB, N_RB, //
- N_PLUS, N_MINUS, N_MUL, N_DIV, MOD, AND, OR, NOT, ASSIGN, //
- N_GE, N_GT, N_LE, N_LT, N_EQUAL, N_UNEQUAL, //
- N_INTEGER, N_REAL, N_CHAR, N_STRING, N_CONST, N_ARRAY, //Leaf
- N_SYS_CON, N_SYS_TYPE, N_SYS_PROC, N_SYS_FUNCT, //
- N_PROGRAM, N_FUNCTION, N_PROCEDURE, N_RECORD, N_ID,N_NAME, N_VAR,//
- N_DOT, N_SEMI, N_COLON, N_COMMA,//
- N_OF, N_BEG, N_END, N_TO, N_DOWNTO,//
- N_IF, N_THEN, N_ELSE, N_REPEAT, N_UNTIL, N_WHILE, N_DO, N_FOR, N_GOTO, N_CASE};
+enum NodeType{NODE_TOKEN, NODE_EXP, NODE_STMT};
+
+enum TokeType{T_READ, T_TYPE, //
+ T_LP, T_RP, T_LB, T_RB, //
+ T_PLUS, T_MINUS, T_MUL, T_DIV, MOD, AND, OR, NOT, ASSIGN, //
+ T_GE, T_GT, T_LE, T_LT, T_EQUAL, T_UNEQUAL, //
+ T_INTEGER, T_REAL, T_CHAR, T_STRING, T_CONST, T_ARRAY, //Leaf
+ T_SYS_CON, T_SYS_TYPE, T_SYS_PROC, T_SYS_FUNCT, //
+ T_PROGRAM, T_FUNCTION, T_PROCEDURE, T_RECORD, T_ID,T_NAME, T_VAR,//
+ T_DOT, T_SEMI, T_COLON, T_COMMA,//
+ T_OF, T_BEG, T_END, T_TO, T_DOWNTO,//
+ T_IF, T_THEN, T_ELSE, T_REPEAT, T_UNTIL, T_WHILE, T_DO, T_FOR, T_GOTO, T_CASE,
+ T_NONLEAF};
+
+ enum ExpType{E_ADD,E_SUB};
+
+ enum StmtType{S_FUNC};
 
 /*Leaf node types*/
 /*The node for INTEGER*/
@@ -47,7 +54,12 @@ typedef struct TagNonleaf{
 
 /*The general node in parsetree*/
 typedef struct TagTreeNode{
-	TokenType tokenType;
+	NodeType nodeType;
+	union{
+			TokenType tokenType;
+			ExpType expType;
+			StmtType stmtType;
+	}typeValue;
 	int lineno;
 	int column;
 	union{
@@ -59,14 +71,5 @@ typedef struct TagTreeNode{
 		NodeNonleaf nodeNonleaf;
 	}value;
 }TreeNode;
-
-typedef struct{
-	int lineno;
-	int column;
-	string data;
-	TreeNode *treeNode;
-}DataNode;
-
-#define YYSTYPE DataNode;
 
 #endif
