@@ -31,7 +31,7 @@ program 	: program_head routine DOT
 
 program_head	: PROGRAM ID SEMI
 {
-	$$=newProgramHeadNode($1.data.s);
+	$$=newProgramHeadNode($1);
 }
 			;
 
@@ -76,7 +76,7 @@ const_expr_list	: const_expr_list NAME EQUAL const_value SEMI
 
 const_value	: INTEGER
 {
-	$$=newIntegerNode($1);
+
 }
 			| REAL
 			| CHAR

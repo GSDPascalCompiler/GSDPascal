@@ -68,22 +68,30 @@ TreeNode *newProgramNode(TreeNode *program_head, TreeNode *routine)
 }
 
 /*Create a new program_head node*/
-TreeNode *newProgramHeadNode(char *id)
+TreeNode *newProgramHeadNode(YYSTYPE arg1)
 {
+  YYSTYPE newNode;
   TreeNode *programHeadNode = new TreeNode;
   programHeadNode->nodeType=NODE_TOKEN;
   programHeadNode->typeValue.tokenType=T_ID;
   strcpy(programHeadNode->value.nodeId.id,id);
-  return programHeadNode;
+  newNode.data.treeNode=programHeadNode;
+  newNode.lineno=arg1.lineno;
+  newNode.lineno=arg1.column;
+  return newNode;
 }
 
-TreeNode *newConstValueNode(int i)
+YYSTYPE newConstValueNode(YYSTYPE arg1)
 {
+  YYSTYPE newNode;
   TreeNode *constValueNode = new TreeNode;
   constValueNode->nodeType=NODE_TOKEN;
   constValueNode->typeValue.tokenTyoe=T_INTEGER;
-  constValueNode->value.nodeInteger.i=i;
-  return constValueNode;
+  constValueNode->value.nodeInteger.i=arg1.data.i;
+  newNode.data.treeNode=constValueNode;
+  newNode.lineno=arg1.lineno;
+  newNode.column=arg1.column;
+  return newNode;
 }
 
 #endif
