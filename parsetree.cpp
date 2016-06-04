@@ -2,10 +2,10 @@
 
 using namespace std;
 
-YYSTYPE newTreeNode(const initialzer_list<YYSTYPE> &children, \
-                    const NodeType &nodeType, \
-                    const StmtType &stmtType, \
-                    const ExpType &expType)
+YYSTYPE newTreeNode(const initializer_list<YYSTYPE> &children, \
+                    const NodeType nodeType, \
+                    const StmtType stmtType, \
+                    const ExpType expType)
 {
   YYSTYPE newNode;
   TreeNode *treeNode = new TreeNode;
@@ -48,16 +48,16 @@ YYSTYPE newTreeNode(const initialzer_list<YYSTYPE> &children, \
           strcpy(childTreeNode->value.nodeId.id, child.data.s);
           break;
         case T_SYS_CON:
-          childTreeNode->value.nodeSysConVal = child.data.sysConVal;
+          childTreeNode->value.nodeSysConVal.sysConVal = child.data.sysConVal;
           break;
         case T_SYS_FUNCT:
-          childTreeNode->value.nodeSysFunctVal = child.data.sysFunctVal;
+          childTreeNode->value.nodeSysFunctVal.sysFunctVal = child.data.sysFunctVal;
           break;
         case T_SYS_PROC:
-          childTreeNode->value.nodeSysProcVal = child.data.sysProcVal;
+          childTreeNode->value.nodeSysProcVal.sysProcVal = child.data.sysProcVal;
           break;
         case T_SYS_TYPE:
-          childTreeNode->value.nodeSysTypeVal = child.data.sysTypeVal;
+          childTreeNode->value.nodeSysTypeVal.sysTypeVal = child.data.sysTypeVal;
           break;
         default:
           ;

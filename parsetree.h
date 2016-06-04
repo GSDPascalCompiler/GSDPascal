@@ -5,8 +5,8 @@
 #include <exception>
 #include <initializer_list>
 
-YYSTYPE newTreeNode(const std::initialzer_list<YYSTYPE> &children,
-                    const NodeType &nodeType,
-                    const StmtType &stmtType,
-                    const ExpType &expType);
+YYSTYPE newTreeNode(const std::initializer_list<YYSTYPE> &children, \
+                    const NodeType nodeType, \
+                    const StmtType stmtType, \
+                    const ExpType expType);
 #endif

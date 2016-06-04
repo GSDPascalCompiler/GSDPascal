@@ -2,6 +2,12 @@
 #include "global.h"
 #include "parsetree.h"
 #include <stdio.h>
+
+extern int yylex();
+int yyerror(const char *s){
+	printf("%s\n", s);
+	return 0;
+}
 %}
 
 %token READ TYPE
@@ -74,7 +80,7 @@ routine_head	: label_part const_part type_part var_part routine_part
 
 label_part	:
 {
-	$$ = newTreeNode({}, NODE_STMT, S_LABLE_PART_NULL, E_NONE);
+	$$ = newTreeNode({}, NODE_STMT, S_LABEL_PART_NULL, E_NONE);
 }
 			;
 
@@ -234,7 +240,7 @@ var_part	: VAR var_decl_list
 }
 			|
 {
-	$$ = newTreeNode({}, NODE_STMT, S_VAR_PART_NULL)
+	$$ = newTreeNode({}, NODE_STMT, S_VAR_PART_NULL, E_NONE);
 }
 			;
 
@@ -250,7 +256,7 @@ var_decl_list	: var_decl_list var_decl
 
 var_decl 	: name_list COLON type_decl SEMI
 {
-	$$ = newTreeNode({$1, $3}, NODE_STMT, S_VAR_DEL, E_NODE);
+	$$ = newTreeNode({$1, $3}, NODE_STMT, S_VAR_DECL, E_NONE);
 }
 			;
 
@@ -686,11 +692,6 @@ args_list	: args_list COMMA expression
 			}
 			;
 %%
-extern int yylex();
-int yyerror(const char *s){
-	printf("%s\n", s);
-	return 0;
-}
 int main(){
 	return yyparse();
 }
