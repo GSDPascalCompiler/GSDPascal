@@ -16,8 +16,18 @@ enum TokeType{T_READ, T_TYPE, //
  T_IF, T_THEN, T_ELSE, T_REPEAT, T_UNTIL, T_WHILE, T_DO, T_FOR, T_GOTO, T_CASE,
  T_NONLEAF};
 
- enum StmtType{S_PROGRAM, S_PROGRAM_HEAD, };
+ enum StmtType{S_PROGRAM, S_PROGRAM_HEAD,
 
+              //168-267
+              S_PROCEDUREDECL,
+
+              };
+
+enum SysConVal{
+  FALSE,
+  MAXINT,
+  TRUE
+};
 /*Leaf node types*/
 /*The node for INTEGER*/
 typedef struct{
@@ -36,13 +46,17 @@ typedef struct{
 
 /*The node for std::string*/
 typedef struct{
-	char s[256];
+	char s[MAX_STR_LEN];
 }NodeString;
 
 /*The node for IDENTIFIER*/
 typedef struct{
-	char id[256];
+	char id[MAX_STR_LEN];
 }NodeId;
+
+typedef struct{
+  SysConVal sysConVal;
+}NodeSysConVal;
 
 typedef struct TagTreeNode TreeNode;
 
@@ -67,6 +81,7 @@ typedef struct TagTreeNode{
 		NodeChar nodeChar;
 		NodeString nodeString;
 		NodeId nodeId;
+    NodeSysConVal nodeSysConVal;
 		NodeNonleaf nodeNonleaf;
 	}value;
 }TreeNode;
@@ -78,7 +93,10 @@ typedef struct{
 		int i;
 		char c;
 		char s[MAX_STR_LEN];
+    SysConVal sysConVal;
+    
 	}data;
+  TokeType tokenType;
 	int lineno;
 	int column;
 }Value;
