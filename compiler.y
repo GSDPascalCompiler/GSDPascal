@@ -32,7 +32,6 @@ int yyerror(const char *s){
 program 	: program_head routine DOT
 {
 	$$ = newTreeNode({$1, $2}, NODE_STMT, S_PROGRAM, E_NONE);
-	printf("%p\n", $$.data.treeNode);
 	printTreeNodes(*($$.data.treeNode), 1);
 }
 			;
@@ -239,7 +238,7 @@ name_list	: name_list COMMA ID
 
 var_part	: VAR var_decl_list
 {
-	$$ = $1;
+	$$ = $2;
 }
 			|
 {

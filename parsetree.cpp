@@ -67,5 +67,10 @@ YYSTYPE newTreeNode(const initializer_list<YYSTYPE> &children, \
     ++i;
   }
   newNode.data.treeNode = treeNode;
+  newNode.tokenType = T_NONLEAF;
+  if(children.size()){
+    newNode.lineno = children.begin()->lineno;
+    newNode.column = children.begin()->column;
+  }
   return newNode;
 }
