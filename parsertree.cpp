@@ -2,6 +2,27 @@
 
 using namespace std;
 
+TreeNode *integerNodeInit(YYSTYPE arg1)
+{
+  TreeNode *treeNode=new TreeNode;
+  treeNode.value
+}
+
+TreeNode *realNodeInit(YYSTYPE arg1)
+{
+
+}
+
+TreeNode *charNodeInit(YYSTYPE arg1)
+{
+
+}
+
+TreeNode *stringNodeInit(YYSTYPE arg1)
+{
+
+}
+
 void treeNodeInit(TreeNode* treeNode, int childNum)
 {
   try
@@ -59,7 +80,7 @@ YYSTYPE newProgramHeadNode(YYSTYPE arg1)
   newNode.lineno=arg1.column;
   return newNode;
 }
-
+/*Create a new const_value node*/
 YYSTYPE newConstValueNode(YYSTYPE arg1)
 {
   YYSTYPE newNode;
@@ -70,5 +91,30 @@ YYSTYPE newConstValueNode(YYSTYPE arg1)
   newNode.data.treeNode=constValueNode;
   newNode.lineno=arg1.lineno;
   newNode.column=arg1.column;
+  return newNode;
+}
+/*Create a new goto_stmt node*/
+YYSTYPE newGoToStmtNode(YYSTYPE arg1)
+{
+  YYSTYPE newNode;
+  TreeNode *treeNode = new TreeNode;
+  treeNode->nodeType = NODE_STMT;
+  treeNode->typeValue.stmtType = S_GOTO;
+
+  try
+  {
+    treeNodeInit(treeNode, 2);
+  }
+  catch(Exception &e)
+  {
+    throw(e);
+  }
+
+  treeNode->value.nodeNonleaf.child[0] = arg1.data.treeNode;
+  treeNode->value.nodeNonleaf.child[1] = arg2.data.treeNode;
+  newNode.lineno = arg1.lineno;
+  newNode.column = arg1.column;
+  newNode.data.treeNode = treeNode;
+
   return newNode;
 }
