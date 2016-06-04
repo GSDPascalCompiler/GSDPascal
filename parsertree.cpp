@@ -48,7 +48,16 @@ YYSTYPE newTreeNode(const initialzer_list<YYSTYPE> &children,
           strcpy(childTreeNode->value.nodeId.s, child.data.s);
           break;
         case T_SYS_CON:
-          childTreeNode->value.NodeSysConVal = child.data.sysConVal;
+          childTreeNode->value.nodeSysConVal = child.data.sysConVal;
+          break;
+        case T_SYS_FUNCT:
+          childTreeNode->value.nodeSysFunctVal = child.data.sysFunctVal;
+          break;
+        case T_SYS_PROC:
+          childTreeNode->value.nodeSysProcVal = child.data.sysProcVal;
+          break;
+        case T_SYS_TYPE:
+          childTreeNode->value.nodeSysTypeVal = child.data.sysTypeVal;
           break;
         default:
           ;
