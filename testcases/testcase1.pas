@@ -1,17 +1,16 @@
 program exLocal;
+var
+   a, b, c: integer;
 procedure display;
 var
    a, b, c: integer;
 begin
-   (* local variables *)
    a := 10;
    b := 20;
    c := a + b;
    writeln('Winthin the procedure display');
    writeln('value of a = ', a , ' b =  ',  b, ' and c = ', c);
 end;
-var
-   a, b, c: integer;
 begin
    a:= 100;
    b:= 200;

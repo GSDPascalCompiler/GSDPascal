@@ -40,6 +40,7 @@ program 	: program_head routine DOT
 program_head	: PROGRAM ID SEMI
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_PROGRAM_HEAD, E_NONE);
+	printTreeNodes(*($$.data.treeNode), 1);
 }
 			;
 
@@ -83,6 +84,7 @@ routine_head	: label_part const_part type_part var_part routine_part
 label_part	:
 {
 	$$ = newTreeNode({}, NODE_STMT, S_LABEL_PART_NULL, E_NONE);
+	printTreeNodes(*($$.data.treeNode),1);
 }
 			;
 
@@ -170,7 +172,7 @@ type_decl 	: simple_type_decl
 
 simple_type_decl	: SYS_TYPE
 {
-	$$ = $1;
+	$$ = newTreeNode({$1}, NODE_STMT,S_SIMPLE_TYPE_DECL_SYS,E_NONE);
 }
 					| ID
 {
@@ -232,7 +234,7 @@ name_list	: name_list COMMA ID
 }
 			| ID
 {
-	$$ = $1;
+	$$ = newTreeNode({$1}, NODE_STMT, S_NAME_LIST_ID,E_NONE);
 }
 			;
 
@@ -259,6 +261,7 @@ var_decl_list	: var_decl_list var_decl
 var_decl 	: name_list COLON type_decl SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_VAR_DECL, E_NONE);
+	printTreeNodes(*($$.data.treeNode), 1);
 }
 			;
 

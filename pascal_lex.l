@@ -40,6 +40,7 @@ std::map<std::string, SysTypeVal> sysTypeValMap = {
 };
 %}
 
+%option noyywrap
 digit     [0-9]
 letter    [a-zA-Z]
 integer   {digit}+
@@ -81,9 +82,9 @@ id        ({letter}|\_)({digit}|{letter}|\_)*
 "const"       {printf("CONST");		  yylval.tokenType=T_CONST;			yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return CONST;}
 "array"       {printf("ARRAY");		  yylval.tokenType=T_ARRAY;			yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return ARRAY;}
 {sys_con}     {printf("SYS_CON");	  yylval.tokenType=T_SYS_CON;		yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	yylval.data.sysConVal = sysConValMap[std::string(yytext)]; return SYS_CON;}
-{sys_type}    {printf("SYS_TYPE");	yylval.tokenType=T_SYS_TYPE;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	yylval.data.sysFunctVal = sysFunctValMap[std::string(yytext)];return SYS_TYPE;}
+{sys_type}    {printf("SYS_TYPE");	yylval.tokenType=T_SYS_TYPE;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	yylval.data.sysTypeVal = sysTypeValMap[std::string(yytext)];return SYS_TYPE;}
 {sys_proc}    {printf("SYS_PROC");	yylval.tokenType=T_SYS_PROC;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	yylval.data.sysProcVal = sysProcValMap[std::string(yytext)];return SYS_PROC;}
-{sys_funct}   {printf("SYS_FUNCT");	yylval.tokenType=T_SYS_FUNCT;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	yylval.data.sysTypeVal = sysTypeValMap[std::string(yytext)];return SYS_FUNCT;}
+{sys_funct}   {printf("SYS_FUNCT");	yylval.tokenType=T_SYS_FUNCT;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	yylval.data.sysFunctVal = sysFunctValMap[std::string(yytext)];return SYS_FUNCT;}
 "program"     {printf("PROGRAM");	  yylval.tokenType=T_PROGRAM;	  yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return PROGRAM;}
 "function"    {printf("FUNCTION");	yylval.tokenType=T_FUNCTION;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return FUNCTION;}
 "procedure"   {printf("PROCEDURE");	yylval.tokenType=T_PROCEDURE;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return PROCEDURE;}
@@ -114,3 +115,6 @@ id        ({letter}|\_)({digit}|{letter}|\_)*
 "\t"          {printf("%s", yytext);}
 .             {printf("%d", lineno);}
 %%
+#ifdef LOCAL_DEBUG
+  freopen("in.txt", "r", stdin);
+#endif

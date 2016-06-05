@@ -10,6 +10,7 @@ void Print(TokenType type){
 		case T_CHAR: printf("CHAR"); break;
 		case T_STRING: printf("STRING"); break;
 		case T_CONST: printf("CONST"); break;
+		case T_ID: printf("ID"); break;
 		case T_ARRAY: printf("ARRAY"); break;
 		case T_SYS_CON: printf("SYS_CON"); break;
 		case T_SYS_TYPE: printf("SYS_TYPE"); break;
@@ -60,6 +61,7 @@ void Print(StmtType type){
 		case S_FACTOR_RECORD: case S_FACTOR_ID: printf("FACTOR"); break;
 		case S_ARGS: printf("ARGS"); break;
 		case S_ARGS_LIST: case S_ARGS_LIST_EXP: printf("ARGS_LIST"); break;
+		case S_SIMPLE_TYPE_DECL_SYS: printf("S_SIMPLE_TYPE_DECL"); break;
 		default: printf("OTHERS"); break;
 	}
 }
@@ -109,6 +111,27 @@ void printTreeNodes(TreeNode root, int level){
         Print(root.typeValue.tokenType);
           printf(" = %s\n", root.value.nodeId.id);
           break;
+		case T_SYS_TYPE:
+			Print(root.typeValue.tokenType);
+			switch (root.value.nodeSysTypeVal.sysTypeVal)
+			{
+			case TYPE_BOOLEAN:
+				printf(" = %s\n", "BOOLEAN");
+				break;
+			case TYPE_CHAR:
+				printf(" = %s\n", "CHAR");
+				break;
+			case TYPE_INTEGER:
+				printf(" = %s\n", "INTEGER");
+				break;
+			case TYPE_REAL:
+				printf(" = %s\n", "REAL");
+				break;
+			default:
+				printf(" = %s\n", "OTHER");
+				break;
+			}
+			break;
         default:
           Print(root.typeValue.tokenType); puts("");
           ;
