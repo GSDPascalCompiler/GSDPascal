@@ -78,7 +78,7 @@ id        ({letter}|\_)({digit}|{letter}|\_)*
 {integer}     {printf("INTEGER");	  yylval.tokenType=T_INTEGER;		yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);  yylval.data.i=atoi(yytext);	  return INTEGER;}
 {real}        {printf("REAL");		  yylval.tokenType=T_REAL;			yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	yylval.data.r=atof(yytext);    return REAL;}
 {char}        {printf("CHAR");		  yylval.tokenType=T_CHAR;			yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	yylval.data.c=*yytext;         return CHAR;}
-{string}      {printf("STRING");	  yylval.tokenType=T_STRING;		yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	snprintf(yylval.data.s, strlen(yytext)-2, yytext+1); return STRING;}
+{string}      {printf("STRING");	  yylval.tokenType=T_STRING;		 yylval.lineno=lineno;	 yylval.column=column;  column+=strlen(yytext);	 memset(yylval.data.s, 0, 256);snprintf(yylval.data.s, strlen(yytext)-2, yytext+1);  return STRING;}
 "const"       {printf("CONST");		  yylval.tokenType=T_CONST;			yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return CONST;}
 "array"       {printf("ARRAY");		  yylval.tokenType=T_ARRAY;			yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return ARRAY;}
 {sys_con}     {printf("SYS_CON");	  yylval.tokenType=T_SYS_CON;		yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	yylval.data.sysConVal = sysConValMap[std::string(yytext)]; return SYS_CON;}

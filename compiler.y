@@ -40,7 +40,6 @@ program 	: program_head routine DOT
 program_head	: PROGRAM ID SEMI
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_PROGRAM_HEAD, E_NONE);
-	printTreeNodes(*($$.data.treeNode), 1);
 }
 			;
 
@@ -84,7 +83,6 @@ routine_head	: label_part const_part type_part var_part routine_part
 label_part	:
 {
 	$$ = newTreeNode({}, NODE_STMT, S_LABEL_PART_NULL, E_NONE);
-	printTreeNodes(*($$.data.treeNode),1);
 }
 			;
 
@@ -110,23 +108,23 @@ const_expr_list	: const_expr_list ID EQUAL const_value SEMI
 
 const_value	: INTEGER
 {
-	$$ = $1;
+	$$ = newTreeNode({$1},NODE_STMT,S_CONST_VALUE_INT,E_NONE);
 }
 			| REAL
 {
-	$$ = $1;
+	$$ = newTreeNode({$1},NODE_STMT,S_CONST_VALUE_REAL,E_NONE);
 }
 			| CHAR
 {
-	$$ = $1;
+	$$ = newTreeNode({$1},NODE_STMT,S_CONST_VALUE_CHAR,E_NONE);
 }
 			| STRING
 {
-	$$ = $1;
+	$$ = newTreeNode({$1},NODE_STMT,S_CONST_VALUE_STRING,E_NONE);
 }
 			| SYS_CON
 {
-	$$ = $1;
+	$$ = newTreeNode({$1},NODE_STMT,S_CONST_VALUE_SYS_CON,E_NONE);
 }
 			;
 
@@ -261,7 +259,6 @@ var_decl_list	: var_decl_list var_decl
 var_decl 	: name_list COLON type_decl SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_VAR_DECL, E_NONE);
-	printTreeNodes(*($$.data.treeNode), 1);
 }
 			;
 
@@ -480,7 +477,7 @@ proc_stmt		: ID
 				}
 				| SYS_PROC LP expression_list RP
 				{
-					$$=newTreeNode({$1,$2},NODE_STMT,S_PROC_SYS_ARG,E_NONE);
+					$$=newTreeNode({$1,$3},NODE_STMT,S_PROC_SYS_ARG,E_NONE);
 				}
 				| READ LP factor RP
 				{

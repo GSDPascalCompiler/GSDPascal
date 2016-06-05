@@ -16,7 +16,7 @@ void Print(TokenType type){
 		case T_SYS_TYPE: printf("SYS_TYPE"); break;
 		case T_SYS_PROC: printf("SYS_PROC"); break;
 		case T_SYS_FUNCT: printf("SYS_FUNC"); break;
-		default: printf("OTHERS"); break;
+		default: printf("OTHERS:%d",type); break;
 	}
 }
 
@@ -29,6 +29,11 @@ void Print(StmtType type){
 		case S_LABEL_PART_NULL: printf("LABEL_PART"); break;
 		case S_CONST_PART_NULL: printf("CONST_PART"); break;
 		case S_CONST_EXPR_MULT_LIST: case S_CONST_EXPR_LIST: printf("CONST_EXPR_LIST"); break;
+		case S_CONST_VALUE_INT: printf("CONST_VALUE_INT"); break;
+		case S_CONST_VALUE_REAL: printf("CONST_VALUE_REAL"); break;
+		case S_CONST_VALUE_CHAR: printf("CONST_VALUE_CHAR"); break;
+		case S_CONST_VALUE_STRING: printf("CONST_VALUE_STRING"); break;
+		case S_CONST_VALUE_SYS_CON: printf("CONST_VALUE_SYS_CON"); break;
 		case S_TYPE_PART: case S_TYPE_PART_NULL: printf("TYPE_PART"); break;
 		case S_TYPE_DECL_LIST: printf("TYPE_DECL_LIST"); break;
 		case S_TYPE_DEFINITION: printf("TYPE_DEFINITION"); break;
@@ -62,7 +67,7 @@ void Print(StmtType type){
 		case S_ARGS: printf("ARGS"); break;
 		case S_ARGS_LIST: case S_ARGS_LIST_EXP: printf("ARGS_LIST"); break;
 		case S_SIMPLE_TYPE_DECL_SYS: printf("S_SIMPLE_TYPE_DECL"); break;
-		default: printf("OTHERS"); break;
+		default: printf("OTHERS:%d",type); break;
 	}
 }
 
@@ -105,11 +110,11 @@ void printTreeNodes(TreeNode root, int level){
           break;
         case T_STRING:
         Print(root.typeValue.tokenType);
-          printf(" = %s\n", root.value.nodeString.s);
+          printf(" = \"%s\"\n", root.value.nodeString.s);
           break;
         case T_ID:
         Print(root.typeValue.tokenType);
-          printf(" = %s\n", root.value.nodeId.id);
+          printf(" = \"%s\"\n", root.value.nodeId.id);
           break;
 		case T_SYS_TYPE:
 			Print(root.typeValue.tokenType);
@@ -129,6 +134,18 @@ void printTreeNodes(TreeNode root, int level){
 				break;
 			default:
 				printf(" = %s\n", "OTHER");
+				break;
+			}
+			break;
+		case T_SYS_PROC:
+			Print(root.typeValue.tokenType);
+			switch (root.value.nodeSysProcVal.sysProcVal)
+			{
+			case PROC_WRITE:
+				printf(" = %s\n", "WRITE");
+				break;
+			case PROC_WRITELN:
+				printf(" = %s\n", "WRITELN");
 				break;
 			}
 			break;
