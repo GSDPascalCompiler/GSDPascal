@@ -127,4 +127,5 @@ typedef struct{
 }Value;
 
 #define YYSTYPE Value
+#define YY_NO_UNISTD_H
 #endif

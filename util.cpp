@@ -66,19 +66,19 @@ void Print(StmtType type){
 
 void Print(ExpType type){
 	switch(type){
-		E_AND: printf("AND"); break;
-		E_MOD: printf("MOD"); break;
-		E_DIV: printf("DIV"); break;
-		E_MUL: printf("MUL"); break;
-		E_OR: printf("OR"); break;
-		E_MINUS: printf("MINUS"); break;
-		E_PLUS: printf("PLUS"); break;
-		E_UNEQUAL: printf("UNEQUAL"); break;
-		E_EQUAL: printf("EQUAL"); break;
-		E_LT: printf("LT"); break;
-		E_LE: printf("LE"); break;
-		E_GT: printf("GT"); break;
-		E_GE: printf("GE"); break;
+		case E_AND: printf("AND"); break;
+		case E_MOD: printf("MOD"); break;
+		case E_DIV: printf("DIV"); break;
+		case E_MUL: printf("MUL"); break;
+		case E_OR: printf("OR"); break;
+		case E_MINUS: printf("MINUS"); break;
+		case E_PLUS: printf("PLUS"); break;
+		case E_UNEQUAL: printf("UNEQUAL"); break;
+		case E_EQUAL: printf("EQUAL"); break;
+		case E_LT: printf("LT"); break;
+		case E_LE: printf("LE"); break;
+		case E_GT: printf("GT"); break;
+		case E_GE: printf("GE"); break;
 	}
 }
 void printTreeNodes(TreeNode root, int level){
