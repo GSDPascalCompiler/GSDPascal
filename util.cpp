@@ -1,5 +1,25 @@
 #include "util.h"
-#include <stdio.h>
+#include <cstdio>
+#include <string>
+#include <bitset>
+#include <iostream>
+
+using namespace std;
+
+const string indent = "    ";
+#define MAXLEVEL  100
+#define OUT stdout
+
+void Print(NodeType type)
+{
+	switch (type)
+	{
+	NODE_TOKEN: cout << "TOKEN"; break;
+	NODE_EXP:cout << "EXP"; break;
+	NODE_STMT:cout << "STMT"; break;
+	default:cout << "UNKNOWN"; break;
+	}
+}
 
 void Print(TokenType type){
 	switch(type){
@@ -28,7 +48,7 @@ void Print(StmtType type){
 		case S_ROUTINE_HEAD: printf("ROUTINE_HEAD"); break;
 		case S_LABEL_PART_NULL: printf("LABEL_PART"); break;
 		case S_CONST_PART_NULL: printf("CONST_PART"); break;
-		case S_CONST_EXPR_MULT_LIST: case S_CONST_EXPR_LIST: printf("CONST_EXPR_LIST"); break;
+		case S_CONST_EXPR_LIST: printf("CONST_EXPR_LIST"); break;
 		case S_CONST_VALUE_INT: printf("CONST_VALUE_INT"); break;
 		case S_CONST_VALUE_REAL: printf("CONST_VALUE_REAL"); break;
 		case S_CONST_VALUE_CHAR: printf("CONST_VALUE_CHAR"); break;
@@ -45,10 +65,10 @@ void Print(StmtType type){
 		case S_FUNCTION_HEAD: printf("FUNCTION_HEAD"); break;
 		case S_PROCEDURE_DECL: printf("PROCEDURE_DECL"); break;
 		case S_PROCEDURE_HEAD: printf("PROCEDURE_HEAD"); break;
-		case S_PARAMETERS_NULL: case S_PARA_DECL_MULTI_LIST: printf("VAR_DECL_LIST"); break;
+		case S_PARAMETERS_NULL: printf("VAR_DECL_LIST"); break;
 		case S_PARA_TYPE_LIST_VAR: case S_PARA_TYPE_LIST_VAL: printf("PARA_TYPE_LIST"); break;
 		case S_COMPOUND_STMT: printf("COUNPOUND_STMT"); break;
-		case S_STMT_LIST: case S_STMT_LIST_NULL: printf("STMT_LIST"); break;
+		case S_STMT_LIST: printf("STMT_LIST"); break;
 		case S_STMT: printf("STMT");
 		case S_ASSIGN: case S_ASSIGN_ARRAY: case S_ASSIGN_RECORD: printf("ASSIGN_STMT"); break;
 		case S_PROC: case S_PROC_FUNC: case S_PROC_SYS: case S_PROC_SYS_ARG: case S_PROC_READ: printf("PROC_STMT"); break;
@@ -88,85 +108,41 @@ void Print(ExpType type){
 		case E_GE: printf("GE"); break;
 	}
 }
-void printTreeNodes(TreeNode root, int level){
-	/*for(int i = 0; i < level; ++i)
-      printf("----");
-  if(root.nodeType == NODE_TOKEN){
-    
-    printf("token: "); 
-    switch (root.typeValue.tokenType)
-    {
-        case T_INTEGER:
-        	Print(root.typeValue.tokenType);
-          printf(" = %d\n", root.value.nodeInteger.i);
-          break;
-        case T_REAL:
-        Print(root.typeValue.tokenType);
-          printf(" = %lf\n", root.value.nodeReal.r);
-          break;
-        case T_CHAR:
-        Print(root.typeValue.tokenType);
-          printf(" = %c\n", root.value.nodeChar.c);
-          break;
-        case T_STRING:
-        Print(root.typeValue.tokenType);
-          printf(" = \"%s\"\n", root.value.nodeString.s);
-          break;
-        case T_ID:
-        Print(root.typeValue.tokenType);
-          printf(" = \"%s\"\n", root.value.nodeId.id);
-          break;
-		case T_SYS_TYPE:
-			Print(root.typeValue.tokenType);
-			switch (root.value.nodeSysTypeVal.sysTypeVal)
-			{
-			case TYPE_BOOLEAN:
-				printf(" = %s\n", "BOOLEAN");
-				break;
-			case TYPE_CHAR:
-				printf(" = %s\n", "CHAR");
-				break;
-			case TYPE_INTEGER:
-				printf(" = %s\n", "INTEGER");
-				break;
-			case TYPE_REAL:
-				printf(" = %s\n", "REAL");
-				break;
-			default:
-				printf(" = %s\n", "OTHER");
-				break;
-			}
-			break;
-		case T_SYS_PROC:
-			Print(root.typeValue.tokenType);
-			switch (root.value.nodeSysProcVal.sysProcVal)
-			{
-			case PROC_WRITE:
-				printf(" = %s\n", "WRITE");
-				break;
-			case PROC_WRITELN:
-				printf(" = %s\n", "WRITELN");
-				break;
-			}
-			break;
-        default:
-          Print(root.typeValue.tokenType); puts("");
-          ;
-    }
-  }
-  else{
-  	if(root.nodeType == NODE_STMT){
-  		printf("stmt: "); Print(root.typeValue.stmtType); printf("\n");
-  	}
-  	else if(root.nodeType == NODE_EXP){
-  		printf("expr: ");  Print(root.typeValue.expType); printf("\n");
-  	}
-    for(int i = 0; i < 10; ++i){
-      if(root.child[i] != nullptr){
-        printTreeNodes(*(root.child[i]), level+1);
-      }
-    }
-  }*/
+
+void PrintNode(TreeNode* node)
+{
+	switch (node->nodeType)
+	{
+	case NODE_TOKEN: Print(node->typeValue.tokenType); break;
+	case NODE_EXP:	Print(node->typeValue.expType);	break;
+	case NODE_STMT:	Print(node->typeValue.stmtType); break;
+	default:cout << "UNKNOWN"; break;
+	}
+}
+
+bitset<MAXLEVEL> parentIsLast;
+void printTreeNodes(TreeNode *root, int level)
+{
+	if (level == 0)
+		cout << endl << endl;
+	if (root == nullptr)
+		return;
+	for (int i = 0; i < level; i++)
+	{
+		if (!parentIsLast[i])
+			cout << "|";
+		cout << indent;
+	}
+	cout << "|-";
+	PrintNode(root);
+	cout << endl;
+	if (root->rightSibling == nullptr)
+		parentIsLast.set(level);
+	else
+		parentIsLast.reset(level);
+	TreeNode *p = root->leftChild;
+	for (; p != nullptr; p = p->rightSibling)
+		printTreeNodes(p, level + 1);
 }
 
 

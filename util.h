@@ -3,7 +3,7 @@
 #include "global.h"
 #include <stdio.h>
 
-void printTreeNodes(TreeNode root, int level);
+void printTreeNodes(TreeNode *root, int level);
 void printParseTree(TreeNode *root);
 
 #endif

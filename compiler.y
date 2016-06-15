@@ -32,7 +32,7 @@ int yyerror(const char *s){
 program 	: program_head routine DOT
 {
 	$$ = newTreeNode({$1, $2}, NODE_STMT, S_PROGRAM, E_NONE);
-	printTreeNodes(*($$.data.treeNode), 1);
+	printTreeNodes($$.data.treeNode, 0);
 }
 			;
 
@@ -234,15 +234,21 @@ field_decl 	: name_list COLON type_decl SEMI
 }
 			;
 
-name_list	: name_list COMMA ID
+name_list	: name_list COMMA name
 {
 	$$ = linkTreeNode($1, $3);
 }
-			| ID
+			| name
 {
 	$$ = newTreeNode({$1}, NODE_STMT, S_NAME_LIST,E_NONE);
 }
 			;
+
+name:ID
+{
+$$ = newTreeNode({$1}, NODE_STMT, S_NAME,E_NONE);
+}
+;
 
 var_part	: VAR var_decl_list
 {

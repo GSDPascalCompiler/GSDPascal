@@ -9,6 +9,8 @@ TreeNode *newALeafNode(YYSTYPE &child)
 	childTreeNode->typeValue.tokenType = child.tokenType;
 	childTreeNode->lineno = child.lineno;
 	childTreeNode->column = child.column;
+	childTreeNode->leftChild = nullptr;
+	childTreeNode->rightSibling = nullptr;
 	switch (child.tokenType)
 	{
 	case T_INTEGER:
@@ -71,19 +73,18 @@ YYSTYPE newTreeNode(const initializer_list<YYSTYPE> &children, \
 				treeNode->leftChild = child.data.treeNode;
 			else
 				treeNode->leftChild = newALeafNode(child);
-			lastSibling = treeNode->leftChild->rightSibling;
+			lastSibling = treeNode->leftChild;
 		}
 		else	//insert the lastSibling
 		{
 			if (child.tokenType == T_NONLEAF)
-				lastSibling = child.data.treeNode;
+				lastSibling->rightSibling = child.data.treeNode;
 			else
-				lastSibling = newALeafNode(child);
+				lastSibling->rightSibling = newALeafNode(child);
 			lastSibling = lastSibling->rightSibling;
 		}
 		++i;
 	}
-	lastSibling = nullptr;
 	newNode.data.treeNode = treeNode;
 	newNode.tokenType = T_NONLEAF;
 	if (children.size()){
@@ -103,7 +104,10 @@ YYSTYPE linkTreeNode(YYSTYPE &parent, YYSTYPE &sibling)
 	}
 
 	TreeNode *p;
-	for ( p= parent.data.treeNode->leftChild; p->rightSibling != nullptr;p = p->rightSibling);
+	for (p = parent.data.treeNode->leftChild; 
+		p->rightSibling != nullptr; 
+		p = p->rightSibling)
+		1 +1;
 	//now p is the last sibling
 	p->rightSibling = sibling.data.treeNode;
 	return parent;

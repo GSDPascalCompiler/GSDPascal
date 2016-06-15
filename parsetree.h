@@ -5,8 +5,11 @@
 #include <exception>
 #include <initializer_list>
 
+TreeNode *newALeafNode(YYSTYPE &child);
+
 YYSTYPE newTreeNode(const std::initializer_list<YYSTYPE> &children, \
                     const NodeType nodeType, \
                     const StmtType stmtType, \
                     const ExpType expType);
+YYSTYPE linkTreeNode(YYSTYPE &parent, YYSTYPE &sibling);
 #endif
