@@ -88,7 +88,7 @@ label_part	:
 
 const_part	: CONST const_expr_list
 {
-	$$ = $1;
+	$$ = newTreeNode({$2}, NODE_STMT, S_CONST_PART, E_NONE);;
 }
 			|
 {
@@ -96,15 +96,21 @@ const_part	: CONST const_expr_list
 }
 			;
 
-const_expr_list	: const_expr_list ID EQUAL const_value SEMI
+const_expr_list	: const_expr_list const_expr
 {
-	$$ = newTreeNode({$1, $2, $4}, NODE_STMT, S_CONST_EXPR_MULT_LIST, E_NONE);
+	$$ = linkTreeNode($1, $2);
 }
-				| ID EQUAL const_value SEMI
+				| const_expr
 {
-	$$ = newTreeNode({$1, $3}, NODE_STMT, S_CONST_EXPR_LIST, E_NONE);
+	$$ = newTreeNode({$1}, NODE_STMT, S_CONST_EXPR_LIST, E_NONE);
 }
 				;
+
+const_expr 	: ID EQUAL const_value SEMI
+{
+	$$ = newTreeNode({$1, $3}, NODE_STMT, S_CONST_EXPR, E_NONE);
+}
+			;
 
 const_value	: INTEGER
 {
@@ -140,11 +146,11 @@ type_part	: TYPE type_decl_list
 
 type_decl_list	: type_decl_list type_definition
 {
-	$$ = newTreeNode({$1, $2}, NODE_STMT, S_TYPE_DECL_LIST, E_NONE);
+	$$ = linkTreeNode($1, $2);
 }
 				| type_definition
 {
-	$$ = $1;
+	$$ = newTreeNode({$1}, NODE_STMT, S_TYPE_DECL_LIST, E_NONE);;
 }
 				;
 
@@ -156,15 +162,17 @@ type_definition	: ID EQUAL type_decl SEMI
 
 type_decl 	: simple_type_decl
 {
-	$$ = $1;
+	$$ = newTreeNode({$1}, NODE_STMT, S_TYPE_DECL_SIMPLE, E_NONE);
 }
 			| array_type_decl
 {
-	$$ = $1;
+	$$ = newTreeNode({$1}, NODE_STMT, S_TYPE_DECL_ARRAY, E_NONE);
+
 }
 			| record_type_decl
 {
-	$$ = $1;
+	$$ = newTreeNode({$1}, NODE_STMT, S_TYPE_DECL_RECORD, E_NONE);
+
 }
 			;
 
@@ -174,11 +182,11 @@ simple_type_decl	: SYS_TYPE
 }
 					| ID
 {
-	$$ = $1;
+	$$ = newTreeNode({$1}, NODE_STMT,S_SIMPLE_TYPE_DECL_ID,E_NONE);
 }
 					| LP name_list RP
 {
-	$$ = $2;
+	$$ = newTreeNode({$1}, NODE_STMT,S_SIMPLE_TYPE_DECL_NAME_LIST,E_NONE);
 }
 					| const_value DOT DOT const_value
 {
@@ -206,17 +214,17 @@ array_type_decl		: ARRAY LB simple_type_decl RB OF type_decl
 
 record_type_decl	: RECORD field_decl_list END
 {
-	$$ = $1;
+	$$ = newTreeNode({$2}, NODE_STMT, S_RECORD_TYPE_DECL, E_NONE);
 }
 					;
 
 field_decl_list		: field_decl_list field_decl
 {
-	$$ = newTreeNode({$1, $2}, NODE_STMT, S_FILED_DECL_LIST, E_NONE);
+	$$ = linkTreeNode($1, $2);
 }
 					| field_decl
 {
-	$$ = $1;
+	$$ = newTreeNode({$1}, NODE_STMT, S_FILED_DECL_LIST, E_NONE);
 }
 					;
 
@@ -228,17 +236,17 @@ field_decl 	: name_list COLON type_decl SEMI
 
 name_list	: name_list COMMA ID
 {
-	$$ = newTreeNode({$1, $3}, NODE_STMT, S_NAME_LIST, E_NONE);
+	$$ = linkTreeNode($1, $3);
 }
 			| ID
 {
-	$$ = newTreeNode({$1}, NODE_STMT, S_NAME_LIST_ID,E_NONE);
+	$$ = newTreeNode({$1}, NODE_STMT, S_NAME_LIST,E_NONE);
 }
 			;
 
 var_part	: VAR var_decl_list
 {
-	$$ = $2;
+	$$ = newTreeNode({$2}, NODE_STMT, S_VAR_PART, E_NONE);
 }
 			|
 {
@@ -248,11 +256,11 @@ var_part	: VAR var_decl_list
 
 var_decl_list	: var_decl_list var_decl
 {
-	$$ = newTreeNode({$1, $2}, NODE_STMT, S_VAR_DECL_LIST, E_NONE);
+	$$ = linkTreeNode($1, $2);
 }
 				| var_decl
 {
-	$$ = $1;
+	$$ = newTreeNode({$1}, NODE_STMT, S_VAR_DECL_LIST, E_NONE);
 }
 				;
 
@@ -290,11 +298,11 @@ routine_part	: routine_part function_decl
 }
 				| function_decl
 {
-	$$ = $1;
+	$$ = newTreeNode({$1}, NODE_STMT, S_ROUTINE_PART_FUNC_DECL, E_NONE);
 }
 				| procedure_decl
 {
-	$$ = $1;
+	$$ = newTreeNode({$1}, NODE_STMT, S_ROUTINE_PART_PROC_DECL, E_NONE);
 }
 				|
 {
@@ -328,7 +336,7 @@ procedure_head	: PROCEDURE ID parameters
 
 parameters		: LP para_decl_list RP
 {
-	$$ = $1;
+	$$ = newTreeNode({$2}, NODE_STMT, S_PARAMETERS, E_NONE);
 }
 				|
 {
@@ -338,11 +346,11 @@ parameters		: LP para_decl_list RP
 
 para_decl_list	: para_decl_list SEMI para_type_list
 {
-	$$ = newTreeNode({$1, $3}, NODE_STMT, S_PARA_DECL_MULTI_LIST, E_NONE);
+	$$ = linkTreeNode($1, $3)
 }
 				| para_type_list
 {
-	$$ = $1;
+	$$ = newTreeNode({$1}, NODE_STMT, S_PARA_DECL_LIST, E_NONE);
 }
 				;
 
@@ -358,13 +366,13 @@ para_type_list	: var_para_list COLON simple_type_decl
 
 var_para_list	: VAR name_list
 				{
-					$$=$2;
+					$$=newTreeNode({$2}, NODE_STMT, S_VAR_PARA_LIST, E_NONE);
 				}
 				;
 
 val_para_list	: name_list
 				{
-					$$=$1;
+					$$=newTreeNode({$1}, NODE_STMT, S_VAL_PARA_LIST, E_NONE);
 				}
 				;
 
@@ -381,7 +389,7 @@ val_para_list	: name_list
 
 routine_body	: compound_stmt
 				{
-					$$=$1;
+					$$=newTreeNode({$1},NODE_STMT,S_ROUTINE_BODY,E_NONE);
 				}
 				;
 
@@ -393,11 +401,11 @@ compound_stmt	: BEG stmt_list END
 
 stmt_list	: stmt_list stmt SEMI
 			{
-				$$=newTreeNode({$1,$2},NODE_STMT,S_STMT_LIST,E_NONE);
+				$$=linkTreeNode($1, $2);
 			}
 			|
 			{
-				$$=newTreeNode({}, NODE_STMT, S_STMT_LIST_NULL, E_NONE);
+				$$=newTreeNode({}, NODE_STMT, S_STMT_LIST, E_NONE);
 			}
 			;
 
@@ -407,7 +415,7 @@ stmt 		: INTEGER COLON non_label_stmt
 			}
 			| non_label_stmt
 			{
-				$$=$1;
+				$$=newTreeNode({$1},NODE_STMT,S_STMT_NON,E_NONE);
 			}
 			;
 
@@ -534,11 +542,11 @@ case_stmt		: CASE expression OF case_expr_list END
 
 case_expr_list	: case_expr_list case_expr
 				{
-					$$=newTreeNode({$1,$2},NODE_STMT,S_CASE_EXPR_LIST,E_NONE);
+					$$=linkTreeNode($1, $2);
 				}
 				| case_expr
 				{
-					$$=$1;
+					$$=newTreeNode({$1},NODE_STMT,S_CASE_EXPR_LIST,E_NONE);
 				}
 				;
 
@@ -560,11 +568,11 @@ goto_stmt		: GOTO INTEGER
 
 expression_list	: expression_list COMMA expression
 				{
-					$$=newTreeNode({$1, $3},NODE_STMT,S_EXPRESSION_LIST,E_NONE);
+					$$=linkTreeNode($1, $3);
 				}
 				| expression
 				{
-					$$=$1;
+					$$=newTreeNode({$1},NODE_STMT,S_EXPRESSION_LIST,E_NONE);
 				}
 				;
 
@@ -680,20 +688,25 @@ factor	:SYS_FUNCT
 		}
 		;
 
-args 		: args_list {/*new added*/}
+args 		: args_list 
 			{
 				$$=newTreeNode({$1},NODE_STMT,S_ARGS,E_NONE);
 			}
 			|
+			{
+			
+				$$=newTreeNode({},NODE_STMT,S_ARGS_NULL,E_NONE);
+			
+			}
 			;
 
 args_list	: args_list COMMA expression
 			{
-				$$=newTreeNode({$1, $3},NODE_STMT,S_ARGS_LIST,E_NONE);
+				$$=linkTreeNode($1, $3);
 			}
 			| expression
 			{
-				$$=newTreeNode({$1},NODE_STMT,S_ARGS_LIST_EXP,E_NONE);
+				$$=newTreeNode({$1},NODE_STMT,S_ARGS_LIST,E_NONE);
 			}
 			;
 %%
