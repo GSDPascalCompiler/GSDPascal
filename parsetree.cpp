@@ -57,11 +57,8 @@ YYSTYPE newTreeNode(const initializer_list<YYSTYPE> &children, \
 	if (nodeType == NODE_EXP)
 		treeNode->typeValue.expType = expType;
 
-	for (int i = 0; i < MAX_CHILD_NUM; ++i)
-	{
-		treeNode->value.nodeNonleaf.leftChild = nullptr;
-		treeNode->value.nodeNonleaf.rightSibling = nullptr;
-	}
+	treeNode->value.nodeNonleaf.leftChild = nullptr;
+	treeNode->value.nodeNonleaf.rightSibling = nullptr;
 
 	int i = 0;
 	for (auto child : children)
