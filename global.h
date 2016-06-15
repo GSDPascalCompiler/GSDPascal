@@ -91,7 +91,9 @@ typedef struct TagTreeNode TreeNode;
 
 /*Non-leaf node types*/
 typedef struct TagNonleaf{
-	TagTreeNode *child[MAX_CHILD_NUM];
+	TagTreeNode *leftChild;
+	TagTreeNode *rightSibling;
+	//TagTreeNode *child[MAX_CHILD_NUM];
 }NodeNonleaf;
 
 /*The general node in parsetree*/
