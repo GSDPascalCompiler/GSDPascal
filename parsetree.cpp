@@ -57,30 +57,33 @@ YYSTYPE newTreeNode(const initializer_list<YYSTYPE> &children, \
 	if (nodeType == NODE_EXP)
 		treeNode->typeValue.expType = expType;
 
-	treeNode->value.nodeNonleaf.leftChild = nullptr;
-	treeNode->value.nodeNonleaf.rightSibling = nullptr;
+	treeNode->leftChild = nullptr;
+	treeNode->rightSibling = nullptr;
 
 	int i = 0;
+	TreeNode *lastSibling = nullptr;
 	for (auto child : children)
 	{
 		//first child, insert into the child
 		if (i == 0)
 		{
 			if (child.tokenType == T_NONLEAF)
-				treeNode->value.nodeNonleaf.leftChild = child.data.treeNode;
+				treeNode->leftChild = child.data.treeNode;
 			else
-				treeNode->value.nodeNonleaf.leftChild = newALeafNode(child);
-			
+				treeNode->leftChild = newALeafNode(child);
+			lastSibling = treeNode->leftChild->rightSibling;
 		}
-		else
+		else	//insert the lastSibling
 		{
 			if (child.tokenType == T_NONLEAF)
-				treeNode->value.nodeNonleaf.rightSibling = child.data.treeNode;
+				lastSibling = child.data.treeNode;
 			else
-				treeNode->value.nodeNonleaf.rightSibling = newALeafNode(child);
+				lastSibling = newALeafNode(child);
+			lastSibling = lastSibling->rightSibling;
 		}
 		++i;
 	}
+	lastSibling = nullptr;
 	newNode.data.treeNode = treeNode;
 	newNode.tokenType = T_NONLEAF;
 	if (children.size()){
@@ -93,14 +96,15 @@ YYSTYPE newTreeNode(const initializer_list<YYSTYPE> &children, \
 
 YYSTYPE linkTreeNode(YYSTYPE &parent, YYSTYPE &sibling)
 {
-	if (parent.data.treeNode->value.nodeNonleaf.leftChild == nullptr)
+	if (parent.data.treeNode->leftChild == nullptr)
 	{
-		parent.data.treeNode->value.nodeNonleaf.leftChild = sibling.data.treeNode;
-		return;
+		parent.data.treeNode->leftChild = sibling.data.treeNode;
+		return parent;
 	}
 
 	TreeNode *p;
-	for ( p= parent.data.treeNode->value.nodeNonleaf.leftChild; p->value.nodeNonleaf.rightSibling != nullptr;p = p->value.nodeNonleaf.rightSibling);
+	for ( p= parent.data.treeNode->leftChild; p->rightSibling != nullptr;p = p->rightSibling);
 	//now p is the last sibling
-	p->value.nodeNonleaf.rightSibling = sibling.data.treeNode;
+	p->rightSibling = sibling.data.treeNode;
+	return parent;
 }

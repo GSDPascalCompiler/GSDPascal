@@ -89,7 +89,7 @@ void Print(ExpType type){
 	}
 }
 void printTreeNodes(TreeNode root, int level){
-	for(int i = 0; i < level; ++i)
+	/*for(int i = 0; i < level; ++i)
       printf("----");
   if(root.nodeType == NODE_TOKEN){
     
@@ -162,11 +162,11 @@ void printTreeNodes(TreeNode root, int level){
   		printf("expr: ");  Print(root.typeValue.expType); printf("\n");
   	}
     for(int i = 0; i < 10; ++i){
-      if(root.value.nodeNonleaf.child[i] != nullptr){
-        printTreeNodes(*(root.value.nodeNonleaf.child[i]), level+1);
+      if(root.child[i] != nullptr){
+        printTreeNodes(*(root.child[i]), level+1);
       }
     }
-  }
+  }*/
 }
 
 

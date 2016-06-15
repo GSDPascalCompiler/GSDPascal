@@ -87,38 +87,39 @@ typedef struct{
   SysTypeVal sysTypeVal;
 }NodeSysTypeVal;
 
-typedef struct TagTreeNode TreeNode;
+//typedef struct TagTreeNode TreeNode;
 
 /*Non-leaf node types*/
-typedef struct TagNonleaf{
-	TagTreeNode *leftChild;
-	TagTreeNode *rightSibling;
-	//TagTreeNode *child[MAX_CHILD_NUM];
-}NodeNonleaf;
+//typedef struct TagNonleaf{
+//	TagTreeNode *leftChild;
+//	TagTreeNode *rightSibling;
+//	TagTreeNode *child[MAX_CHILD_NUM];
+//}NodeNonleaf;
 
 /*The general node in parsetree*/
-typedef struct TagTreeNode{
+typedef struct TreeNode{
 	NodeType nodeType;
 	union{
-			TokenType tokenType;
-			ExpType expType;
-			StmtType stmtType;
+		TokenType tokenType;
+		ExpType expType;
+		StmtType stmtType;
 	}typeValue;
 	int lineno;
 	int column;
+	struct TreeNode *leftChild;
+	struct TreeNode *rightSibling;
 	union{
 		NodeInteger nodeInteger;
 		NodeReal nodeReal;
 		NodeChar nodeChar;
 		NodeString nodeString;
 		NodeId nodeId;
-    NodeSysConVal nodeSysConVal;
-    NodeSysFunctVal nodeSysFunctVal;
-    NodeSysTypeVal nodeSysTypeVal;
-    NodeSysProcVal nodeSysProcVal;
-		NodeNonleaf nodeNonleaf;
+		NodeSysConVal nodeSysConVal;
+		NodeSysFunctVal nodeSysFunctVal;
+		NodeSysTypeVal nodeSysTypeVal;
+		NodeSysProcVal nodeSysProcVal;
 	}value;
-}TreeNode;
+} TreeNode;
 
 typedef struct{
 	union{
@@ -127,10 +128,10 @@ typedef struct{
 		int i;
 		char c;
 		char s[MAX_STR_LEN];
-    SysConVal sysConVal;
-    SysFunctVal sysFunctVal;
-    SysProcVal sysProcVal;
-    SysTypeVal sysTypeVal;
+		SysConVal sysConVal;
+		SysFunctVal sysFunctVal;
+		SysProcVal sysProcVal;
+		SysTypeVal sysTypeVal;
 	}data;
 	TokenType tokenType;
 	int lineno;
