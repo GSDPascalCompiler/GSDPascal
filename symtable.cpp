@@ -2,12 +2,10 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "global.h"
 using namespace std;
 
-struct Sym {
-  string name;
-  int val;
-};
+typedef SymbolItem Sym;
 
 class Symtable {
   map<string, vector<Sym> > table;
@@ -22,11 +20,11 @@ public:
 
 void Symtable::addIntoSymtable(Sym sym) {
   map<string, vector<Sym> >::iterator iter;
-  if ((iter = table.find(sym.name)) == table.end()) {
+  if ((iter = table.find(sym.symbolName)) == table.end()) {
     vector<Sym> vec;
     vec.clear();
     vec.push_back(sym);
-    table.insert(make_pair(sym.name, vec));
+    table.insert(make_pair(sym.symbolName, vec));
   } else {
     // for (int i = 0; i < iter->second.size(); i++)
       // cout << iter->second[i].name << endl;
