@@ -44,7 +44,7 @@ enum TokenType{T_READ, T_TYPE, //
 	 S_NONE};
 
 enum ExpType{E_AND,E_MOD,E_DIV,E_MUL,E_OR,E_MINUS,E_PLUS,E_UNEQUAL,E_EQUAL,E_LT,E_LE,E_GT,E_GE,E_NONE};
-enum AttrType{ A_INTEGER, A_REAL, A_CHAR, A_STRING };
+enum AttrType{ A_INTEGER, A_REAL, A_CHAR, A_STRING, A_BOOL };
 
 enum SysConVal{CON_FALSE, CON_MAXINT, CON_TRUE};
 enum SysFunctVal{FUNCT_ABS, FUNCT_CHR, FUNCT_ODD, FUNCT_ORD, FUNCT_PRED, FUNCT_SQR, FUNCT_SQRT, FUNCT_SUCC};
@@ -148,7 +148,7 @@ typedef struct{
 }Value;
 
 typedef struct SymbolItem{
-  TokenType symbolType;
+  AttrType symbolType;
   string symbolName;
   int beginIndex, endIndex;
   struct SymbolItem *arrayItemType;

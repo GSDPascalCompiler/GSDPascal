@@ -28,4 +28,14 @@ bool computeStmtCase(YYSTYPE &root);
 bool computeStmtCaseExprList(YYSTYPE &root);
 bool computeStmtCaseExprId(YYSTYPE &root);
 bool computeStmtCaseExprConst(YYSTYPE &root);
+bool computeStmtExpressionList(YYSTYPE &root);
+bool computeStmtExpressionCompare(YYSTYPE &root);
+bool computeStmtExpressionArithmetic(YYSTYPE &root);
+bool computeStmtFactorSysFunct(YYSTYPE &root);
+bool computeStmtAssignToParent(YYSTYPE &root);
+bool computeStmtFactorArray(YYSTYPE &root);
+bool computeStmtFactorFunc(YYSTYPE &root);
+bool computeStmtFactorRecord(YYSTYPE &root);
+bool computeStmtFactorID(YYSTYPE &root);
+
 #endif

@@ -132,7 +132,19 @@ bool computeToken(YYSTYPE &root)
 bool computeExp(YYSTYPE &root)
 {
 	switch (root.data.treeNode->typeValue.expType) {
-	case 1:;
+	case E_GE:
+	case E_GT:
+	case E_LE:
+	case E_LT:
+	case E_EQUAL:
+	case E_UNEQUAL: return computeStmtExpressionCompare(root);
+	case E_PLUS:
+	case E_MINUS:
+	case E_OR:
+	case E_MUL:
+	case E_DIV:
+	case E_MOD:
+	case E_AND: return computeStmtExpressionArithmetic(root);
 	}
 	return true;
 }
@@ -143,6 +155,19 @@ bool computeStmt(YYSTYPE &root)
 	case S_CASE: return computeStmtCase(root);
 	case S_CASE_EXPR_LIST: return computeStmtCaseExprList(root);
 	case S_CASE_EXPR_ID:return computeStmtCaseExprId(root);
+	case S_EXPRESSION_LIST:return computeStmtExpressionList(root);
+	case S_FACTOR_SYS:
+	case S_FACTOR_SYS_ARG:return computeStmtFactorSysFunct(root);
+	case S_FACTOR_ARRAY:return computeStmtFactorArray(root);
+	case S_FACTOR_FUNC:return computeStmtFactorFunc(root);
+	case S_FACTOR_RECORD:return computeStmtFactorRecord(root);
+	case S_FACTOR_ID:return computeStmtFactorID(root);
+	case S_ARGS:
+	case S_ARGS_NULL:
+	case S_GOTO:
+	case S_FACTOR_NOT:
+	case S_FACTOR_MINUS:
+		return computeStmtAssignToParent(root);
 	}
 	return true;
 }
@@ -188,7 +213,7 @@ bool computeStmtCaseExprId(YYSTYPE & root)
 		Debug("String in case is not supported");
 		return false;
 	}
-	root.data.treeNode->attribute.attrType = ->attribute.attrType;
+	root.data.treeNode->attribute.attrType = IdType->symbolType;
 	return true;
 }
 
@@ -205,3 +230,158 @@ bool computeStmtCaseExprConst(YYSTYPE & root)
 	return true;
 }
 
+bool computeStmtExpressionList(YYSTYPE & root)
+{
+	return false;
+}
+
+bool computeStmtExpressionCompare(YYSTYPE & root)
+{
+	auto leftOperand = root.data.treeNode->leftChild;
+	auto rightOperand = root.data.treeNode->leftChild->rightSibling;
+	if (leftOperand->attribute.attrType != rightOperand->attribute.attrType)
+	{
+		Debug("Left hand side operand does not match right hand side operand");
+		return false;
+	}
+	root.data.treeNode->attribute.attrType = A_BOOL;
+	return true;
+}
+
+bool computeStmtExpressionArithmetic(YYSTYPE &root)
+{
+	auto leftOperand = root.data.treeNode->leftChild;
+	auto rightOperand = root.data.treeNode->leftChild->rightSibling;
+	if (leftOperand->attribute.attrType != rightOperand->attribute.attrType)
+	{
+		Debug("Left hand side operand does not match right hand side operand");
+		return false;
+	}
+	root.data.treeNode->attribute.attrType = leftOperand->attribute.attrType;
+	return true;
+}
+
+bool computeStmtFactorSysFunct(YYSTYPE & root)
+{
+	auto argsList = root.data.treeNode->leftChild->rightSibling;
+	/*将返回值的类型赋给root*/
+	switch (root.data.sysFunctVal)
+	{
+	case FUNCT_ABS: 
+		if (argsList->attribute.attrType == A_INTEGER || argsList->attribute.attrType == A_REAL)
+		{
+			root.data.treeNode->attribute.attrType = argsList->attribute.attrType;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys abs");
+			return false;
+		}
+		break;
+	case FUNCT_CHR:
+		if (argsList->attribute.attrType == A_INTEGER)
+		{
+			root.data.treeNode->attribute.attrType = A_CHAR;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys chr");
+			return false;
+		}
+		break;
+	case FUNCT_ODD:
+		if (argsList->attribute.attrType == A_INTEGER)
+		{
+			root.data.treeNode->attribute.attrType =A_BOOL;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys odd");
+			return false;
+		}
+		break;
+	case FUNCT_ORD:
+		if (argsList->attribute.attrType == A_CHAR)
+		{
+			root.data.treeNode->attribute.attrType = A_INTEGER;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys ord");
+			return false;
+		}
+		break;
+	case FUNCT_PRED:
+		if (argsList->attribute.attrType == A_INTEGER || argsList->attribute.attrType == A_CHAR)
+		{
+			root.data.treeNode->attribute.attrType = argsList->attribute.attrType;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys pred");
+			return false;
+		}
+		break;
+	case FUNCT_SQR:
+		if (argsList->attribute.attrType == A_INTEGER || argsList->attribute.attrType == A_REAL)
+		{
+			root.data.treeNode->attribute.attrType = argsList->attribute.attrType;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys sqr");
+			return false;
+		}
+		break;
+	case FUNCT_SQRT:
+		if (argsList->attribute.attrType == A_INTEGER || argsList->attribute.attrType == A_REAL)
+		{
+			root.data.treeNode->attribute.attrType = argsList->attribute.attrType;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys sqrt");
+			return false;
+		}
+		break;
+	case FUNCT_SUCC:
+		if (argsList->attribute.attrType == A_INTEGER || argsList->attribute.attrType == A_CHAR)
+		{
+			root.data.treeNode->attribute.attrType = argsList->attribute.attrType;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys pred");
+			return false;
+		}
+		break;
+	}
+	return true;
+}
+
+bool computeStmtAssignToParent(YYSTYPE & root)
+{
+	//Assign the child's attribute to the parent
+	root.data.treeNode->attribute.attrType = root.data.treeNode->leftChild->attribute.attrType;
+	return true;
+}
+
+bool computeStmtFactorArray(YYSTYPE & root)
+{
+	return true;
+}
+
+bool computeStmtFactorFunc(YYSTYPE & root)
+{
+	return true;
+}
+
+bool computeStmtFactorRecord(YYSTYPE & root)
+{
+	return true;
+}
+
+bool computeStmtFactorID(YYSTYPE & root)
+{
+	return true;
+}
