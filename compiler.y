@@ -40,6 +40,7 @@ program 	: program_head routine DOT
 program_head	: PROGRAM ID SEMI
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_PROGRAM_HEAD, E_NONE);
+	computeAttrGrammar($$);
 }
 			;
 
@@ -109,6 +110,7 @@ const_expr_list	: const_expr_list const_expr
 const_expr 	: ID EQUAL const_value SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_CONST_EXPR, E_NONE);
+	computeAttrGrammar($$);
 }
 			;
 
@@ -157,6 +159,7 @@ type_decl_list	: type_decl_list type_definition
 type_definition	: ID EQUAL type_decl SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_TYPE_DEFINITION, E_NONE);
+	computeAttrGrammar($$);
 }
 				;
 
@@ -281,8 +284,10 @@ var_decl_list	: var_decl_list var_decl
 var_decl 	: name_list COLON type_decl SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_VAR_DECL, E_NONE);
+	computeAttrGrammar($$);
 }
 			;
+
 
 
 

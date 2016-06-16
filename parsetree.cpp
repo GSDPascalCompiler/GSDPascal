@@ -137,6 +137,96 @@ bool computeExp(YYSTYPE &root)
 bool computeStmt(YYSTYPE &root)
 {
   switch(root.data.treeNode->typeValue.stmtType){
-    case
+    case S_PROGRAM_HEAD:
+    {
+    	SymbolItem *sym = new SymbolItem();
+    	sym->symbolType = T_VOID;
+    	sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
+    	sym->leftable = false;
+    	symtable.addIntoSymtable(sym);
+    	break;
+    }
+    case S_CONST_EXPR: //need modify
+    {
+    	SymbolItem *sym = new SymbolItem();
+    	switch(root.data.treeNode->leftChild->rightSibling.typeValue.stmtType)
+    	{
+    		case S_CONST_VALUE_INT: sym->symbolType = T_INTEGER; break;
+    		case S_CONST_VALUE_REAL: sym->symbolType = T_REAL; break;
+    		case S_CONST_VALUE_CHAR: sym->symbolType = T_CHAR; break;
+    		case S_CONST_VALUE_STRING: sym->symbolType = T_STRING; break;
+    		case S_CONST_VALUE_SYS_CON: sym->symbolType = T_CONST; break;
+    	}
+    	sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
+    	sym->leftable = false;
+    	symtable.addIntoSymtable(sym);
+    	break;
+    }
+    case S_TYPE_DEFINITION:
+    {
+    	SymbolItem *sym = computeType(root.data.treeNode->leftChild->rightSibling->leftChild);
+    	sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
+    	sym->leftable = false;
+    	symtable.addIntoSymtable(sym);
+    	break;
+    }
+    case S_VAR_DECL:
+    {
+    	TreeNode *nameList = root.data.treeNode->leftChild;
+    	for(TreeNode *p = namelist->leftChild; p != nullptr; p = p->rightSibling)
+    	{
+    		SymbolItem *sym = computeType(namelist->rightSibling);
+    		sym->symbolName = p->leftChild->value.nodeId.id;
+    		sym->leftable = true;
+    		symtable.addIntoSymtable(sym);
+    	}
+    	break;
+    }
   }
+}
+
+SymbolItem* computeType(TreeNode *type){
+	SymbolItem *sym = new SymbolItem();
+	switch(type->leftChild->typeValue.stmtType)
+	{
+		case S_SIMPLE_TYPE_DECL_SYS:
+		{
+			switch(type->leftChild.value.nodeSysTypeVal.sysTypeVal)
+			{
+				case TYPE_BOOLEAN: sym->symbolType = A_BOOLEAN; break;
+				case TYPE_CHAR: sym->symbolTYpe = A_CHAR; break;
+				case TYPE_INTEGER: sym->symbolType = A_INTEGER; break;
+				case TYPE_REAL: sym->symbolType = A_REAL; break;
+			}
+			break;
+		}
+		case S_SIMPLE_TYPE_DECL_ID:
+		{
+			sym->symbolType = A_TYPE;
+			sym->typeDef = new SymbolItem();
+			*(sym->typeDef) = *(symtable.getSymFromSymtable(type->value.nodeId.id)->typeDef);
+			break;
+		}
+		case S_ARRAY_TYPE_DECL:
+		{
+			sym->symbolType = A_ARRAY;
+			sym->arrayItemType = computeType(type->leftChild->leftChild->rightSibling);
+		}
+		case S_RECORD_TYPE_DECL:
+		{
+			sym->symbolType = A_RECORD;
+			for(TreeNode *p = type->leftChild->leftChild->leftChild; p != nullptr; p = p->rightSibling)
+			{
+				
+				for(TreeNode *pname = p->leftChild->leftChild; pname != nullptr; pname = pname->rightSibling)
+				{
+					SymbolItem *stype = computeType(p->leftChild->rightSibling);
+					stype->symbolName = pname->leftChild.value.nodeId.id;
+					sym->recordDef[pname->leftChild.value.nodeId.id] = stype;
+				}
+			}
+			break;
+		}
+	}
+	return sym;
 }
