@@ -177,3 +177,15 @@ bool computeStmtCaseExprList(YYSTYPE &root)
 	return true;
 }
 
+bool computeStmtCaseExprId(YYSTYPE & root)
+{
+	
+	return false;
+}
+
+bool computeStmtCaseExprConst(YYSTYPE & root)
+{
+
+	return false;
+}
+

@@ -27,5 +27,5 @@ bool computeToken(YYSTYPE &root);
 bool computeStmtCase(YYSTYPE &root);
 bool computeStmtCaseExprList(YYSTYPE &root);
 bool computeStmtCaseExprId(YYSTYPE &root);
-bool computeStmtCase
+bool computeStmtCaseExprConst(YYSTYPE &root);
 #endif
