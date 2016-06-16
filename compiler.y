@@ -551,12 +551,14 @@ direction		: TO
 case_stmt		: CASE expression OF case_expr_list END
 				{
 					$$=newTreeNode({$2,$4},NODE_STMT,S_CASE,E_NONE);
+					computeAttrGrammar($$);
 				}
 				;
 
 case_expr_list	: case_expr_list case_expr
 				{
 					$$=linkTreeNode($1, $2);
+					computeAttrGrammar($$);
 				}
 				| case_expr
 				{

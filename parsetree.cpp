@@ -115,7 +115,7 @@ YYSTYPE linkTreeNode(YYSTYPE &parent, YYSTYPE &sibling)
 
 bool computeAttrGrammar(YYSTYPE &root)
 {
-  switch(root.tokenType){
+  switch(root.data.treeNode->nodeType){
     case NODE_TOKEN: return computeToken(root);
     case NODE_EXP: return computeExp(root); 
     case NODE_STMT: return computeStmt(root); 
@@ -125,18 +125,55 @@ bool computeAttrGrammar(YYSTYPE &root)
 
 bool computeToken(YYSTYPE &root)
 {
+	return true;
 }
 
 bool computeExp(YYSTYPE &root)
 {
-  switch(root.data.treeNode->typeValue.expType){
-    case
-  }
+	switch (root.data.treeNode->typeValue.expType) {
+	case 1:;
+	}
+	return true;
 }
 
 bool computeStmt(YYSTYPE &root)
 {
-  switch(root.data.treeNode->typeValue.stmtType){
-    case
-  }
+	switch (root.data.treeNode->typeValue.stmtType) {
+	case S_CASE: return computeStmtCase(root);
+	case S_CASE_EXPR_LIST: return computeStmtCaseExprList(root);
+	case S_CASE_EXPR_ID:return computeStmtCaseExprId(root);
+	}
+	return true;
 }
+
+bool computeStmtCase(YYSTYPE &root)
+{	
+	//case_stmt		: CASE expression OF case_expr_list END
+	auto expression = root.data.treeNode->leftChild;
+	auto caseType = expression->attribute.attrType;
+	if (caseType == A_STRING)
+	{
+		Debug("Invalid type in case expression");
+		return false;
+	}
+	if (expression->rightSibling->attribute.attrType != caseType)
+	{
+		Debug("Type doesn't match in case expression");
+		return false;
+	}
+	return true;
+}
+
+bool computeStmtCaseExprList(YYSTYPE &root) 
+{
+	//case_expr_list: case_expr_list case_expr
+	auto caseExprList= root.data.treeNode->leftChild;
+	auto caseExpr = root.data.treeNode->leftChild->rightSibling;
+	if (caseExpr->attribute.attrType != caseExprList->attribute.attrType)
+	{
+		Debug("Type doesn't match between cases in case expression");
+		return false;
+	}
+	return true;
+}
+
