@@ -1,4 +1,5 @@
 #include "parsetree.h"
+#include "symtable.h"
 
 using namespace std;
 
@@ -179,13 +180,28 @@ bool computeStmtCaseExprList(YYSTYPE &root)
 
 bool computeStmtCaseExprId(YYSTYPE & root)
 {
-	
-	return false;
+	//case_expr 		: ID COLON stmt SEMI
+	auto Id = root.data.treeNode->leftChild;
+	auto IdType = symtable.getFromSymtable(Id->value.nodeId.id);
+	if (IdType)
+	{
+		Debug("String in case is not supported");
+		return false;
+	}
+	root.data.treeNode->attribute.attrType = ->attribute.attrType;
+	return true;
 }
 
 bool computeStmtCaseExprConst(YYSTYPE & root)
 {
-
-	return false;
+	//case_expr 		: const_value COLON stmt SEMI
+	auto constValue = root.data.treeNode->leftChild;
+	if (constValue->attribute.attrType == A_STRING)
+	{
+		Debug("String in case is not supported");
+		return false;
+	}
+	root.data.treeNode->attribute.attrType = constValue->attribute.attrType;
+	return true;
 }
 
