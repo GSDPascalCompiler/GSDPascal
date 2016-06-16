@@ -5,6 +5,14 @@
 
 #include <string>
 #include <map>
+
+#define YYSTYPE Value
+#define YY_NO_UNISTD_H
+#if _MSC_VER
+#define snprintf _snprintf
+#endif
+#define Debug(x) cout << x << endl;
+
 using namespace std;
 
 enum NodeType{NODE_TOKEN, NODE_EXP, NODE_STMT};
@@ -48,7 +56,7 @@ enum SysConVal{CON_FALSE, CON_MAXINT, CON_TRUE};
 enum SysFunctVal{FUNCT_ABS, FUNCT_CHR, FUNCT_ODD, FUNCT_ORD, FUNCT_PRED, FUNCT_SQR, FUNCT_SQRT, FUNCT_SUCC};
 enum SysProcVal{PROC_WRITE, PROC_WRITELN};
 enum SysTypeVal{TYPE_BOOLEAN, TYPE_CHAR, TYPE_INTEGER, TYPE_REAL};
-enum AttrType{A_VOID, A_INTEGER, A_REAL, A_CHAR, A_STRING, A_ARRAY, A_RECORD};
+enum AttrType{A_VOID, A_BOOLEAN, A_INTEGER, A_REAL, A_CHAR, A_STRING, A_ARRAY, A_RECORD};
 /*Leaf node types*/
 /*The node for INTEGER*/
 typedef struct{
@@ -183,12 +191,29 @@ std::string getID(TreeNode* treenode)
 	return std::string(treenode->value.nodeId.id);
 }
 
+TreeNode* getNthChild(const YYSTYPE &root, int n)
+{
+	TreeNode* p = root.data.treeNode;
+	if (n == 0);
+	else if (n == 1)
+		p = p->leftChild;
+	else
+	{
+		while (n--)
+			p = p->rightSibling; 
+	}
+	return p;
+}
+
+//AttrType getAttrOfSym(SymbolItem* item)
+//{
+//	switch (item->symbolType)
+//	{
+//	case 
+//	default:
+//		break;
+//	}
+//}
 //end define
 
-#define YYSTYPE Value
-#define YY_NO_UNISTD_H
-#if _MSC_VER
-#define snprintf _snprintf
-#endif
-#define Debug(x) cout << x << endl;
 #endif

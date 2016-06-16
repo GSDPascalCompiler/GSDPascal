@@ -136,7 +136,124 @@ bool computeExp(YYSTYPE &root)
 
 bool computeStmt(YYSTYPE &root)
 {
-  switch(root.data.treeNode->typeValue.stmtType){
-    case
+  switch(root.data.treeNode->typeValue.stmtType)
+ {
+  case S_ASSIGN:
+  {
+	  string idStr = getID(getNthChild(root, 1));
+	  SymbolItem* symbolOfID = symtable.getFromSymtable(idStr);
+	  if (symbolOfID == nullptr)
+	  {
+		  //TODO 
+		  //unknown id
+	  }
+	  else if (symbolOfID->symbolType != getNthChild(root, 2)->attribute.attrType)
+	  {
+		  //TODO 
+		  //assign type unmatched
+	  }
+	  Debug("S_ASSIGN type check ok");
+	  break;
+  }
+  case S_ASSIGN_ARRAY:
+  {
+	  string idArrayStr = getID(getNthChild(root, 1));
+	  SymbolItem* symbolOfID = symtable.getFromSymtable(idArrayStr);
+	  if (symbolOfID == nullptr)
+	  {
+		  //TODO 
+		  //unknown id
+	  }
+	  if (getNthChild(root, 2)->attribute.attrType != T_INTEGER)
+	  {
+		  //The index of array is not integer
+	  }
+	  else if (symbolOfID->arrayItemType->symbolType != getNthChild(root, 3)->attribute.attrType)
+	  {
+		  //TODO
+		  //assign type unmatched
+	  }
+	  Debug("S_ASSIGN_ARRAY type check ok");
+	  break;
+  }
+  case S_ASSIGN_RECORD:
+  {
+	  string idRecordStr = getID(getNthChild(root, 1));
+	  string idRecEleStr = getID(getNthChild(root, 2));
+	  SymbolItem* symbolOfID = symtable.getFromSymtable(idRecordStr);
+	  if (symbolOfID == nullptr)	//undefined id
+	  {
+		  //TODO 
+		  //unknown id
+	  }
+	  else if (symbolOfID->recordDef.find(idRecEleStr) == symbolOfID->recordDef.end())	//undefined record element
+	  {
+		  //TODO
+		  //record has no this element
+	  }
+	  else if (symbolOfID->recordDef[idRecEleStr]->symbolType != getNthChild(root, 3)->attribute.attrType)
+	  {
+		  //TODO
+		  //assign type unmatched
+	  }
+	  Debug("S_ASSIGN_RECORD type check ok");
+	  break;
+  }
+  case S_PROC:
+  case S_PROC_FUNC:
+  {
+	  string idStr = getID(getNthChild(root, 1));
+	  SymbolItem* symbolOfID = symtable.getFromSymtable(idStr);
+	  if (symbolOfID == nullptr)	//undefined id
+	  {
+		  //TODO 
+		  //unknown id
+	  }
+	  Debug("S_PROC/S_PROC_FUNC type check ok");
+	  break;
+  }
+  case S_IF:
+  case S_WHILE:
+  {
+	  if (getNthChild(root, 1)->attribute.attrType != A_BOOLEAN)
+	  {
+		  //unmatch type
+	  }
+	  Debug("S_IF/S_WHILE type check ok");
+	  break;
+  }
+  case S_REPEAT:
+  {
+	  if (getNthChild(root, 2)->attribute.attrType != A_BOOLEAN)
+	  {
+		  //unmatch type
+	  }
+	  Debug("S_REPEAT type check ok");
+	  break;
+  }
+  case S_FOR:
+  {
+	  string idStr = getID(getNthChild(root, 1));
+	  SymbolItem* symbolOfID = symtable.getFromSymtable(idStr);
+	  if (symbolOfID == nullptr)	//undefined id
+	  {
+		  //TODO 
+		  //unknown id
+	  }
+	  else if (symbolOfID->symbolType != getNthChild(root, 2)->attribute.attrType)
+	  {
+		  //unmatch type
+	  }
+	  else if (symbolOfID->symbolType != getNthChild(root, 4)->attribute.attrType)
+	  {
+		  //unmatch type
+	  }
+	  Debug("S_FOR type check ok");
+	  break;
+  }
+	  
+	
+
+	  
   }
 }

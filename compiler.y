@@ -474,24 +474,29 @@ non_label_stmt	: assign_stmt
 assign_stmt 	: ID ASSIGN expression
 				{
 					$$=newTreeNode({$1,$3},NODE_STMT,S_ASSIGN,E_NONE);
+					computeAttrGrammar($$);
 				}
 				| ID LB expression RB ASSIGN expression
 				{
 					$$=newTreeNode({$1,$3,$6},NODE_STMT,S_ASSIGN_ARRAY,E_NONE);
+					computeAttrGrammar($$);
 				}
 				| ID DOT ID ASSIGN expression
 				{
 					$$=newTreeNode({$1,$3,$5},NODE_STMT,S_ASSIGN_RECORD,E_NONE);
+					computeAttrGrammar($$);
 				}
 				;
 
 proc_stmt		: ID
 				{
 					$$=newTreeNode({$1},NODE_STMT,S_PROC,E_NONE);
+					computeAttrGrammar($$);
 				}
 				| ID LP args RP
 				{
 					$$=newTreeNode({$3},NODE_STMT,S_PROC_FUNC,E_NONE);
+					computeAttrGrammar($$);
 				}
 				| SYS_PROC
 				{
@@ -510,6 +515,7 @@ proc_stmt		: ID
 if_stmt			: IF expression THEN stmt else_clause
 				{
 					$$=newTreeNode({$2,$4,$5},NODE_STMT,S_IF,E_NONE);
+					computeAttrGrammar($$);
 				}
 				;
 
@@ -523,18 +529,21 @@ else_clause		: ELSE stmt
 repeat_stmt		: REPEAT stmt_list UNTIL expression
 				{
 					$$=newTreeNode({$2,$4},NODE_STMT,S_REPEAT,E_NONE);
+					computeAttrGrammar($$);
 				}
 				;
 
 while_stmt		: WHILE expression DO stmt
 				{
-						$$=newTreeNode({$2,$4},NODE_STMT,S_WHILE,E_NONE);
+					$$=newTreeNode({$2,$4},NODE_STMT,S_WHILE,E_NONE);
+					computeAttrGrammar($$);
 				}
 				;
 
 for_stmt		: FOR ID ASSIGN expression direction expression DO stmt
 				{
-					$$=newTreeNode({$4,$5,$6,$8},NODE_STMT,S_FOR,E_NONE);
+					$$=newTreeNode({$2, $4,$5,$6,$8},NODE_STMT,S_FOR,E_NONE);
+					computeAttrGrammar($$);
 				}
 				;
 
