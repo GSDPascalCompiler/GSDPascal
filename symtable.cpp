@@ -6,39 +6,41 @@ using namespace std;
 
 Symtable symtable;
 
-void Symtable::addIntoSymtable(Sym sym) {
-  map<string, vector<Sym> >::iterator iter;
-  if ((iter = table.find(sym.symbolName)) == table.end()) {
-    vector<Sym> vec;
-    vec.clear();
-    vec.push_back(sym);
-    table.insert(make_pair(sym.symbolName, vec));
-  } else {
-    // for (int i = 0; i < iter->second.size(); i++)
-      // cout << iter->second[i].name << endl;
-    iter->second.push_back(sym);
-  }
+void Symtable::clear() {
+	table.clear();
 }
 
-Sym* Symtable::getSymFromSymtable(string symName) {
-  map<string, vector<Sym> >::iterator iter;
-  if ((iter = table.find(symName)) == table.end()) {
-    return NULL;
-  } else {
-    if (iter->second.empty()) {
-      return NULL;
-    } else {
-      return &(iter->second.back());
-    }
-  }
+void Symtable::enterNewScope() {
+	map<string, SymbolItem* > *tMap = new map<string, SymbolItem* >;
+	tMap->clear();
+	table.push_back(tMap);
 }
 
-void Symtable::removeSymFromSymtable(string symName) {
-  map<string, vector<Sym> >::iterator iter;
-  if ((iter = table.find(symName)) == table.end()) {
-    return;
-  } else {
-    if (!iter->second.empty())
-      iter->second.pop_back();
-  }
+void Symtable::leaveScope() {
+	map<string, SymbolItem* >::iterator iter;
+	map<string, SymbolItem* > *tMap = table[table.size() - 1];
+	for (iter = tMap->begin(); iter != tMap->end(); iter++) {
+		delete iter->second;
+	}
+	delete tMap;
+	table.pop_back();
+}
+
+void Symtable::addIntoSymtable(SymbolItem* sym) {
+	map<string, SymbolItem* >::iterator iter;
+	map<string, SymbolItem* > *tMap = table[table.size() - 1];
+	if ((iter = tMap->find(sym->symbolName)) == tMap->end()) {
+		tMap->insert(make_pair(sym->symbolName, sym));
+	} else {
+		Debug("the symbol has existed.");
+	}
+}
+
+SymbolItem* Symtable::getFromSymtable(string symbolName) {
+	for (int i = table.size() - 1; i >= 0; i--) {
+		map<string, SymbolItem* > *tMap = table[i];
+		if (tMap->find(symbolName) != tMap->end())
+			return tMap->find(symbolName)->second;
+	}
+	return nullptr;
 }
