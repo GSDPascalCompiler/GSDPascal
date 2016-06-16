@@ -1,4 +1,5 @@
 #include "parsetree.h"
+#include "symtable.h"
 
 using namespace std;
 
@@ -131,18 +132,88 @@ bool computeToken(YYSTYPE &root)
 bool computeExp(YYSTYPE &root)
 {
 	switch (root.data.treeNode->typeValue.expType) {
-	case 1:;
+	case E_GE:
+	case E_GT:
+	case E_LE:
+	case E_LT:
+	case E_EQUAL:
+	case E_UNEQUAL: return computeStmtExpressionCompare(root);
+	case E_PLUS:
+	case E_MINUS:
+	case E_OR:
+	case E_MUL:
+	case E_DIV:
+	case E_MOD:
+	case E_AND: return computeStmtExpressionArithmetic(root);
 	}
 	return true;
 }
 
 bool computeStmt(YYSTYPE &root)
 {
-	switch (root.data.treeNode->typeValue.stmtType) {
+  switch(root.data.treeNode->typeValue.stmtType){
+    case S_PROGRAM_HEAD:
+    {
+    	SymbolItem *sym = new SymbolItem();
+    	sym->symbolType = T_VOID;
+    	sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
+    	sym->leftable = false;
+    	symtable.addIntoSymtable(sym);
+    	break;
+    }
+    case S_CONST_EXPR: //need modify
+    {
+    	SymbolItem *sym = new SymbolItem();
+    	switch(root.data.treeNode->leftChild->rightSibling.typeValue.stmtType)
+    	{
+    		case S_CONST_VALUE_INT: sym->symbolType = T_INTEGER; break;
+    		case S_CONST_VALUE_REAL: sym->symbolType = T_REAL; break;
+    		case S_CONST_VALUE_CHAR: sym->symbolType = T_CHAR; break;
+    		case S_CONST_VALUE_STRING: sym->symbolType = T_STRING; break;
+    		case S_CONST_VALUE_SYS_CON: sym->symbolType = T_CONST; break;
+    	}
+    	sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
+    	sym->leftable = false;
+    	symtable.addIntoSymtable(sym);
+    	break;
+    }
+    case S_TYPE_DEFINITION:
+    {
+    	SymbolItem *sym = computeType(root.data.treeNode->leftChild->rightSibling->leftChild);
+    	sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
+    	sym->leftable = false;
+    	symtable.addIntoSymtable(sym);
+    	break;
+    }
+    case S_VAR_DECL:
+    {
+    	TreeNode *nameList = root.data.treeNode->leftChild;
+    	for(TreeNode *p = namelist->leftChild; p != nullptr; p = p->rightSibling)
+    	{
+    		SymbolItem *sym = computeType(namelist->rightSibling);
+    		sym->symbolName = p->leftChild->value.nodeId.id;
+    		sym->leftable = true;
+    		symtable.addIntoSymtable(sym);
+    	}
+    	break;
+    }
 	case S_CASE: return computeStmtCase(root);
 	case S_CASE_EXPR_LIST: return computeStmtCaseExprList(root);
 	case S_CASE_EXPR_ID:return computeStmtCaseExprId(root);
 	case S_FUNCTION_HEAD: return computeStmtFunctionHead(root);
+	case S_EXPRESSION_LIST:return computeStmtExpressionList(root);
+	case S_FACTOR_SYS:
+	case S_FACTOR_SYS_ARG:return computeStmtFactorSysFunct(root);
+	case S_FACTOR_ARRAY:return computeStmtFactorArray(root);
+	case S_FACTOR_FUNC:return computeStmtFactorFunc(root);
+	case S_FACTOR_RECORD:return computeStmtFactorRecord(root);
+	case S_FACTOR_ID:return computeStmtFactorID(root);
+	case S_ARGS:
+	case S_ARGS_NULL:
+	case S_GOTO:
+	case S_FACTOR_NOT:
+	case S_FACTOR_MINUS:
+		return computeStmtAssignToParent(root);
 	}
 	return true;
 }
@@ -180,13 +251,33 @@ bool computeStmtCaseExprList(YYSTYPE &root)
 
 bool computeStmtCaseExprId(YYSTYPE & root)
 {
-	
-	return false;
+	//case_expr 		: ID COLON stmt SEMI
+	auto Id = root.data.treeNode->leftChild;
+	auto IdType = symtable.getFromSymtable(Id->value.nodeId.id);
+	if (IdType)
+	{
+		Debug("String in case is not supported");
+		return false;
+	}
+	root.data.treeNode->attribute.attrType = IdType->symbolType;
+	return true;
 }
 
 bool computeStmtCaseExprConst(YYSTYPE & root)
 {
+	//case_expr 		: const_value COLON stmt SEMI
+	auto constValue = root.data.treeNode->leftChild;
+	if (constValue->attribute.attrType == A_STRING)
+	{
+		Debug("String in case is not supported");
+		return false;
+	}
+	root.data.treeNode->attribute.attrType = constValue->attribute.attrType;
+	return true;
+}
 
+bool computeStmtExpressionList(YYSTYPE & root)
+{
 	return false;
 }
 
@@ -258,3 +349,199 @@ void dealId(TreeNode* tn, vector<string> vec) {
 	vec.push_back(tn->value.nodeId.id);
 }
 
+bool computeStmtExpressionCompare(YYSTYPE & root)
+{
+	auto leftOperand = root.data.treeNode->leftChild;
+	auto rightOperand = root.data.treeNode->leftChild->rightSibling;
+	if (leftOperand->attribute.attrType != rightOperand->attribute.attrType)
+	{
+		Debug("Left hand side operand does not match right hand side operand");
+		return false;
+	}
+	root.data.treeNode->attribute.attrType = A_BOOL;
+	return true;
+}
+
+bool computeStmtExpressionArithmetic(YYSTYPE &root)
+{
+	auto leftOperand = root.data.treeNode->leftChild;
+	auto rightOperand = root.data.treeNode->leftChild->rightSibling;
+	if (leftOperand->attribute.attrType != rightOperand->attribute.attrType)
+	{
+		Debug("Left hand side operand does not match right hand side operand");
+		return false;
+	}
+	root.data.treeNode->attribute.attrType = leftOperand->attribute.attrType;
+	return true;
+}
+
+bool computeStmtFactorSysFunct(YYSTYPE & root)
+{
+	auto argsList = root.data.treeNode->leftChild->rightSibling;
+	/*将返回值的类型赋给root*/
+	switch (root.data.sysFunctVal)
+	{
+	case FUNCT_ABS: 
+		if (argsList->attribute.attrType == A_INTEGER || argsList->attribute.attrType == A_REAL)
+		{
+			root.data.treeNode->attribute.attrType = argsList->attribute.attrType;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys abs");
+			return false;
+		}
+		break;
+	case FUNCT_CHR:
+		if (argsList->attribute.attrType == A_INTEGER)
+		{
+			root.data.treeNode->attribute.attrType = A_CHAR;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys chr");
+			return false;
+		}
+		break;
+	case FUNCT_ODD:
+		if (argsList->attribute.attrType == A_INTEGER)
+		{
+			root.data.treeNode->attribute.attrType =A_BOOL;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys odd");
+			return false;
+		}
+		break;
+	case FUNCT_ORD:
+		if (argsList->attribute.attrType == A_CHAR)
+		{
+			root.data.treeNode->attribute.attrType = A_INTEGER;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys ord");
+			return false;
+		}
+		break;
+	case FUNCT_PRED:
+		if (argsList->attribute.attrType == A_INTEGER || argsList->attribute.attrType == A_CHAR)
+		{
+			root.data.treeNode->attribute.attrType = argsList->attribute.attrType;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys pred");
+			return false;
+		}
+		break;
+	case FUNCT_SQR:
+		if (argsList->attribute.attrType == A_INTEGER || argsList->attribute.attrType == A_REAL)
+		{
+			root.data.treeNode->attribute.attrType = argsList->attribute.attrType;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys sqr");
+			return false;
+		}
+		break;
+	case FUNCT_SQRT:
+		if (argsList->attribute.attrType == A_INTEGER || argsList->attribute.attrType == A_REAL)
+		{
+			root.data.treeNode->attribute.attrType = argsList->attribute.attrType;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys sqrt");
+			return false;
+		}
+		break;
+	case FUNCT_SUCC:
+		if (argsList->attribute.attrType == A_INTEGER || argsList->attribute.attrType == A_CHAR)
+		{
+			root.data.treeNode->attribute.attrType = argsList->attribute.attrType;
+		}
+		else
+		{
+			Debug("Invalid parameter for sys pred");
+			return false;
+		}
+		break;
+	}
+	return true;
+}
+
+bool computeStmtAssignToParent(YYSTYPE & root)
+{
+	//Assign the child's attribute to the parent
+	root.data.treeNode->attribute.attrType = root.data.treeNode->leftChild->attribute.attrType;
+	return true;
+}
+
+bool computeStmtFactorArray(YYSTYPE & root)
+{
+	return true;
+}
+
+bool computeStmtFactorFunc(YYSTYPE & root)
+{
+	return true;
+}
+
+bool computeStmtFactorRecord(YYSTYPE & root)
+{
+	return true;
+}
+
+bool computeStmtFactorID(YYSTYPE & root)
+{
+	return true;
+}
+
+SymbolItem* computeType(TreeNode *type){
+	SymbolItem *sym = new SymbolItem();
+	switch(type->leftChild->typeValue.stmtType)
+	{
+		case S_SIMPLE_TYPE_DECL_SYS:
+		{
+			switch(type->leftChild.value.nodeSysTypeVal.sysTypeVal)
+			{
+				case TYPE_BOOLEAN: sym->symbolType = A_BOOLEAN; break;
+				case TYPE_CHAR: sym->symbolTYpe = A_CHAR; break;
+				case TYPE_INTEGER: sym->symbolType = A_INTEGER; break;
+				case TYPE_REAL: sym->symbolType = A_REAL; break;
+			}
+			break;
+		}
+		case S_SIMPLE_TYPE_DECL_ID:
+		{
+			sym->symbolType = A_TYPE;
+			sym->typeDef = new SymbolItem();
+			*(sym->typeDef) = *(symtable.getSymFromSymtable(type->value.nodeId.id)->typeDef);
+			break;
+		}
+		case S_ARRAY_TYPE_DECL:
+		{
+			sym->symbolType = A_ARRAY;
+			sym->arrayItemType = computeType(type->leftChild->leftChild->rightSibling);
+		}
+		case S_RECORD_TYPE_DECL:
+		{
+			sym->symbolType = A_RECORD;
+			for(TreeNode *p = type->leftChild->leftChild->leftChild; p != nullptr; p = p->rightSibling)
+			{
+				
+				for(TreeNode *pname = p->leftChild->leftChild; pname != nullptr; pname = pname->rightSibling)
+				{
+					SymbolItem *stype = computeType(p->leftChild->rightSibling);
+					stype->symbolName = pname->leftChild.value.nodeId.id;
+					sym->recordDef[pname->leftChild.value.nodeId.id] = stype;
+				}
+			}
+			break;
+		}
+	}
+	return sym;
+}
