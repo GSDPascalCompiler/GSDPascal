@@ -145,9 +145,10 @@ typedef struct{
 typedef struct SymbolItem{
   TokenType symbolType;
   string symbolName;
-  int arrayLength;
+  int beginIndex, endIndex;
   struct SymbolItem *arrayItemType;
   map<string, SymbolItem*> recordDef;
+  bool leftable;
 }SymbolItem;
 
 #define YYSTYPE Value
@@ -155,4 +156,5 @@ typedef struct SymbolItem{
 #if _MSC_VER
 #define snprintf _snprintf
 #endif
+#define Debug(x) cout << x << endl;
 #endif
