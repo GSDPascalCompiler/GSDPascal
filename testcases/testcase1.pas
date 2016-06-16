@@ -1,4 +1,6 @@
 program exLocal;
+const
+   con:3;
 var
    a, b, c: integer;
 procedure display;
