@@ -560,68 +560,82 @@ direction		: TO
 case_stmt		: CASE expression OF case_expr_list END
 				{
 					$$=newTreeNode({$2,$4},NODE_STMT,S_CASE,E_NONE);
+					computeAttrGrammar($$);
 				}
 				;
 
 case_expr_list	: case_expr_list case_expr
 				{
 					$$=linkTreeNode($1, $2);
+					computeAttrGrammar($$);
 				}
 				| case_expr
 				{
 					$$=newTreeNode({$1},NODE_STMT,S_CASE_EXPR_LIST,E_NONE);
+					computeAttrGrammar($$);
 				}
 				;
 
 case_expr 		: const_value COLON stmt SEMI
 				{
 					$$=newTreeNode({$1,$3},NODE_STMT,S_CASE_EXPR_CONST,E_NONE);
+					computeAttrGrammar($$);
 				}
 				| ID COLON stmt SEMI
 				{
 					$$=newTreeNode({$1,$3},NODE_STMT,S_CASE_EXPR_ID,E_NONE);
+					computeAttrGrammar($$);
 				}
 				;
 
 goto_stmt		: GOTO INTEGER
 				{
 					$$=newTreeNode({$2},NODE_STMT,S_GOTO,E_NONE);
+					computeAttrGrammar($$);
 				}
 				;
 
 expression_list	: expression_list COMMA expression
 				{
 					$$=linkTreeNode($1, $3);
+					computeAttrGrammar($$);
 				}
 				| expression
 				{
 					$$=newTreeNode({$1},NODE_STMT,S_EXPRESSION_LIST,E_NONE);
+					computeAttrGrammar($$);
 				}
 				;
 
 expression 		: expression GE expr
 				{
 					$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_GE);
+					computeAttrGrammar($$);
 				}
 				| expression GT expr
 				{
 					$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_GT);
+					computeAttrGrammar($$);
 				}
 				| expression LE expr
 				{
 					$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_LE);
+					computeAttrGrammar($$);
 				}
 				| expression LT expr
 				{
 					$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_LT);
+					computeAttrGrammar($$);
 				}
 				| expression EQUAL expr
 				{
 					$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_EQUAL);
+					computeAttrGrammar($$);
 				}
 				| expression UNEQUAL expr
 				{
 					$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_UNEQUAL);
+					computeAttrGrammar($$);
 				}
 				| expr
 				{
@@ -632,14 +646,17 @@ expression 		: expression GE expr
 expr 	: expr PLUS term
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_PLUS);
+			computeAttrGrammar($$);
 		}
 		| expr MINUS term
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_MINUS);
+			computeAttrGrammar($$);
 		}
 		| expr OR term
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_OR);
+			computeAttrGrammar($$);
 		}
 		| term
 		{
@@ -650,18 +667,22 @@ expr 	: expr PLUS term
 term	: term MUL factor
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_MUL);
+			computeAttrGrammar($$);
 		}
 		| term DIV factor
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_DIV);
+			computeAttrGrammar($$);
 		}
 		| term MOD factor
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_MOD);
+			computeAttrGrammar($$);
 		}
 		| term AND factor
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_AND);
+			computeAttrGrammar($$);
 		}
 		| factor
 		{
@@ -672,10 +693,12 @@ term	: term MUL factor
 factor	:SYS_FUNCT
 		{
 			$$=newTreeNode({$1},NODE_STMT,S_FACTOR_SYS,E_NONE);
+			computeAttrGrammar($$);
 		}
 		| SYS_FUNCT LP args_list RP
 		{
 			$$=newTreeNode({$1,$3},NODE_STMT,S_FACTOR_SYS_ARG,E_NONE);
+			computeAttrGrammar($$);
 		}
 		| const_value
 		{
@@ -688,38 +711,44 @@ factor	:SYS_FUNCT
 		| NOT factor
 		{
 			$$=newTreeNode({$2},NODE_STMT,S_FACTOR_NOT,E_NONE);
+			computeAttrGrammar($$);
 		}
 		| MINUS factor
 		{
 			$$=newTreeNode({$2},NODE_STMT,S_FACTOR_MINUS,E_NONE);
+			computeAttrGrammar($$);
 		}
 		| ID LB expression RB
 		{
 			$$=newTreeNode({$1,$3},NODE_STMT,S_FACTOR_ARRAY,E_NONE);
+			computeAttrGrammar($$);
 		}
 		| ID LP args RP{/*new added*/}
 		{
 			$$=newTreeNode({$1,$3},NODE_STMT,S_FACTOR_FUNC,E_NONE);
+			computeAttrGrammar($$);
 		}
 		| ID DOT ID
 		{
 			$$=newTreeNode({$1,$3},NODE_STMT,S_FACTOR_RECORD,E_NONE);
+			computeAttrGrammar($$);
 		}
 		| ID
 		{
 			$$=newTreeNode({$1},NODE_STMT,S_FACTOR_ID,E_NONE);
+			computeAttrGrammar($$);
 		}
 		;
 
 args 		: args_list 
 			{
 				$$=newTreeNode({$1},NODE_STMT,S_ARGS,E_NONE);
+				computeAttrGrammar($$);
 			}
 			|
 			{
-			
 				$$=newTreeNode({},NODE_STMT,S_ARGS_NULL,E_NONE);
-			
+				computeAttrGrammar($$);
 			}
 			;
 

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <map>
+#include <stdio.h>
 
 #define YYSTYPE Value
 #define YY_NO_UNISTD_H
@@ -51,7 +52,6 @@ enum TokenType{T_READ, T_TYPE, //
 	 S_NONE};
 
 enum ExpType{E_AND,E_MOD,E_DIV,E_MUL,E_OR,E_MINUS,E_PLUS,E_UNEQUAL,E_EQUAL,E_LT,E_LE,E_GT,E_GE,E_NONE};
-
 enum SysConVal{CON_FALSE, CON_MAXINT, CON_TRUE};
 enum SysFunctVal{FUNCT_ABS, FUNCT_CHR, FUNCT_ODD, FUNCT_ORD, FUNCT_PRED, FUNCT_SQR, FUNCT_SQRT, FUNCT_SUCC};
 enum SysProcVal{PROC_WRITE, PROC_WRITELN};
@@ -102,8 +102,6 @@ typedef struct{
 typedef struct {
 	AttrType attrType;
 }Attribute;
-
-//typedef struct TagTreeNode TreeNode;
 
 /*Non-leaf node types*/
 //typedef struct TagNonleaf{
@@ -168,52 +166,6 @@ typedef struct SymbolItem{
 /*
 *Define by Jack<wang_kejie@foxmail.com>
 */
-int getInteger(TreeNode* treenode)
-{
-	return treenode->value.nodeInteger.i;
-}
 
-double getDouble(TreeNode* treenode)
-{
-	return treenode->value.nodeReal.r;
-}
-
-char getChar(TreeNode* treenode)
-{
-	return treenode->value.nodeChar.c;
-}
-std::string getStr(TreeNode* treenode)
-{
-	return std::string(treenode->value.nodeString.s);
-}
-std::string getID(TreeNode* treenode)
-{
-	return std::string(treenode->value.nodeId.id);
-}
-
-TreeNode* getNthChild(const YYSTYPE &root, int n)
-{
-	TreeNode* p = root.data.treeNode;
-	if (n == 0);
-	else if (n == 1)
-		p = p->leftChild;
-	else
-	{
-		while (n--)
-			p = p->rightSibling; 
-	}
-	return p;
-}
-
-//AttrType getAttrOfSym(SymbolItem* item)
-//{
-//	switch (item->symbolType)
-//	{
-//	case 
-//	default:
-//		break;
-//	}
-//}
-//end define
 
 #endif
