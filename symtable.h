@@ -2,18 +2,17 @@
 #define _SYMTABLE_H_
 
 #include "global.h"
-
-typedef SymbolItem Sym;
+#include <vector>
 
 class Symtable {
-	map<string, vector<Sym> > table;
+private:
+	vector<map<string, SymbolItem*>*> table;
 public:
-	Symtable() {
-		table.clear();
-	}
-	void addIntoSymtable(Sym);
-	Sym *getSymFromSymtable(string);
-	void removeSymFromSymtable(string);
+	void clear();
+	void enterNewScope();
+	void leaveScope();
+	void addIntoSymtable(SymbolItem*);
+	SymbolItem* getFromSymtable(string);
 };
 
 extern Symtable symtable;
