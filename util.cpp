@@ -14,10 +14,10 @@ void Print(NodeType type)
 {
 	switch (type)
 	{
-	NODE_TOKEN: cout << "TOKEN"; break;
-	NODE_EXP:cout << "EXP"; break;
-	NODE_STMT:cout << "STMT"; break;
-	default:cout << "UNKNOWN"; break;
+	NODE_TOKEN: cout << "TOKEN "; break;
+	NODE_EXP:cout << "EXP "; break;
+	NODE_STMT:cout << "STMT "; break;
+	default:cout << "UNKNOWN "; break;
 	}
 }
 
