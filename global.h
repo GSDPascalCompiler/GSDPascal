@@ -48,7 +48,7 @@ enum SysConVal{CON_FALSE, CON_MAXINT, CON_TRUE};
 enum SysFunctVal{FUNCT_ABS, FUNCT_CHR, FUNCT_ODD, FUNCT_ORD, FUNCT_PRED, FUNCT_SQR, FUNCT_SQRT, FUNCT_SUCC};
 enum SysProcVal{PROC_WRITE, PROC_WRITELN};
 enum SysTypeVal{TYPE_BOOLEAN, TYPE_CHAR, TYPE_INTEGER, TYPE_REAL};
-
+enum AttrType{A_VOID, A_INTEGER, A_REAL, A_CHAR, A_STRING, A_ARRAY, A_RECORD};
 /*Leaf node types*/
 /*The node for INTEGER*/
 typedef struct{
@@ -91,6 +91,10 @@ typedef struct{
   SysTypeVal sysTypeVal;
 }NodeSysTypeVal;
 
+typedef struct {
+	AttrType attrType;
+}Attribute;
+
 //typedef struct TagTreeNode TreeNode;
 
 /*Non-leaf node types*/
@@ -123,6 +127,7 @@ typedef struct TreeNode{
 		NodeSysTypeVal nodeSysTypeVal;
 		NodeSysProcVal nodeSysProcVal;
 	}value;
+	Attribute attribute;
 } TreeNode;
 
 typedef struct{
@@ -143,13 +148,42 @@ typedef struct{
 }Value;
 
 typedef struct SymbolItem{
-  TokenType symbolType;
+  AttrType symbolType;
   string symbolName;
   int beginIndex, endIndex;
   struct SymbolItem *arrayItemType;
   map<string, SymbolItem*> recordDef;
   bool leftable;
 }SymbolItem;
+
+
+/*
+*Define by Jack<wang_kejie@foxmail.com>
+*/
+int getInteger(TreeNode* treenode)
+{
+	return treenode->value.nodeInteger.i;
+}
+
+double getDouble(TreeNode* treenode)
+{
+	return treenode->value.nodeReal.r;
+}
+
+char getChar(TreeNode* treenode)
+{
+	return treenode->value.nodeChar.c;
+}
+std::string getStr(TreeNode* treenode)
+{
+	return std::string(treenode->value.nodeString.s);
+}
+std::string getID(TreeNode* treenode)
+{
+	return std::string(treenode->value.nodeId.id);
+}
+
+//end define
 
 #define YYSTYPE Value
 #define YY_NO_UNISTD_H
