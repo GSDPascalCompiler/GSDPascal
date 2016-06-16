@@ -112,3 +112,31 @@ YYSTYPE linkTreeNode(YYSTYPE &parent, YYSTYPE &sibling)
 	p->rightSibling = sibling.data.treeNode;
 	return parent;
 }
+
+bool computeAttrGrammar(YYSTYPE &root)
+{
+  switch(root.tokenType){
+    case NODE_TOKEN: return computeToken(root);
+    case NODE_EXP: return computeExp(root); 
+    case NODE_STMT: return computeStmt(root); 
+    default: return false;
+  }
+}
+
+bool computeToken(YYSTYPE &root)
+{
+}
+
+bool computeExp(YYSTYPE &root)
+{
+  switch(root.data.treeNode->typeValue.expType){
+    case
+  }
+}
+
+bool computeStmt(YYSTYPE &root)
+{
+  switch(root.data.treeNode->typeValue.stmtType){
+    case
+  }
+}

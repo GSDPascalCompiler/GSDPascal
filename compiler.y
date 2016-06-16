@@ -51,7 +51,7 @@ routine		: routine_head routine_body
 
 sub_routine	: routine_head routine_body
 {
-	$$ = newTreeNode({$1, $2}, NODE_STMT, S_ROUTINE, E_NONE);
+	$$ = newTreeNode({$1, $2}, NODE_STMT, S_SUB_ROUTINE, E_NONE);
 }
 			;
 
@@ -360,7 +360,7 @@ parameters		: LP para_decl_list RP
 
 para_decl_list	: para_decl_list SEMI para_type_list
 {
-	$$ = linkTreeNode($1, $3)
+	$$ = linkTreeNode($1, $3);
 }
 				| para_type_list
 {
