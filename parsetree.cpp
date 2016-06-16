@@ -142,6 +142,7 @@ bool computeStmt(YYSTYPE &root)
 	case S_CASE: return computeStmtCase(root);
 	case S_CASE_EXPR_LIST: return computeStmtCaseExprList(root);
 	case S_CASE_EXPR_ID:return computeStmtCaseExprId(root);
+	case S_FUNCTION_HEAD: return computeStmtFunctionHead(root);
 	}
 	return true;
 }
@@ -187,5 +188,73 @@ bool computeStmtCaseExprConst(YYSTYPE & root)
 {
 
 	return false;
+}
+
+bool computeStmtFunctionHead(YYSTYPE & root)
+{
+	SymbolItem *sym = new SymbolItem;
+	sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
+	TreeNode* tn = root.data.treeNode->leftChild->rightSibling;
+	sym->recordDef.clear();
+	while (tn != nullptr) {
+		if (tn->rightSibling == nullptr) {
+			sym->symbolType = tn->attribute.attrType;
+		} else {
+			if (tn->leftChild != nullptr) {
+				tn = tn->leftChild;
+				while (tn != nullptr) {
+					dealParaDeclList(tn->leftChild, sym);
+					tn = tn->rightSibling;
+				}
+			}
+		}
+	}
+	//symtable.addIntoSymtable();
+	return false;
+}
+
+void dealParaDeclList(TreeNode* tn, SymbolItem* sym) {
+	while (tn != nullptr) {
+		dealParaTypeList(tn->leftChild, sym);
+		tn = tn->rightSibling;
+	}
+}
+
+void dealParaTypeList(TreeNode* tn, SymbolItem* sym) {
+	while (tn != nullptr) {
+		dealValParaList(tn->leftChild, sym);
+		tn = tn->rightSibling;
+	}
+}
+
+void dealValParaList(TreeNode* tn, SymbolItem* sym) {
+	vector<string> vec;
+	vec.clear();
+	dealNameList(tn->leftChild, vec);
+	SymbolItem* s = dealSimpleTypeDecl(tn->rightSibling);
+	for (int i = 0; i < vec.size(); i++) {
+		if (sym->recordDef.find(vec[i]) != sym->recordDef.end())
+			Debug("DealValParaList: redefined");
+		sym->recordDef.insert(make_pair(vec[i], s));
+	}
+ }
+SymbolItem* dealSimpleTypeDecl(TreeNode* tn) {
+
+}
+
+vector<string> dealNameList(TreeNode* tn, vector<string> vec) {
+	
+	while (tn != nullptr) {
+		dealName(tn->leftChild, vec);
+		tn = tn->rightSibling;
+	}
+}
+
+void dealName(TreeNode* tn, vector<string> vec) {
+	dealId(tn->leftChild, vec);
+}
+
+void dealId(TreeNode* tn, vector<string> vec) {
+	vec.push_back(tn->value.nodeId.id);
 }
 

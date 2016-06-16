@@ -5,6 +5,7 @@
 #include <iostream>
 #include <exception>
 #include <initializer_list>
+#include "symtable.h"
 using namespace std;
 
 TreeNode *newALeafNode(YYSTYPE &child);
@@ -28,4 +29,5 @@ bool computeStmtCase(YYSTYPE &root);
 bool computeStmtCaseExprList(YYSTYPE &root);
 bool computeStmtCaseExprId(YYSTYPE &root);
 bool computeStmtCaseExprConst(YYSTYPE &root);
+bool computeStmtFunctionHead(YYSTYPE &root);
 #endif
