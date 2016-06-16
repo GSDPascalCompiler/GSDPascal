@@ -148,7 +148,7 @@ typedef struct{
 }Value;
 
 typedef struct SymbolItem{
-  TokenType symbolType;
+  AttrType symbolType;
   string symbolName;
   int beginIndex, endIndex;
   struct SymbolItem *arrayItemType;
