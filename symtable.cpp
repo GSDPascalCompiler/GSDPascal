@@ -1,22 +1,10 @@
-#include <map>
 #include <vector>
 #include <string>
 #include <iostream>
-#include "global.h"
+#include "symtable.h"
 using namespace std;
 
-typedef SymbolItem Sym;
-
-class Symtable {
-  map<string, vector<Sym> > table;
-public:
-  Symtable() {
-    table.clear();
-  }
-  void addIntoSymtable(Sym);
-  Sym *getSymFromSymtable(string);
-  void removeSymFromSymtable(string);
-};
+Symtable symtable;
 
 void Symtable::addIntoSymtable(Sym sym) {
   map<string, vector<Sym> >::iterator iter;
