@@ -186,7 +186,7 @@ simple_type_decl	: SYS_TYPE
 }
 					| LP name_list RP
 {
-	$$ = newTreeNode({$1}, NODE_STMT,S_SIMPLE_TYPE_DECL_NAME_LIST,E_NONE);
+	$$ = newTreeNode({$2}, NODE_STMT,S_SIMPLE_TYPE_DECL_NAME_LIST,E_NONE);
 }
 					| const_value DOT DOT const_value
 {
@@ -203,6 +203,14 @@ simple_type_decl	: SYS_TYPE
 					| ID DOT DOT ID
 {
 	$$ = newTreeNode({$1, $4}, NODE_STMT, S_SIMPLE_TYPE_DECL_IDI, E_NONE);
+}
+					| const_value DOT DOT ID
+{
+	$$ = newTreeNode({$1, $4}, NODE_STMT, S_SIMPLE_TYPE_DECL_CDI, E_NONE);
+}
+					| ID DOT DOT const_value
+{
+	$$ = newTreeNode({$1, $4}, NODE_STMT, S_SIMPLE_TYPE_DECL_IDC, E_NONE);
 }
 					;
 
