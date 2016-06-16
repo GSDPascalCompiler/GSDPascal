@@ -54,15 +54,3 @@ void Symtable::removeSymFromSymtable(string symName) {
       iter->second.pop_back();
   }
 }
-
-// int main() {
-//   Symtable symtable;
-//   Sym sym1;
-//   sym1.name = "a";
-//   symtable.addIntoSymtable(sym1);
-//   cout << symtable.getSymFromSymtable("a")->name << endl;
-//   symtable.removeSymFromSymtable("a");
-//   if (symtable.getSymFromSymtable("a") == NULL)
-//     cout << "NULL" << endl;
-//   return 0;
-// }
