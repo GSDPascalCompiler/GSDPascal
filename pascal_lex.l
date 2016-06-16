@@ -44,7 +44,7 @@ std::map<std::string, SysTypeVal> sysTypeValMap = {
 digit     [0-9]
 letter    [a-zA-Z]
 integer   {digit}+
-real      {digit}+\.{digit}*
+real      {digit}+\.{digit}+
 char      \'^\'\'
 string    \'[^\']*\'
 sys_con   pi|maxint|true|false
@@ -90,7 +90,7 @@ id        ({letter}|\_)({digit}|{letter}|\_)*
 "procedure"   {printf("PROCEDURE");	yylval.tokenType=T_PROCEDURE;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return PROCEDURE;}
 "record"      {printf("RECORD");	  yylval.tokenType=T_RECORD;		yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return RECORD;}
 "var"         {printf("VAR");   	  yylval.tokenType=T_VAR;			  yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return VAR;}
-"."           {printf("DOT");		    yylval.tokenType=T_DOT;			  yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return DOT;}
+"."           {printf("DOT");	    yylval.tokenType=T_DOT;			  yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return DOT;}
 ";"           {printf("SEMI");		  yylval.tokenType=T_SEMI;			yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return SEMI;}
 ":"           {printf("COLON");		  yylval.tokenType=T_COLON;			yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return COLON;}
 ","           {printf("COMMA");		  yylval.tokenType=T_COMMA;			yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return COMMA;}
