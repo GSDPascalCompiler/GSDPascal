@@ -19,8 +19,8 @@ vector<Quad *> vecTAC;
 
 void printAttr(Attribute &attr)
 {
-	cout << attr.attrName << ":";
-	switch (attr.attrType)
+	cout << attr.attrName << " ";
+	/*switch (attr.attrType)
 	{
 	case A_VOID: cout << "A_VOID"; break;
 	case A_BOOLEAN: cout << "A_BOOLEAN"; break;
@@ -35,7 +35,7 @@ void printAttr(Attribute &attr)
 	case A_CONST_REAL:cout << "A_CONST_REAL"; break;
 	case A_CONST_CHAR:cout << "A_CONST_CHAR"; break;
 	case A_CONST_STRING:cout << "A_CONST_STRING"; break;
-	}
+	}*/
 	cout << " ";
 }
 
