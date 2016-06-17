@@ -68,6 +68,7 @@ void Print(StmtType type){
 		case S_RECORD_TYPE_DECL: printf("RECORD_TYPE_DECL");
 		case S_FILED_DECL_LIST: printf("FLED_DECL_LIST"); break;
 		case S_FILED_DECL: printf("FIELD_DECL"); break;
+		case S_TMP_NAME_LIST: printf("TMP_NAME_LIST"); break;
 		case S_NAME_LIST: printf("NAME_LIST"); break;
 		case S_NAME: printf("NAME"); break;
 		case S_VAR_PART: printf("VAR_PART"); break;
@@ -152,6 +153,7 @@ void printTreeNodes(TreeNode *root, int level)
 	{
 		if (!parentIsLast[i])
 			cout << "|";
+		else cout << " ";
 		cout << indent;
 	}
 	cout << "|-";

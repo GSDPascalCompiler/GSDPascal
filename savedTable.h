@@ -3,6 +3,9 @@
 
 #include "symtable.h"
 
+extern Symtable symtable;
+extern SavedTable savedTable;
+
 class SavedTable
 {
 private:
@@ -17,7 +20,5 @@ public:
 	bool isGlobal(string funcName, string varName);
 
 };
-extern Symtable symtable;
-extern SavedTable savedTable;
 
 #endif

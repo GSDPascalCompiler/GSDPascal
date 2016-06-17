@@ -2,7 +2,6 @@
 #define _PARSE_H_
 #include "global.h"
 #include "symtable.h"
-#include "util.h"
 #include <string.h>
 #include <iostream>
 #include <exception>
@@ -11,6 +10,8 @@
 using namespace std;
 
 extern Symtable symtable;
+
+void showErrMsg();
 
 /*Creating Tree Node*/
 TreeNode *newALeafNode(YYSTYPE &child);
@@ -59,4 +60,6 @@ void dealName(TreeNode* tn, vector<string> vec);
 void dealId(TreeNode* tn, vector<string> vec);
 
 SymbolItem* computeType(TreeNode *type);
+SymbolItem* computeVarSimpleType(TreeNode *type);
+SymbolItem* computeVarType(TreeNode *type);
 #endif
