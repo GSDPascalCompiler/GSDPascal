@@ -170,11 +170,14 @@ bool computeStmt(YYSTYPE &root)
 		{
 			string idStr = getID(getNthChild(root, 1));
 			SymbolItem* symbolOfID = symtable.getFromSymtable(idStr);
+			getNthChild(root, 1)->attribute.attrName = string(getNthChild(root, 1)->value.nodeId.id);
+			getNthChild(root, 1)->attribute.attrType = symbolOfID->symbolType;
+			getNthChild(root, 0)->attribute.attrType = symbolOfID->symbolType;
 			TreeNode *t = getNthChild(root, 2);
 			if (symbolOfID == nullptr)
 			{
 				//TODO 
-			//unknown id
+				//unknown id
 				ErrMsg msg;
 				msg.lineno = root.data.treeNode->leftChild->lineno;
 				msg.column = root.data.treeNode->leftChild->column;
@@ -276,6 +279,8 @@ bool computeStmt(YYSTYPE &root)
 		{
 			string idStr = getID(getNthChild(root, 1));
 			SymbolItem* symbolOfID = symtable.getFromSymtable(idStr);
+			getNthChild(root, 1)->attribute.attrName = string(getNthChild(root, 1)->value.nodeId.id);
+			getNthChild(root, 1)->attribute.attrType = symbolOfID->symbolType;
 			if (symbolOfID == nullptr)	//undefined id
 			{
 				//TODO 
