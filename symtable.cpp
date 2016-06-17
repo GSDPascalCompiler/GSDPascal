@@ -21,7 +21,7 @@ void Symtable::leaveScope() {
 	/*map<string, SymbolItem* >::iterator iter;
 	map<string, SymbolItem* > *tMap = table[table.size() - 1];
 	for (iter = tMap->begin(); iter != tMap->end(); iter++) {
-		delete iter->second;
+	delete iter->second;
 	}
 	delete tMap;*/
 	string name = getUniqueName(table.size() - 1);
@@ -36,14 +36,17 @@ void Symtable::leaveScope() {
 	funcName.pop_back();
 }
 
-void Symtable::addIntoSymtable(SymbolItem* sym) {
+int Symtable::addIntoSymtable(SymbolItem* sym) {
 	map<string, SymbolItem* >::iterator iter;
 	map<string, SymbolItem* > *tMap = table[table.size() - 1];
 	if ((iter = tMap->find(sym->symbolName)) == tMap->end()) {
 		tMap->insert(make_pair(sym->symbolName, sym));
-	} else {
-		Debug("the symbol has existed.");
 	}
+	else {
+		Debug("the symbol has existed.");
+		return 0;
+	}
+	return 1;
 }
 
 SymbolItem* Symtable::getFromSymtable(string symbolName) {
@@ -85,9 +88,9 @@ string Symtable::getAUniqueFuncName(string funcName)
 	string name;
 	for (int i = table.size() - 1; i >= 0; i--)
 	{
-		
+
 		if ((*table[i]).find(funcName) != (*table[i]).end())
-			name= getUniqueName(i);
+			name = getUniqueName(i);
 	}
 	return name;
 }

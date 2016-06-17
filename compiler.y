@@ -358,6 +358,7 @@ function_decl	: function_head SEMI sub_routine SEMI
 function_head	: FUNCTION ID parameters COLON simple_type_decl
 {
 	$$ = newTreeNode({$2, $3, $5}, NODE_STMT, S_FUNCTION_HEAD, E_NONE);
+	symtable.setFuncName($$.data.treeNode->leftChild->value.nodeId.id);
 	computeAttrGrammar($$);
 	symtable.showCurrentTable();
 }
@@ -378,6 +379,7 @@ procedure_decl	: procedure_head SEMI sub_routine SEMI
 procedure_head	: PROCEDURE ID parameters
 {
 	$$ = newTreeNode({$2, $3}, NODE_STMT, S_PROCEDURE_HEAD, E_NONE);
+	symtable.setFuncName($$.data.treeNode->leftChild->value.nodeId.id);
 	computeAttrGrammar($$);
 	symtable.showCurrentTable();
 	showErrMsg();
@@ -639,11 +641,13 @@ expression_list	: expression_list COMMA expression
 				{
 					$$=linkTreeNode($1, $3);
 					computeAttrGrammar($$);
+					generateTAC($$);
 				}
 				| expression
 				{
 					$$=newTreeNode({$1},NODE_STMT,S_EXPRESSION_LIST,E_NONE);
 					computeAttrGrammar($$);
+					generateTAC($$);
 				}
 				;
 
@@ -687,6 +691,7 @@ expr 	: expr PLUS term
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_PLUS);
 			computeAttrGrammar($$);
+			generateTAC($$);
 		}
 		| expr MINUS term
 		{

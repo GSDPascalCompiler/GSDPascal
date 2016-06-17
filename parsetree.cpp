@@ -1,6 +1,7 @@
 #include "parsetree.h"
 #include <algorithm>
 #include <iterator>
+#include <sstream>
 using namespace std;
 
 struct ErrMsg{
@@ -12,42 +13,6 @@ struct ErrMsg{
 vector<ErrMsg> errMsg;
 SymbolItem *procFunc;
 int tmpSymCount = 0;
-
-int getInteger(TreeNode* treenode)
-{
-	return treenode->value.nodeInteger.i;
-}
-
-double getDouble(TreeNode* treenode)
-{
-	return treenode->value.nodeReal.r;
-}
-
-char getChar(TreeNode* treenode)
-{
-	return treenode->value.nodeChar.c;
-}
-std::string getStr(TreeNode* treenode)
-{
-	return std::string(treenode->value.nodeString.s);
-}
-std::string getID(TreeNode* treenode)
-{
-	return std::string(treenode->value.nodeId.id);
-}
-
-TreeNode* getNthChild(const YYSTYPE &root, int n)
-{
-	TreeNode* p = root.data.treeNode;
-	if (n == 0);
-	else
-	{
-		p = p->leftChild;
-		while (--n)
-			p = p->rightSibling;
-	}
-	return p;
-}
 
 TreeNode *newALeafNode(YYSTYPE &child)
 {
@@ -843,7 +808,11 @@ bool computeStmtExpressionArithmetic(YYSTYPE &root)
 		return false;
 	}
 	root.data.treeNode->attribute.attrType = leftOperand->attribute.attrType;
-	root.data.treeNode->attribute.attrName = "$t" + tmpSymCount;
+	string tmpStr;
+	stringstream ss;
+	ss << tmpSymCount;
+	ss >> tmpStr;
+	root.data.treeNode->attribute.attrName = "$t" + tmpStr;
 	return true;
 }
 
@@ -977,6 +946,7 @@ bool computeStmtFactorID(YYSTYPE & root)
 	root.data.treeNode->leftChild->attribute.attrName = root.data.treeNode->leftChild->value.nodeId.id;
 	root.data.treeNode->leftChild->attribute.attrType = id->symbolType;
 	root.data.treeNode->attribute.attrType = id->symbolType;
+	root.data.treeNode->attribute.attrName = id->symbolName;
 	return true;
 }
 

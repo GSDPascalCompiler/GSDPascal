@@ -37,6 +37,7 @@ void printAttr(Attribute &attr)
 
 void printVecTAC()
 {
+	cout << endl;
 	for (auto quad : vecTAC)
 	{
 		switch (quad->op)
@@ -62,16 +63,6 @@ void printVecTAC()
 	}
 }
 
-void generateTAC(YYSTYPE & root)
-{
-	switch (root.data.treeNode->nodeType)
-	{
-	case NODE_EXP: break;
-	case NODE_STMT: break;
-	case NODE_TOKEN: break;
-	}
-}
-
 void generateTACStmtKind(YYSTYPE & root)
 {
 	switch (root.data.treeNode->typeValue.stmtType)
@@ -84,12 +75,12 @@ void generateTACStmtKind(YYSTYPE & root)
 void generateTACExpKind(YYSTYPE & root)
 {
 	auto rootNode = root.data.treeNode;
-	auto left = getNthChild(root,1);
+	auto left = getNthChild(root, 1);
 	auto right = getNthChild(root, 2);
 	switch (root.data.treeNode->typeValue.expType)
 	{
 	case E_GE:
-		vecTAC.push_back(new Quad(OP_GE,rootNode->attribute,left->attribute,right->attribute));
+		vecTAC.push_back(new Quad(OP_GE, rootNode->attribute, left->attribute, right->attribute));
 		break;
 	case E_GT:
 		vecTAC.push_back(new Quad(OP_GT, rootNode->attribute, left->attribute, right->attribute));
@@ -128,4 +119,14 @@ void generateTACExpKind(YYSTYPE & root)
 		vecTAC.push_back(new Quad(OP_AND, rootNode->attribute, left->attribute, right->attribute));
 		break;
 	}
+}
+
+void generateTAC(YYSTYPE & root)
+{
+	switch (root.data.treeNode->nodeType)
+	{
+	case NODE_EXP: generateTACExpKind(root); break;
+	case NODE_STMT: generateTACStmtKind(root); break;
+	}
+	printVecTAC();
 }

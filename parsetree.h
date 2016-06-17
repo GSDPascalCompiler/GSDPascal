@@ -2,6 +2,7 @@
 #define _PARSE_H_
 #include "global.h"
 #include "symtable.h"
+#include "util.h"
 #include <string.h>
 #include <iostream>
 #include <exception>
