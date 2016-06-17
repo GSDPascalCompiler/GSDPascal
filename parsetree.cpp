@@ -532,6 +532,7 @@ bool computeStmt(YYSTYPE &root)
 				char str[256];
 				sprintf(str, "%d", root.data.treeNode->leftChild->leftChild->value.nodeInteger.i);
 				root.data.treeNode->leftChild->attribute.attrName = str;
+				root.data.treeNode->attribute.attrName = str;
 				break;
 			}
 			case S_CONST_VALUE_REAL:
@@ -665,6 +666,9 @@ bool computeStmtCaseExprConst(YYSTYPE & root)
 
 bool computeStmtExpressionList(YYSTYPE & root)
 {
+	//expression_list: expression_list COMMA expression
+	auto expression = root.data.treeNode->leftChild;
+	root.data.treeNode->attribute = expression->attribute;
 	return false;
 }
 
