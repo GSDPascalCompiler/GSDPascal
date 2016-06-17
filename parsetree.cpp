@@ -533,7 +533,7 @@ bool computeStmt(YYSTYPE &root)
 			{
 			case S_CONST_VALUE_INT:
 			{
-				root.data.treeNode->attribute.attrType = A_INTEGER; 
+				root.data.treeNode->attribute.attrType = A_CONST_INTEGER; 
 				char str[256];
 				sprintf(str, "%d", root.data.treeNode->leftChild->leftChild->value.nodeInteger.i);
 				root.data.treeNode->leftChild->attribute.attrName = str;
@@ -542,7 +542,7 @@ bool computeStmt(YYSTYPE &root)
 			}
 			case S_CONST_VALUE_REAL:
 			{
-				root.data.treeNode->attribute.attrType = A_REAL; 
+				root.data.treeNode->attribute.attrType = A_CONST_REAL; 
 				char str[256];
 				sprintf(str, "%f", root.data.treeNode->leftChild->leftChild->value.nodeReal.r);
 				root.data.treeNode->leftChild->attribute.attrName = str;
@@ -550,13 +550,13 @@ bool computeStmt(YYSTYPE &root)
 			}
 			case S_CONST_VALUE_CHAR:
 			{
-				root.data.treeNode->attribute.attrType = A_CHAR;
+				root.data.treeNode->attribute.attrType = A_CONST_CHAR;
 				root.data.treeNode->leftChild->attribute.attrName = root.data.treeNode->leftChild->leftChild->value.nodeChar.c;
 				break;
 			}
 			case S_CONST_VALUE_STRING:
 			{
-				root.data.treeNode->attribute.attrType = A_STRING;
+				root.data.treeNode->attribute.attrType = A_CONST_STRING;
 				root.data.treeNode->leftChild->attribute.attrName = root.data.treeNode->leftChild->leftChild->value.nodeString.s;
 				break;
 			}
@@ -817,8 +817,12 @@ bool computeStmtExpressionArithmetic(YYSTYPE &root)
 	auto rightOperand = root.data.treeNode->leftChild->rightSibling;
 	if (leftOperand->attribute.attrType != rightOperand->attribute.attrType)
 	{
-		Debug("Left hand side operand does not match right hand side operand");
-		return false;
+		if (!(leftOperand->attribute.attrType == A_INTEGER&&rightOperand->attribute.attrType == A_CONST_INTEGER
+			|| leftOperand->attribute.attrType == A_CONST_INTEGER&&rightOperand->attribute.attrType == A_INTEGER))
+		{
+			Debug("Left hand side operand does not match right hand side operand");
+			return false;
+		}
 	}
 	root.data.treeNode->attribute.attrType = leftOperand->attribute.attrType;
 	string tmpStr;

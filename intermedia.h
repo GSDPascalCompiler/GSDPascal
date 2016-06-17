@@ -31,6 +31,10 @@ void printAttr(Attribute &attr)
 	case A_ARRAY:cout << "A_ARRAY"; break;
 	case A_RECORD:cout << "A_RECORD"; break;
 	case A_TYPE:cout << "A_TYPE"; break;
+	case A_CONST_INTEGER: cout << "A_CONST_INTEGER"; break;
+	case A_CONST_REAL:cout << "A_CONST_REAL"; break;
+	case A_CONST_CHAR:cout << "A_CONST_CHAR"; break;
+	case A_CONST_STRING:cout << "A_CONST_STRING"; break;
 	}
 	cout << " ";
 }
