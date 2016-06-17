@@ -3,15 +3,15 @@
 #include <iterator>
 using namespace std;
 
-vector<ErrMsg> errMsg;
-SymbolItem *procFunc;
-int tmpSymCount = 0;
-
 struct ErrMsg{
 	int lineno;
 	int column;
 	string msg;
 };
+
+vector<ErrMsg> errMsg;
+SymbolItem *procFunc;
+int tmpSymCount = 0;
 
 int getInteger(TreeNode* treenode)
 {
@@ -283,7 +283,7 @@ bool computeStmt(YYSTYPE &root)
 			if (symbolOfID == nullptr)	//undefined id
 			{
 				//TODO 
-			//unknown id
+				//unknown id
 			}
 			Debug("S_PROC/S_PROC_FUNC type check ok");
 			break;

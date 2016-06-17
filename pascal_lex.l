@@ -8,7 +8,7 @@
 #include <cstring>
 #include "global.h"
 #include "parsetree.h"
-#include "compiler.tab.h"
+#include "y.tab.h"
 #include <initializer_list>
 #include <string>
 #include <map>

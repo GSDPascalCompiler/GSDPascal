@@ -14,8 +14,7 @@ public:
 	void addIntoSymtable(SymbolItem*);
 	SymbolItem* getFromSymtable(string);
 	void showCurrentTable();
+	void setFuncName(string name);
+	string getAUniqueFuncName(string funcName);
 };
-
-extern Symtable symtable;
-
 #endif

@@ -9,9 +9,9 @@
 
 using namespace std;
 
-extern Symtable symtable;
-
 void showErrMsg();
+
+extern Symtable symtable;
 
 /*Creating Tree Node*/
 TreeNode *newALeafNode(YYSTYPE &child);
