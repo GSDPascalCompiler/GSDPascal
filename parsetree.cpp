@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iterator>
 using namespace std;
+<<<<<<< HEAD
 struct ErrMsg{
 	int lineno;
 	int column;
@@ -9,6 +10,11 @@ struct ErrMsg{
 };
 vector<ErrMsg> errMsg;
 SymbolItem *procFunc;
+=======
+
+int tmpSymCount = 0;
+
+>>>>>>> 5951cfb57f58bb95211c28b4762ed5ee31036ec6
 int getInteger(TreeNode* treenode)
 {
 	return treenode->value.nodeInteger.i;
@@ -825,6 +831,7 @@ bool computeStmtExpressionCompare(YYSTYPE & root)
 		return false;
 	}
 	root.data.treeNode->attribute.attrType = A_BOOLEAN;
+	root.data.treeNode->attribute.attrName = "$t"+tmpSymCount;
 	return true;
 }
 
@@ -838,6 +845,7 @@ bool computeStmtExpressionArithmetic(YYSTYPE &root)
 		return false;
 	}
 	root.data.treeNode->attribute.attrType = leftOperand->attribute.attrType;
+	root.data.treeNode->attribute.attrName = "$t" + tmpSymCount;
 	return true;
 }
 

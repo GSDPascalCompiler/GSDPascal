@@ -11,21 +11,23 @@
 
 using namespace std;
 
-
 void showErrMsg();
 
 TreeNode *newALeafNode(YYSTYPE &child);
 
+extern Symtable symtable;
+
+/*Creating Tree Node*/
+TreeNode *newALeafNode(YYSTYPE &child);
 
 YYSTYPE newTreeNode(const std::initializer_list<YYSTYPE> &children, \
                     const NodeType nodeType, \
                     const StmtType stmtType, \
                     const ExpType expType);
+
 YYSTYPE linkTreeNode(YYSTYPE &parent, YYSTYPE &sibling);
 
-
-extern Symtable symtable;
-
+/*Computing Attribute Grammar*/
 bool computeAttrGrammar(YYSTYPE &root);
 
 bool computeStmt(YYSTYPE &root);
@@ -34,7 +36,10 @@ bool computeExp(YYSTYPE &root);
 
 bool computeToken(YYSTYPE &root);
 
-//Statment Call
+/*Generating Three Address Code*/
+
+
+/*Statment Call*/
 bool computeStmtCase(YYSTYPE &root);
 bool computeStmtCaseExprList(YYSTYPE &root);
 bool computeStmtCaseExprId(YYSTYPE &root);
@@ -49,7 +54,6 @@ bool computeStmtFactorArray(YYSTYPE &root);
 bool computeStmtFactorFunc(YYSTYPE &root);
 bool computeStmtFactorRecord(YYSTYPE &root);
 bool computeStmtFactorID(YYSTYPE &root);
-
 
 void dealParaDeclList(TreeNode* tn, SymbolItem* sym);
 void dealParaTypeList(TreeNode* tn, SymbolItem* sym);
