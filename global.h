@@ -13,6 +13,7 @@
 #define snprintf _snprintf
 #endif
 #define Debug(x) cout << x << endl;
+#define MAIN "$main"
 
 using namespace std;
 
