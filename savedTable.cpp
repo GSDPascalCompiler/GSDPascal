@@ -20,3 +20,7 @@ void SavedTable::saveTheParent(string name, string parent)
 	parentNameMap[name] = parent;
 }
 
+bool SavedTable::isGlobal(string funcName, string varName)
+{
+	return true;
+}
