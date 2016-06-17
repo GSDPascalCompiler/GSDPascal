@@ -1,7 +1,8 @@
 %{
+#include <stdio.h>
+#include "intermedia.h"
 #include "global.h"
 #include "parsetree.h"
-#include <stdio.h>
 #include "util.h"
 
 extern int yylex();

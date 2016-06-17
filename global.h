@@ -102,6 +102,7 @@ typedef struct{
 
 typedef struct {
 	AttrType attrType;
+	string attrName;
 }Attribute;
 
 /*Non-leaf node types*/
