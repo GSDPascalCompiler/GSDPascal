@@ -9,8 +9,6 @@
 
 using namespace std;
 
-extern Symtable symtable;
-
 /*Creating Tree Node*/
 TreeNode *newALeafNode(YYSTYPE &child);
 

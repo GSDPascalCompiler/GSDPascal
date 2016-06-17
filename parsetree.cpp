@@ -259,7 +259,7 @@ bool computeStmt(YYSTYPE &root)
 			if (symbolOfID == nullptr)	//undefined id
 			{
 				//TODO 
-			//unknown id
+				//unknown id
 			}
 			Debug("S_PROC/S_PROC_FUNC type check ok");
 			break;

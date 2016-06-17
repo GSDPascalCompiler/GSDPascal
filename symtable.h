@@ -20,9 +20,7 @@ public:
 
 	void setFuncName(string name);
 	string getAUniqueFuncName(string funcName);
-	string get
 };
 
 extern Symtable symtable;
-extern SavedTable savedTable;
 #endif

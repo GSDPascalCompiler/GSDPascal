@@ -12,7 +12,7 @@ SavedTable::~SavedTable()
 
 void SavedTable::saveATable(string name, map<string, SymbolItem*> *table)
 {
-	savedTable[name] = table;
+	staticSymtable[name] = table;
 }
 
 void SavedTable::saveTheParent(string name, string parent)
