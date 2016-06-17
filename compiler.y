@@ -4,12 +4,15 @@
 #include "global.h"
 #include "parsetree.h"
 #include "util.h"
+#include <vector>
 
 extern int yylex();
+extern SymbolItem *procFunc;
 int yyerror(const char *s){
 	printf("%s\n", s);
 	return 0;
 }
+
 %}
 
 %token READ TYPE
@@ -41,7 +44,6 @@ program 	: program_head routine DOT
 program_head	: PROGRAM ID SEMI
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_PROGRAM_HEAD, E_NONE);
-	symtable.enterNewScope();
 	computeAttrGrammar($$);
 	symtable.showCurrentTable();
 }
@@ -93,6 +95,8 @@ label_part	:
 const_part	: CONST const_expr_list
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_CONST_PART, E_NONE);;
+	symtable.showCurrentTable();
+	showErrMsg();
 }
 			|
 {
@@ -113,7 +117,9 @@ const_expr_list	: const_expr_list const_expr
 const_expr 	: ID EQUAL const_value SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_CONST_EXPR, E_NONE);
-	computeAttrGrammar($$);
+	if(computeAttrGrammar($$) == false)
+		showErrMsg();
+	
 }
 			;
 
@@ -142,6 +148,8 @@ const_value	: INTEGER
 type_part	: TYPE type_decl_list
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_TYPE_PART, E_NONE);
+	symtable.showCurrentTable();
+	showErrMsg();
 }
 			|
 {
@@ -163,7 +171,6 @@ type_definition	: ID EQUAL type_decl SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_TYPE_DEFINITION, E_NONE);
 	computeAttrGrammar($$);
-	symtable.showCurrentTable();
 }
 				;
 
@@ -270,6 +277,7 @@ var_part	: VAR var_decl_list
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_VAR_PART, E_NONE);
 	symtable.showCurrentTable();
+	showErrMsg();
 }
 			|
 {
@@ -315,19 +323,19 @@ var_decl 	: name_list COLON type_decl SEMI
 
 routine_part	: routine_part function_decl
 {
-	$$ = newTreeNode({$1, $2}, NODE_STMT, S_ROUTINE_PART_FUNC_LIST, E_NONE);
+	$$ = linkTreeNode($1, $2);
 }
 				| routine_part procedure_decl
 {
-	$$ = newTreeNode({$1, $2}, NODE_STMT, S_ROUTINE_PART_PROC_LIST, E_NONE);
+	$$ = linkTreeNode($1, $2);
 }
 				| function_decl
 {
-	$$ = newTreeNode({$1}, NODE_STMT, S_ROUTINE_PART_FUNC_DECL, E_NONE);
+	$$ = newTreeNode({$1}, NODE_STMT, S_ROUTINE_PART_FUNC_LIST, E_NONE);
 }
 				| procedure_decl
 {
-	$$ = newTreeNode({$1}, NODE_STMT, S_ROUTINE_PART_PROC_DECL, E_NONE);
+	$$ = newTreeNode({$1}, NODE_STMT, S_ROUTINE_PART_PROC_LIST, E_NONE);
 }
 				|
 {
@@ -338,6 +346,12 @@ routine_part	: routine_part function_decl
 function_decl	: function_head SEMI sub_routine SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_FUNCTION_DECL, E_NONE);
+	procFunc = new SymbolItem();
+	memcpy(procFunc, symtable.getFromSymtable($1.data.treeNode->leftChild->value.nodeId.id), sizeof(SymbolItem));
+	symtable.leaveScope();
+	computeAttrGrammar($$);
+	symtable.showCurrentTable();
+	showErrMsg();
 }
 				;
 
@@ -345,19 +359,28 @@ function_head	: FUNCTION ID parameters COLON simple_type_decl
 {
 	$$ = newTreeNode({$2, $3, $5}, NODE_STMT, S_FUNCTION_HEAD, E_NONE);
 	computeAttrGrammar($$);
+	symtable.showCurrentTable();
 }
 				;
 
 procedure_decl	: procedure_head SEMI sub_routine SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_PROCEDURE_DECL, E_NONE);
+	procFunc = new SymbolItem();
+	memcpy(procFunc, symtable.getFromSymtable($1.data.treeNode->leftChild->value.nodeId.id), sizeof(SymbolItem));
+	symtable.leaveScope();
+	computeAttrGrammar($$);
+	symtable.showCurrentTable();
+	showErrMsg();
 }
 				;
 
 procedure_head	: PROCEDURE ID parameters
 {
 	$$ = newTreeNode({$2, $3}, NODE_STMT, S_PROCEDURE_HEAD, E_NONE);
-	symtable.enterNewScope();
+	computeAttrGrammar($$);
+	symtable.showCurrentTable();
+	showErrMsg();
 }
 				;
 
@@ -384,10 +407,14 @@ para_decl_list	: para_decl_list SEMI para_type_list
 para_type_list	: var_para_list COLON simple_type_decl
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_PARA_TYPE_LIST_VAR, E_NONE);
+	computeAttrGrammar($$);
+	symtable.showCurrentTable();
 }
 				| val_para_list COLON simple_type_decl
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_PARA_TYPE_LIST_VAL, E_NONE);
+	computeAttrGrammar($$);
+	symtable.showCurrentTable();
 }
 				;
 
@@ -402,7 +429,6 @@ val_para_list	: name_list
 					$$=newTreeNode({$1}, NODE_STMT, S_VAL_PARA_LIST, E_NONE);
 				}
 				;
-
 
 
 
@@ -439,6 +465,7 @@ stmt_list	: stmt_list stmt SEMI
 stmt 		: INTEGER COLON non_label_stmt
 			{
 				$$=newTreeNode({$1,$3},NODE_STMT,S_STMT,E_NONE);
+				
 			}
 			| non_label_stmt
 			{

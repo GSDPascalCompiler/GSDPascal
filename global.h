@@ -5,6 +5,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <stdio.h>
 
 #define YYSTYPE Value
@@ -49,15 +50,15 @@ enum TokenType{T_READ, T_TYPE, //
 	 S_WHILE,S_REPEAT,S_ELSE,S_IF,
 	 S_PROC_READ,S_PROC_SYS_ARG,S_PROC_SYS,S_PROC_FUNC,S_PROC,
 	 S_ASSIGN_RECORD,S_ASSIGN_ARRAY,S_ASSIGN,
-	 S_STMT,S_STMT_NON,S_STMT_LIST,S_COMPOUND_STMT, S_ROUTINE_BODY,
+	 S_STMT,S_STMT_NON,S_STMT_LIST,S_COMPOUND_STMT, S_ROUTINE_BODY, S_TMP_NAME_LIST,
 	 S_NONE};
 
 enum ExpType{E_AND,E_MOD,E_DIV,E_MUL,E_OR,E_MINUS,E_PLUS,E_UNEQUAL,E_EQUAL,E_LT,E_LE,E_GT,E_GE,E_NONE};
-enum SysConVal{CON_FALSE, CON_MAXINT, CON_TRUE};
+enum SysConVal{CON_FALSE, CON_MAXINT, CON_TRUE, CON_PI};
 enum SysFunctVal{FUNCT_ABS, FUNCT_CHR, FUNCT_ODD, FUNCT_ORD, FUNCT_PRED, FUNCT_SQR, FUNCT_SQRT, FUNCT_SUCC};
 enum SysProcVal{PROC_WRITE, PROC_WRITELN};
 enum SysTypeVal{TYPE_BOOLEAN, TYPE_CHAR, TYPE_INTEGER, TYPE_REAL};
-enum AttrType{A_VOID, A_BOOLEAN, A_INTEGER, A_REAL, A_CHAR, A_STRING, A_ARRAY, A_RECORD, A_TYPE};
+enum AttrType{A_VOID, A_BOOLEAN, A_INTEGER, A_REAL, A_CHAR, A_STRING, A_ARRAY, A_RECORD, A_TYPE, A_PROC, A_FUNC};
 /*Leaf node types*/
 /*The node for INTEGER*/
 typedef struct{
@@ -162,7 +163,10 @@ typedef struct SymbolItem{
   struct SymbolItem *arrayItemType;
   struct SymbolItem *typeDef;
   map<string, SymbolItem*> recordDef;
+  SymbolItem *returnType;
+  vector<SymbolItem*> argList;
   bool leftable;
+
 }SymbolItem;
 
 

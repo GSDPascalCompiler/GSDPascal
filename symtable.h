@@ -14,7 +14,7 @@ public:
 	void clear();
 	void enterNewScope();
 	void leaveScope();
-	void addIntoSymtable(SymbolItem*);
+	int addIntoSymtable(SymbolItem*);
 	SymbolItem* getFromSymtable(string);
 	void showCurrentTable();
 

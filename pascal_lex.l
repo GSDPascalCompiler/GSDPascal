@@ -7,17 +7,19 @@
 #include <stdlib.h>
 #include <cstring>
 #include "global.h"
+#include "parsetree.h"
 #include "y.tab.h"
 #include <initializer_list>
 #include <string>
 #include <map>
 
 int lineno = 1;
-int column = 0;
+int column = 1;
 std::map<std::string, SysConVal> sysConValMap = {
   {"false",CON_FALSE},
   {"maxint",CON_MAXINT},
   {"true",CON_TRUE},
+  {"pi", CON_PI}
 };
 std::map<std::string, SysFunctVal> sysFunctValMap = {
   {"abs", FUNCT_ABS},
@@ -85,9 +87,9 @@ id        ({letter}|\_)({digit}|{letter}|\_)*
 {sys_type}    {printf("SYS_TYPE");	yylval.tokenType=T_SYS_TYPE;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	yylval.data.sysTypeVal = sysTypeValMap[std::string(yytext)];return SYS_TYPE;}
 {sys_proc}    {printf("SYS_PROC");	yylval.tokenType=T_SYS_PROC;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	yylval.data.sysProcVal = sysProcValMap[std::string(yytext)];return SYS_PROC;}
 {sys_funct}   {printf("SYS_FUNCT");	yylval.tokenType=T_SYS_FUNCT;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	yylval.data.sysFunctVal = sysFunctValMap[std::string(yytext)];return SYS_FUNCT;}
-"program"     {printf("PROGRAM");	  yylval.tokenType=T_PROGRAM;	  yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return PROGRAM;}
-"function"    {printf("FUNCTION");	yylval.tokenType=T_FUNCTION;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return FUNCTION;}
-"procedure"   {printf("PROCEDURE");	yylval.tokenType=T_PROCEDURE;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return PROCEDURE;}
+"program"     {printf("PROGRAM");	  yylval.tokenType=T_PROGRAM;	  yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext); symtable.enterNewScope();	return PROGRAM; }
+"function"    {printf("FUNCTION");	yylval.tokenType=T_FUNCTION;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext); symtable.enterNewScope();	return FUNCTION; }
+"procedure"   {printf("PROCEDURE");	yylval.tokenType=T_PROCEDURE;	yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext); symtable.enterNewScope();	return PROCEDURE; }
 "record"      {printf("RECORD");	  yylval.tokenType=T_RECORD;		yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return RECORD;}
 "var"         {printf("VAR");   	  yylval.tokenType=T_VAR;			  yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return VAR;}
 "."           {printf("DOT");	    yylval.tokenType=T_DOT;			  yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return DOT;}
@@ -110,10 +112,10 @@ id        ({letter}|\_)({digit}|{letter}|\_)*
 "goto"        {printf("GOTO");		  yylval.tokenType=T_GOTO;			yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return GOTO;}
 "case"        {printf("CASE");		  yylval.tokenType=T_CASE;			yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	return CASE;}
 {id}          {printf("ID");		    yylval.tokenType=T_ID;			  yylval.lineno=lineno;	yylval.column=column; column+=strlen(yytext);	strcpy(yylval.data.s, yytext); return ID;}
-" "           {printf("%s", yytext);}
-"\n"          {printf("%s", yytext);lineno++;column=0;}
-"\t"          {printf("%s", yytext);}
-.             {printf("%d", lineno);}
+" "           {printf("%s", yytext); column += 1;}
+"\n"          {printf("%s", yytext);lineno++;column=1;}
+"\t"          {printf("%s", yytext);column += 1;}
+.             {printf("%d", lineno); column += strlen(yytext);}
 %%
 #ifdef LOCAL_DEBUG
   freopen("in.txt", "r", stdin);
