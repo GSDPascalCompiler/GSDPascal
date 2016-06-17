@@ -103,7 +103,7 @@ void Print(StmtType type){
 		case S_CASE_EXPR_CONST: case S_CASE_EXPR_ID: printf("CASE_EXPR"); break;
 		case S_GOTO: printf("GOTO"); break;
 		case S_EXPRESSION_LIST: printf("EXPRESSION_LIST"); break;
-		case S_FACTOR_SYS: case S_FACTOR_SYS_ARG: case S_FACTOR_NOT: case S_FACTOR_MINUS: case S_FACTOR_ARRAY: case S_FACTOR_FUNC:
+		case S_FACTOR_SYS: case S_FACTOR_SYS_ARG: case S_FACTOR_NOT: case S_FACTOR_MINUS: case S_FACTOR_CONST: case S_FACTOR_ARRAY: case S_FACTOR_FUNC:
 		case S_FACTOR_RECORD: case S_FACTOR_ID: printf("FACTOR"); break;
 		case S_ARGS: printf("ARGS"); break;
 		case S_ARGS_NULL: printf("ARGS_NULL"); break;

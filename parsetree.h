@@ -34,6 +34,7 @@ bool computeStmtCase(YYSTYPE &root);
 bool computeStmtCaseExprList(YYSTYPE &root);
 bool computeStmtCaseExprId(YYSTYPE &root);
 bool computeStmtCaseExprConst(YYSTYPE &root);
+bool computeStmtFunctionHead(YYSTYPE &root);
 bool computeStmtExpressionList(YYSTYPE &root);
 bool computeStmtExpressionCompare(YYSTYPE &root);
 bool computeStmtExpressionArithmetic(YYSTYPE &root);
@@ -44,4 +45,14 @@ bool computeStmtFactorFunc(YYSTYPE &root);
 bool computeStmtFactorRecord(YYSTYPE &root);
 bool computeStmtFactorID(YYSTYPE &root);
 
+
+void dealParaDeclList(TreeNode* tn, SymbolItem* sym);
+void dealParaTypeList(TreeNode* tn, SymbolItem* sym);
+void dealValParaList(TreeNode* tn, SymbolItem* sym);
+SymbolItem* dealSimpleTypeDecl(TreeNode* tn);
+vector<string> dealNameList(TreeNode* tn, vector<string> vec);
+void dealName(TreeNode* tn, vector<string> vec);
+void dealId(TreeNode* tn, vector<string> vec);
+
+SymbolItem* computeType(TreeNode *type);
 #endif

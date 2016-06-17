@@ -11,6 +11,7 @@ void Symtable::clear() {
 }
 
 void Symtable::enterNewScope() {
+	//Debug("EnterNewScope");
 	map<string, SymbolItem* > *tMap = new map<string, SymbolItem* >;
 	tMap->clear();
 	table.push_back(tMap);
@@ -44,3 +45,16 @@ SymbolItem* Symtable::getFromSymtable(string symbolName) {
 	}
 	return nullptr;
 }
+
+void Symtable::showCurrentTable() {
+	Debug("Show Current Table");
+	map<string, SymbolItem*> *tMap = table[table.size() - 1];
+	map<string, SymbolItem*>::iterator iter;
+	for (iter = tMap->begin(); iter != tMap->end(); iter++) {
+		string res = iter->first;
+		res += " : ";
+		Debug(res);
+		Debug(iter->second->symbolType);
+	}
+}
+

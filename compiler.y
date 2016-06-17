@@ -40,6 +40,9 @@ program 	: program_head routine DOT
 program_head	: PROGRAM ID SEMI
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_PROGRAM_HEAD, E_NONE);
+	symtable.enterNewScope();
+	computeAttrGrammar($$);
+	symtable.showCurrentTable();
 }
 			;
 
@@ -109,6 +112,7 @@ const_expr_list	: const_expr_list const_expr
 const_expr 	: ID EQUAL const_value SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_CONST_EXPR, E_NONE);
+	computeAttrGrammar($$);
 }
 			;
 
@@ -157,6 +161,8 @@ type_decl_list	: type_decl_list type_definition
 type_definition	: ID EQUAL type_decl SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_TYPE_DEFINITION, E_NONE);
+	computeAttrGrammar($$);
+	symtable.showCurrentTable();
 }
 				;
 
@@ -164,6 +170,7 @@ type_decl 	: simple_type_decl
 {
 	$$ = newTreeNode({$1}, NODE_STMT, S_TYPE_DECL_SIMPLE, E_NONE);
 }
+
 			| array_type_decl
 {
 	$$ = newTreeNode({$1}, NODE_STMT, S_TYPE_DECL_ARRAY, E_NONE);
@@ -261,6 +268,7 @@ $$ = newTreeNode({$1}, NODE_STMT, S_NAME,E_NONE);
 var_part	: VAR var_decl_list
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_VAR_PART, E_NONE);
+	symtable.showCurrentTable();
 }
 			|
 {
@@ -281,8 +289,10 @@ var_decl_list	: var_decl_list var_decl
 var_decl 	: name_list COLON type_decl SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_VAR_DECL, E_NONE);
+	computeAttrGrammar($$);
 }
 			;
+
 
 
 
@@ -333,6 +343,7 @@ function_decl	: function_head SEMI sub_routine SEMI
 function_head	: FUNCTION ID parameters COLON simple_type_decl
 {
 	$$ = newTreeNode({$2, $3, $5}, NODE_STMT, S_FUNCTION_HEAD, E_NONE);
+	computeAttrGrammar($$);
 }
 				;
 
@@ -345,6 +356,7 @@ procedure_decl	: procedure_head SEMI sub_routine SEMI
 procedure_head	: PROCEDURE ID parameters
 {
 	$$ = newTreeNode({$2, $3}, NODE_STMT, S_PROCEDURE_HEAD, E_NONE);
+	symtable.enterNewScope();
 }
 				;
 
@@ -702,7 +714,8 @@ factor	:SYS_FUNCT
 		}
 		| const_value
 		{
-			$$=$1;
+			$$=newTreeNode({$1}, NODE_STMT, S_FACTOR_CONST, E_NONE);
+			computeAttrGrammar($$);
 		}
 		| LP expression RP
 		{
@@ -748,7 +761,6 @@ args 		: args_list
 			|
 			{
 				$$=newTreeNode({},NODE_STMT,S_ARGS_NULL,E_NONE);
-				computeAttrGrammar($$);
 			}
 			;
 

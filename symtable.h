@@ -13,6 +13,7 @@ public:
 	void leaveScope();
 	void addIntoSymtable(SymbolItem*);
 	SymbolItem* getFromSymtable(string);
+	void showCurrentTable();
 };
 
 extern Symtable symtable;
