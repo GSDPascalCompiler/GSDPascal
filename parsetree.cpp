@@ -445,7 +445,7 @@ void dealValParaList(TreeNode* tn, SymbolItem* sym) {
 	vec.clear();
 	dealNameList(tn->leftChild, vec);
 	SymbolItem* s = dealSimpleTypeDecl(tn->rightSibling);
-	for (int i = 0; i < vec.size(); i++) {
+	for (unsigned int i = 0; i < vec.size(); i++) {
 		if (sym->recordDef.find(vec[i]) != sym->recordDef.end())
 			Debug("DealValParaList: redefined");
 		sym->recordDef.insert(make_pair(vec[i], s));
