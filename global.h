@@ -164,10 +164,4 @@ typedef struct SymbolItem{
   bool leftable;
 }SymbolItem;
 
-
-/*
-*Define by Jack<wang_kejie@foxmail.com>
-*/
-
-
 #endif

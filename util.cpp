@@ -166,9 +166,50 @@ void printTreeNodes(TreeNode *root, int level)
 		printTreeNodes(p, level + 1);
 }
 
-
-
-void printParseTree(TreeNode *root)
+int getInteger(TreeNode * treenode)
 {
-  
+	return treenode->value.nodeInteger.i;
+}
+
+double getDouble(TreeNode * treenode)
+{
+	return treenode->value.nodeReal.r;
+}
+
+char getChar(TreeNode * treenode)
+{
+	return treenode->value.nodeChar.c;
+}
+
+std::string getStr(TreeNode * treenode)
+{
+	return std::string(treenode->value.nodeString.s);
+}
+
+std::string getID(TreeNode * treenode)
+{
+	return std::string(treenode->value.nodeId.id);
+}
+
+AttrType getAttrType(TreeNode * treenode)
+{
+	return treenode->attribute.attrType;
+}
+
+string getAttrName(TreeNode * treenode)
+{
+	return treenode->attribute.attrName;
+}
+
+TreeNode * getNthChild(const YYSTYPE & root, int n)
+{
+	TreeNode* p = root.data.treeNode;
+	if (n == 0);
+	else
+	{
+		p = p->leftChild;
+		while (--n)
+			p = p->rightSibling;
+	}
+	return p;
 }

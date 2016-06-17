@@ -4,42 +4,6 @@ using namespace std;
 
 int tmpSymCount = 0;
 
-int getInteger(TreeNode* treenode)
-{
-	return treenode->value.nodeInteger.i;
-}
-
-double getDouble(TreeNode* treenode)
-{
-	return treenode->value.nodeReal.r;
-}
-
-char getChar(TreeNode* treenode)
-{
-	return treenode->value.nodeChar.c;
-}
-std::string getStr(TreeNode* treenode)
-{
-	return std::string(treenode->value.nodeString.s);
-}
-std::string getID(TreeNode* treenode)
-{
-	return std::string(treenode->value.nodeId.id);
-}
-
-TreeNode* getNthChild(const YYSTYPE &root, int n)
-{
-	TreeNode* p = root.data.treeNode;
-	if (n == 0);
-	else
-	{
-		p = p->leftChild;
-		while (--n)
-			p = p->rightSibling;
-	}
-	return p;
-}
-
 TreeNode *newALeafNode(YYSTYPE &child)
 {
 	TreeNode *childTreeNode = new TreeNode;
