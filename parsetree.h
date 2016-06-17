@@ -3,11 +3,16 @@
 #include "global.h"
 #include "symtable.h"
 #include <string.h>
+#include <vector>
+#include <string>
 #include <iostream>
 #include <exception>
 #include <initializer_list>
 
 using namespace std;
+
+
+void showErrMsg();
 
 TreeNode *newALeafNode(YYSTYPE &child);
 
@@ -54,5 +59,7 @@ vector<string> dealNameList(TreeNode* tn, vector<string> vec);
 void dealName(TreeNode* tn, vector<string> vec);
 void dealId(TreeNode* tn, vector<string> vec);
 
+SymbolItem* computeVarSimpleType(TreeNode *type);
+SymbolItem* computeVarType(TreeNode *type);
 SymbolItem* computeType(TreeNode *type);
 #endif

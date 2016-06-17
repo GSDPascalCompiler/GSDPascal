@@ -27,14 +27,16 @@ void Symtable::leaveScope() {
 	table.pop_back();
 }
 
-void Symtable::addIntoSymtable(SymbolItem* sym) {
+int Symtable::addIntoSymtable(SymbolItem* sym) {
 	map<string, SymbolItem* >::iterator iter;
 	map<string, SymbolItem* > *tMap = table[table.size() - 1];
 	if ((iter = tMap->find(sym->symbolName)) == tMap->end()) {
 		tMap->insert(make_pair(sym->symbolName, sym));
 	} else {
 		Debug("the symbol has existed.");
+		return 0;
 	}
+	return 1;
 }
 
 SymbolItem* Symtable::getFromSymtable(string symbolName) {

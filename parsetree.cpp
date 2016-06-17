@@ -1,7 +1,14 @@
 #include "parsetree.h"
-
+#include <algorithm>
+#include <iterator>
 using namespace std;
-
+struct ErrMsg{
+	int lineno;
+	int column;
+	string msg;
+};
+vector<ErrMsg> errMsg;
+SymbolItem *procFunc;
 int getInteger(TreeNode* treenode)
 {
 	return treenode->value.nodeInteger.i;
@@ -184,6 +191,8 @@ bool computeExp(YYSTYPE &root)
 	return true;
 }
 
+vector<SymbolItem*> args;
+
 bool computeStmt(YYSTYPE &root)
 {
 	switch (root.data.treeNode->typeValue.stmtType)
@@ -192,15 +201,28 @@ bool computeStmt(YYSTYPE &root)
 		{
 			string idStr = getID(getNthChild(root, 1));
 			SymbolItem* symbolOfID = symtable.getFromSymtable(idStr);
+			TreeNode *t = getNthChild(root, 2);
 			if (symbolOfID == nullptr)
 			{
 				//TODO 
 			//unknown id
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = string("Unknown ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\'";
+				errMsg.push_back(msg);
+				return false;
 			}
 			else if (symbolOfID->symbolType != getNthChild(root, 2)->attribute.attrType)
 			{
 				//TODO 
 			//assign type unmatched
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = "Unmatched type";
+				errMsg.push_back(msg);
+				return false;
 			}
 			Debug("S_ASSIGN type check ok");
 			break;
@@ -311,7 +333,7 @@ bool computeStmt(YYSTYPE &root)
 			symtable.addIntoSymtable(sym);
 			break;
 		}
-		case S_CONST_EXPR: //need modify
+		case S_CONST_EXPR: 
 		{
 			SymbolItem *sym = new SymbolItem();
 			switch(root.data.treeNode->leftChild->rightSibling->typeValue.stmtType)
@@ -320,41 +342,284 @@ bool computeStmt(YYSTYPE &root)
 				case S_CONST_VALUE_REAL: sym->symbolType = A_REAL; break;
 				case S_CONST_VALUE_CHAR: sym->symbolType = A_CHAR; break;
 				case S_CONST_VALUE_STRING: sym->symbolType = A_STRING; break;
-				//case S_CONST_VALUE_SYS_CON: sym->symbolType = A_CONST; break;
+				case S_CONST_VALUE_SYS_CON:
+				{
+					switch (root.data.treeNode->leftChild->rightSibling->leftChild->value.nodeSysConVal.sysConVal)
+					{
+					case CON_FALSE: case CON_TRUE: sym->symbolType = A_BOOLEAN; break;
+					case CON_MAXINT: sym->symbolType = A_INTEGER; break;
+					case CON_PI: sym->symbolType = A_REAL; break;
+					}
+					break;
+				}
 			}
 			sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
 			sym->leftable = false;
-			symtable.addIntoSymtable(sym);
-			break;
+			if (symtable.addIntoSymtable(sym) == 0)
+			{
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = string("ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\' already used";
+				errMsg.push_back(msg);
+				return false;
+			}
+			return true;
 		}
 		case S_TYPE_DEFINITION:
 		{
 			SymbolItem *sym = computeType(root.data.treeNode->leftChild->rightSibling);
+			if (sym == nullptr)
+			{
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+				msg.column = root.data.treeNode->leftChild->rightSibling->column;
+				msg.msg = "Unknown type";
+				errMsg.push_back(msg);
+				return false;
+			}
 			sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
 			sym->leftable = false;
-			symtable.addIntoSymtable(sym);
-			break;
+			if (symtable.addIntoSymtable(sym) == 0)
+			{
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = string("ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\' already used";
+				errMsg.push_back(msg);
+				return false;
+			}
+			return true;
 		}
-		case S_VAR_DECL:
+		case S_VAR_DECL: 
 		{
 			TreeNode *nameList = root.data.treeNode->leftChild;
+			bool flag = true;
 			for(TreeNode *p = nameList->leftChild; p != nullptr; p = p->rightSibling)
 			{
-				SymbolItem *sym = computeType(nameList->rightSibling);
+				SymbolItem *sym = computeVarType(nameList->rightSibling);
+				if (sym == nullptr)
+				{
+					ErrMsg msg;
+					msg.lineno = nameList->rightSibling->lineno;
+					msg.column = nameList->rightSibling->column;
+					msg.msg = "Unknown type";
+					errMsg.push_back(msg);
+					return false;
+				}
 				sym->symbolName = p->leftChild->value.nodeId.id;
 				sym->leftable = true;
-				symtable.addIntoSymtable(sym);
+				if (symtable.addIntoSymtable(sym) == 0)
+				{
+					ErrMsg msg;
+					msg.lineno = p->leftChild->lineno;
+					msg.column = p->leftChild->column;
+					msg.msg = string("ID \'") + p->leftChild->value.nodeId.id + "\' already used";
+					errMsg.push_back(msg);
+					flag = false;
+				}
+				
 			}
-			break;
+			return flag;
+		}
+		case S_PARA_TYPE_LIST_VAR: case S_PARA_TYPE_LIST_VAL:
+		{
+			TreeNode *nameList = root.data.treeNode->leftChild->leftChild;
+			bool flag = true;
+			for (TreeNode *p = nameList->leftChild; p != nullptr; p = p->rightSibling)
+			{
+				SymbolItem *sym = computeVarSimpleType(root.data.treeNode->leftChild->rightSibling);
+				if (sym == nullptr)
+				{
+					ErrMsg msg;
+					msg.lineno = root.data.treeNode->leftChild->lineno;
+					msg.column = root.data.treeNode->leftChild->column;
+					msg.msg = "Unknown type or too difficult type";
+					errMsg.push_back(msg);
+					return false;
+				}
+				sym->symbolName = p->leftChild->value.nodeId.id;
+				sym->leftable = true;
+				if (symtable.addIntoSymtable(sym) == 0)
+				{
+					ErrMsg msg;
+					msg.lineno = p->leftChild->lineno;
+					msg.column = p->leftChild->column;
+					msg.msg = string("ID \'") + p->leftChild->value.nodeId.id + "\' already used";
+					errMsg.push_back(msg);
+					flag = false;
+				}
+				args.push_back(sym);
+			}
+			return flag;
+		}
+		case S_PROCEDURE_HEAD:
+		{
+			SymbolItem *sym = new SymbolItem();
+			sym->symbolType = A_PROC;
+			sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
+			sym->leftable = false;
+			copy(args.begin(), args.end(), back_inserter(sym->argList));
+			args.clear();
+			if (symtable.addIntoSymtable(sym) == 0)
+			{
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = string("ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\' already used";
+				errMsg.push_back(msg);
+				return false;
+			}
+			return true;
+		}
+		case S_PROCEDURE_DECL:
+		{
+			if (procFunc == nullptr || procFunc->symbolType != A_PROC)
+			{
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->leftChild->column;
+				msg.msg = "procedure not correclty built";
+				errMsg.push_back(msg);
+				return false;
+			}
+			if (symtable.addIntoSymtable(procFunc) == 0)
+			{
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->leftChild->column;
+				msg.msg = string("ID \'") + root.data.treeNode->leftChild->leftChild->value.nodeId.id + "\' already used";
+				errMsg.push_back(msg);
+				return false;
+			}
+			return true;
+		}
+		case S_FUNCTION_HEAD:
+		{
+			SymbolItem *sym = new SymbolItem();
+			sym->symbolType = A_FUNC;
+			sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
+			sym->leftable = false;
+			copy(args.begin(), args.end(), back_inserter(sym->argList));
+			args.clear();
+			sym->returnType = computeVarSimpleType(root.data.treeNode->leftChild->rightSibling->rightSibling);
+			if (sym->returnType == nullptr)
+			{
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->rightSibling->rightSibling->lineno;
+				msg.column = root.data.treeNode->leftChild->rightSibling->rightSibling->column;
+				msg.msg = "Unknown type or too difficult type";
+				errMsg.push_back(msg);
+				return false;
+			}
+			if (symtable.addIntoSymtable(sym) == 0)
+			{
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = string("ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\' already used";
+				errMsg.push_back(msg);
+				return false;
+			}
+			return true;
+		}
+		case S_FUNCTION_DECL:
+		{
+			if (procFunc == nullptr || procFunc->symbolType != A_FUNC)
+			{
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->leftChild->column;
+				msg.msg = "function not correclty built";
+				errMsg.push_back(msg);
+				return false;
+			}
+			if (symtable.addIntoSymtable(procFunc) == 0)
+			{
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->leftChild->column;
+				msg.msg = string("ID \'") + root.data.treeNode->leftChild->leftChild->value.nodeId.id + "\' already used";
+				errMsg.push_back(msg);
+				return false;
+			}
+			return true;
 		}
 		case S_CASE: return computeStmtCase(root);
 		case S_CASE_EXPR_LIST: return computeStmtCaseExprList(root);
 		case S_CASE_EXPR_ID:return computeStmtCaseExprId(root);
 		case S_CASE_EXPR_CONST:return computeStmtCaseExprConst(root);
-		case S_FUNCTION_HEAD: return computeStmtFunctionHead(root);
+		//case S_FUNCTION_HEAD: return computeStmtFunctionHead(root);
 		case S_EXPRESSION_LIST:return computeStmtExpressionList(root);
 		case S_FACTOR_SYS:
 		case S_FACTOR_SYS_ARG:return computeStmtFactorSysFunct(root);
+		case S_FACTOR_CONST:
+		{
+			switch (root.data.treeNode->leftChild->typeValue.stmtType)
+			{
+			case S_CONST_VALUE_INT:
+			{
+				root.data.treeNode->attribute.attrType = A_INTEGER; 
+				char str[256];
+				sprintf(str, "%d", root.data.treeNode->leftChild->leftChild->value.nodeInteger.i);
+				root.data.treeNode->leftChild->attribute.attrName = str;
+				break;
+			}
+			case S_CONST_VALUE_REAL:
+			{
+				root.data.treeNode->attribute.attrType = A_REAL; 
+				char str[256];
+				sprintf(str, "%f", root.data.treeNode->leftChild->leftChild->value.nodeReal.r);
+				root.data.treeNode->leftChild->attribute.attrName = str;
+				break;
+			}
+			case S_CONST_VALUE_CHAR:
+			{
+				root.data.treeNode->attribute.attrType = A_CHAR;
+				root.data.treeNode->leftChild->attribute.attrName = root.data.treeNode->leftChild->leftChild->value.nodeChar.c;
+				break;
+			}
+			case S_CONST_VALUE_STRING:
+			{
+				root.data.treeNode->attribute.attrType = A_STRING;
+				root.data.treeNode->leftChild->attribute.attrName = root.data.treeNode->leftChild->leftChild->value.nodeString.s;
+				break;
+			}
+			case S_CONST_VALUE_SYS_CON:
+			{
+				switch (root.data.treeNode->leftChild->leftChild->value.nodeSysConVal.sysConVal)
+				{
+				case CON_FALSE:
+				{
+					root.data.treeNode->attribute.attrType = A_BOOLEAN;
+					root.data.treeNode->leftChild->attribute.attrName = "false";
+					break;
+				}
+				case CON_TRUE:
+				{
+					root.data.treeNode->attribute.attrType = A_BOOLEAN; 
+					root.data.treeNode->leftChild->attribute.attrName = "true";
+					break;
+				}
+				case CON_MAXINT:
+				{
+					root.data.treeNode->attribute.attrType = A_INTEGER;
+					root.data.treeNode->leftChild->attribute.attrName = "maxint";
+					break;
+				}
+				case CON_PI:
+				{
+					root.data.treeNode->attribute.attrType = A_REAL; 
+					root.data.treeNode->leftChild->attribute.attrName = "pi";
+					break;
+				}
+				}
+				break;
+			}
+			}
+			root.data.treeNode->leftChild->attribute.attrType = root.data.treeNode->attribute.attrType;
+			
+		}
 		case S_FACTOR_ARRAY:return computeStmtFactorArray(root);
 		case S_FACTOR_FUNC:return computeStmtFactorFunc(root);
 		case S_FACTOR_RECORD:return computeStmtFactorRecord(root);
@@ -698,52 +963,193 @@ bool computeStmtFactorRecord(YYSTYPE & root)
 
 bool computeStmtFactorID(YYSTYPE & root)
 {
+	SymbolItem *id = symtable.getFromSymtable(root.data.treeNode->leftChild->value.nodeId.id);
+	if (id == nullptr){
+		Debug("id not found");
+		return false;
+	}
+	root.data.treeNode->leftChild->attribute.attrName = root.data.treeNode->leftChild->value.nodeId.id;
+	root.data.treeNode->leftChild->attribute.attrType = id->symbolType;
+	root.data.treeNode->attribute.attrType = id->symbolType;
 	return true;
 }
 
+SymbolItem* computeVarType(TreeNode *type){
+	SymbolItem *sym = nullptr;
+	switch (type->leftChild->typeValue.stmtType)
+	{
+	case S_SIMPLE_TYPE_DECL_SYS:
+	{
+		sym = new SymbolItem();
+		switch (type->leftChild->leftChild->value.nodeSysTypeVal.sysTypeVal)
+		{
+		case TYPE_BOOLEAN: sym->symbolType = A_BOOLEAN; break;
+		case TYPE_CHAR: sym->symbolType = A_CHAR; break;
+		case TYPE_INTEGER: sym->symbolType = A_INTEGER; break;
+		case TYPE_REAL: sym->symbolType = A_REAL; break;
+		}
+		break;
+	}
+	case S_SIMPLE_TYPE_DECL_ID:
+	{
+		
+		SymbolItem *tmp = symtable.getFromSymtable(type->leftChild->leftChild->value.nodeId.id);
+		if (tmp == nullptr || tmp->symbolType != A_TYPE)
+			break;
+		sym = new SymbolItem();
+		memcpy(sym, tmp->typeDef, sizeof(SymbolItem));
+		//*(sym->typeDef) = *(symtable.getFromSymtable(type->value.nodeId.id)->typeDef);
+		break;
+	}
+	case S_ARRAY_TYPE_DECL:
+	{
+		sym = new SymbolItem();
+		sym->symbolType = A_ARRAY;
+		sym->arrayItemType = computeVarType(type->leftChild->leftChild->rightSibling);
+		break;
+	}
+	case S_RECORD_TYPE_DECL:
+	{
+		sym = new SymbolItem();
+		sym->symbolType = A_RECORD;
+		for (TreeNode *p = type->leftChild->leftChild->leftChild; p != nullptr; p = p->rightSibling)
+		{
+
+			for (TreeNode *pname = p->leftChild->leftChild; pname != nullptr; pname = pname->rightSibling)
+			{
+				SymbolItem *stype = computeVarType(p->leftChild->rightSibling);
+				stype->symbolName = pname->leftChild->value.nodeId.id;
+				sym->recordDef[pname->leftChild->value.nodeId.id] = stype;
+			}
+		}
+		break;
+	}
+	}
+	return sym;
+}
+
+SymbolItem* computeVarSimpleType(TreeNode *type){
+	SymbolItem *sym = nullptr;
+	switch (type->typeValue.stmtType)
+	{
+	case S_SIMPLE_TYPE_DECL_SYS:
+	{
+		sym = new SymbolItem();
+		switch (type->leftChild->value.nodeSysTypeVal.sysTypeVal)
+		{
+		case TYPE_BOOLEAN: sym->symbolType = A_BOOLEAN; break;
+		case TYPE_CHAR: sym->symbolType = A_CHAR; break;
+		case TYPE_INTEGER: sym->symbolType = A_INTEGER; break;
+		case TYPE_REAL: sym->symbolType = A_REAL; break;
+		}
+		break;
+	}
+	case S_SIMPLE_TYPE_DECL_ID:
+	{
+
+		SymbolItem *tmp = symtable.getFromSymtable(type->leftChild->value.nodeId.id);
+		if (tmp == nullptr || tmp->symbolType != A_TYPE)
+			break;
+		sym = new SymbolItem();
+		memcpy(sym, tmp->typeDef, sizeof(SymbolItem));
+		//*(sym->typeDef) = *(symtable.getFromSymtable(type->value.nodeId.id)->typeDef);
+		break;
+	}
+	/*case S_ARRAY_TYPE_DECL:
+	{
+		sym = new SymbolItem();
+		sym->symbolType = A_ARRAY;
+		sym->arrayItemType = computeVarType(type->leftChild->rightSibling);
+		break;
+	}
+	case S_RECORD_TYPE_DECL:
+	{
+		sym = new SymbolItem();
+		sym->symbolType = A_RECORD;
+		for (TreeNode *p = type->leftChild->leftChild; p != nullptr; p = p->rightSibling)
+		{
+
+			for (TreeNode *pname = p->leftChild->leftChild; pname != nullptr; pname = pname->rightSibling)
+			{
+				SymbolItem *stype = computeVarType(p->leftChild->rightSibling);
+				stype->symbolName = pname->leftChild->value.nodeId.id;
+				sym->recordDef[pname->leftChild->value.nodeId.id] = stype;
+			}
+		}
+		break;
+	}*/
+	}
+	return sym;
+}
+
 SymbolItem* computeType(TreeNode *type){
-	SymbolItem *sym = new SymbolItem();
+	SymbolItem *sym = nullptr;
 	switch(type->leftChild->typeValue.stmtType)
 	{
 		case S_SIMPLE_TYPE_DECL_SYS:
 		{
+			sym = new SymbolItem();
+			sym->symbolType = A_TYPE;
+			sym->typeDef = new SymbolItem();
 			switch(type->leftChild->leftChild->value.nodeSysTypeVal.sysTypeVal)
 			{
-			case TYPE_BOOLEAN: sym->symbolType = A_BOOLEAN; break;
-			case TYPE_CHAR: sym->symbolType = A_CHAR; break;
-			case TYPE_INTEGER: sym->symbolType = A_INTEGER; break;
-			case TYPE_REAL: sym->symbolType = A_REAL; break;
+			case TYPE_BOOLEAN: sym->typeDef->symbolType = A_BOOLEAN; break;
+			case TYPE_CHAR: sym->typeDef->symbolType = A_CHAR; break;
+			case TYPE_INTEGER: sym->typeDef->symbolType = A_INTEGER; break;
+			case TYPE_REAL: sym->typeDef->symbolType = A_REAL; break;
 			}
 			break;
 		}
 		case S_SIMPLE_TYPE_DECL_ID:
 		{
+			
 			SymbolItem *tmp = symtable.getFromSymtable(type->leftChild->leftChild->value.nodeId.id);
-			memcpy(sym, tmp, sizeof(SymbolItem));
+			if (tmp == nullptr || tmp->symbolType != A_TYPE)
+				break;
+			sym = new SymbolItem();
+			sym->symbolType = A_TYPE;
+			sym->typeDef = new SymbolItem();
+			memcpy(sym->typeDef, tmp->typeDef, sizeof(SymbolItem));
 			//*(sym->typeDef) = *(symtable.getFromSymtable(type->value.nodeId.id)->typeDef);
 			break;
 		}
 		case S_ARRAY_TYPE_DECL:
 		{
-			sym->symbolType = A_ARRAY;
-			sym->arrayItemType = computeType(type->leftChild->leftChild->rightSibling);
+			sym = new SymbolItem();
+			sym->symbolType = A_TYPE;
+			sym->typeDef = new SymbolItem();
+			sym->typeDef->symbolType = A_ARRAY;
+			sym->typeDef->arrayItemType = computeVarType(type->leftChild->leftChild->rightSibling);
 			break;
 		}
 		case S_RECORD_TYPE_DECL:
 		{
-			sym->symbolType = A_RECORD;
+			sym = new SymbolItem();
+			sym->symbolType = A_TYPE;
+			sym->typeDef = new SymbolItem();
+			sym->typeDef->symbolType = A_RECORD;
 			for(TreeNode *p = type->leftChild->leftChild->leftChild; p != nullptr; p = p->rightSibling)
 			{
 				
 				for(TreeNode *pname = p->leftChild->leftChild; pname != nullptr; pname = pname->rightSibling)
 				{
-					SymbolItem *stype = computeType(p->leftChild->rightSibling);
+					SymbolItem *stype = computeVarType(p->leftChild->rightSibling);
 					stype->symbolName = pname->leftChild->value.nodeId.id;
-					sym->recordDef[pname->leftChild->value.nodeId.id] = stype;
+					sym->typeDef->recordDef[pname->leftChild->value.nodeId.id] = stype;
 				}
 			}
 			break;
 		}
 	}
 	return sym;
+}
+
+void showErrMsg()
+{
+	for (int i = 0; i < errMsg.size(); ++i)
+	{
+		cout << "[" << i + 1 << "]\t";
+		cout << "line " << errMsg[i].lineno << ", column " << errMsg[i].column << ": ";
+		cout << errMsg[i].msg << endl;
+	}
 }
