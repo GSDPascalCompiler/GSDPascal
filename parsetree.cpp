@@ -794,7 +794,11 @@ bool computeStmtExpressionCompare(YYSTYPE & root)
 		return false;
 	}
 	root.data.treeNode->attribute.attrType = A_BOOLEAN;
-	root.data.treeNode->attribute.attrName = "$t"+tmpSymCount;
+	string tmpStr;
+	stringstream ss;
+	ss << tmpSymCount++;
+	ss >> tmpStr;
+	root.data.treeNode->attribute.attrName = "$t" + tmpStr;
 	return true;
 }
 
@@ -810,7 +814,7 @@ bool computeStmtExpressionArithmetic(YYSTYPE &root)
 	root.data.treeNode->attribute.attrType = leftOperand->attribute.attrType;
 	string tmpStr;
 	stringstream ss;
-	ss << tmpSymCount;
+	ss << tmpSymCount++;
 	ss >> tmpStr;
 	root.data.treeNode->attribute.attrName = "$t" + tmpStr;
 	return true;

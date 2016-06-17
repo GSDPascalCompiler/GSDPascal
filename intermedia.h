@@ -60,13 +60,22 @@ void printVecTAC()
 		printAttr(quad->addr1);
 		printAttr(quad->addr2);
 		printAttr(quad->addr3);
+		cout << endl;
 	}
 }
 
 void generateTACStmtKind(YYSTYPE & root)
 {
+	auto rootNode = root.data.treeNode;
+	auto left = getNthChild(root, 1);
+	auto right = getNthChild(root, 2);
+	Attribute none;
+	none.attrName = "";
+	none.attrType = A_VOID;
 	switch (root.data.treeNode->typeValue.stmtType)
 	{
+		case S_ASSIGN:
+			vecTAC.push_back(new Quad(OP_PLUS, left->attribute, right->attribute, none)); break;
 	default:
 		break;
 	}
@@ -128,5 +137,4 @@ void generateTAC(YYSTYPE & root)
 	case NODE_EXP: generateTACExpKind(root); break;
 	case NODE_STMT: generateTACStmtKind(root); break;
 	}
-	printVecTAC();
 }
