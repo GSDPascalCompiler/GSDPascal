@@ -99,3 +99,8 @@ void Symtable::setFuncName(string name)
 {
 	funcName.push_back(name);
 }
+
+map<string, SymbolItem*>* Symtable::getAllGlobal()
+{
+	return table[0];
+}
