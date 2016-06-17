@@ -23,4 +23,6 @@ void SavedTable::saveTheParent(string name, string parent)
 bool SavedTable::isGlobal(string funcName, string varName)
 {
 	return true;
+	//string str = funcName;
+	//map<string, SymbolItem*>* tMap = 
 }

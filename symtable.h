@@ -20,6 +20,7 @@ public:
 
 	void setFuncName(string name);
 	string getAUniqueFuncName(string funcName);
+	map<string, SymbolItem*>* getAllGlobal();
 };
 
 extern Symtable symtable;
