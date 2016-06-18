@@ -15,6 +15,7 @@ public:
 	void saveTheParent(string name, string parent);
 	map<string, int> getParamsOffset(string funcName);
 	bool isGlobal(string funcName, string varName);
+	void showAllTable();
 };
 
 extern SavedTable savedTable;

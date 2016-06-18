@@ -12,6 +12,8 @@ void Symtable::clear() {
 
 void Symtable::enterNewScope() {
 	//Debug("EnterNewScope");
+	if (table.size() == 0)
+		funcName.push_back(MAIN);
 	map<string, SymbolItem* > *tMap = new map<string, SymbolItem* >;
 	tMap->clear();
 	table.push_back(tMap);
@@ -78,7 +80,7 @@ string Symtable::getUniqueName(int index)
 		Debug("ERROR: index out of the table!\n");
 		return name;
 	}
-	for (int i = 0; i < index; i++)
+	for (int i = 0; i <= index; i++)
 		name += funcName[i] + "/";
 	return name;
 }

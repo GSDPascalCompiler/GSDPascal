@@ -53,6 +53,7 @@ program_head	: PROGRAM ID SEMI
 routine		: routine_head routine_body
 {
 	$$ = newTreeNode({$1, $2}, NODE_STMT, S_ROUTINE, E_NONE);
+	symtable.leaveScope();
 }
 			;
 
@@ -816,5 +817,7 @@ args_list	: args_list COMMA expression
 			;
 %%
 int main(){
-	return yyparse();
+	int ret = yyparse();
+	savedTable.showAllTable();
+	return ret;
 }
