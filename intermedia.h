@@ -17,6 +17,7 @@ public:
 
 extern vector<Quad *> vecTAC;
 
+
 void generateTAC(YYSTYPE & root);
 void generateTACExpKind(YYSTYPE & root);
 void generateTACStmtKind(YYSTYPE & root);
