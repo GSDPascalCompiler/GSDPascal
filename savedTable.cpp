@@ -25,18 +25,18 @@ void SavedTable::saveTheParent(string name, string parent)
 
 bool SavedTable::isGlobal(string funcName, string varName)
 {
-	//while (staticSymtable.find(funcName) != staticSymtable.end()) {
-	//	if (staticSymtable[funcName]->find(varName) != staticSymtable[funcName]->end()) {
-	//		if (funcName == "main/")
-	//			return true;
-	//		else
-	//			return false;
-	//	}
-	//	else {
-	//		funcName = parentNameMap[funcName];
-	//	}
-	//}
-	//return false;
+	while (staticSymtable.find(funcName) != staticSymtable.end()) {
+		if (staticSymtable[funcName]->find(varName) != staticSymtable[funcName]->end()) {
+			if (funcName == "$main/")
+				return true;
+			else
+				return false;
+		}
+		else {
+			funcName = parentNameMap[funcName];
+		}
+	}
+	return false;
 }
 
 void print(AttrType type)
