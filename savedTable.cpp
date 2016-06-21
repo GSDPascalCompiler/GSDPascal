@@ -37,6 +37,7 @@ bool SavedTable::isGlobal(string funcName, string varName)
 	//	}
 	//}
 	//return false;
+	return false;
 }
 
 void print(AttrType type)

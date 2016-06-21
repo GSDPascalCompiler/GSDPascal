@@ -1,6 +1,5 @@
 %{
 #include <stdio.h>
-#include "intermedia.h"
 #include "global.h"
 #include "parsetree.h"
 #include "util.h"
@@ -37,7 +36,6 @@ program 	: program_head routine DOT
 {
 	$$ = newTreeNode({$1, $2}, NODE_STMT, S_PROGRAM, E_NONE);
 	printTreeNodes($$.data.treeNode, 0);
-	printVecTAC();
 }
 			;
 
@@ -519,7 +517,6 @@ assign_stmt 	: ID ASSIGN expression
 				{
 					$$=newTreeNode({$1,$3},NODE_STMT,S_ASSIGN,E_NONE);
 					computeAttrGrammar($$);
-					generateTAC($$);
 				}
 				| ID LB expression RB ASSIGN expression
 				{
@@ -644,13 +641,11 @@ expression_list	: expression_list COMMA expression
 				{
 					$$=linkTreeNode($1, $3);
 					computeAttrGrammar($$);
-					generateTAC($$);
 				}
 				| expression
 				{
 					$$=newTreeNode({$1},NODE_STMT,S_EXPRESSION_LIST,E_NONE);
 					computeAttrGrammar($$);
-					generateTAC($$);
 				}
 				;
 
@@ -694,19 +689,16 @@ expr 	: expr PLUS term
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_PLUS);
 			computeAttrGrammar($$);
-			generateTAC($$);
 		}
 		| expr MINUS term
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_MINUS);
 			computeAttrGrammar($$);
-			generateTAC($$);
 		}
 		| expr OR term
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_OR);
 			computeAttrGrammar($$);
-			generateTAC($$);
 		}
 		| term
 		{
@@ -718,25 +710,21 @@ term	: term MUL factor
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_MUL);
 			computeAttrGrammar($$);
-			generateTAC($$);
 		}
 		| term DIV factor
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_DIV);
 			computeAttrGrammar($$);
-			generateTAC($$);
 		}
 		| term MOD factor
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_MOD);
 			computeAttrGrammar($$);
-			generateTAC($$);
 		}
 		| term AND factor
 		{
 			$$=newTreeNode({$1, $3},NODE_EXP,S_NONE,E_AND);
 			computeAttrGrammar($$);
-			generateTAC($$);
 		}
 		| factor
 		{

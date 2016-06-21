@@ -1,10 +1,12 @@
 #include "codegeneration.h"
 #include "assigngeneration.h"
 #include "outputgeneration.h"
+#include "ifgeneration.h"
 #include "stringutils.h"
 
 const int CG_ASSIGN = 0;
 const int CG_OUTPUT = 1;
+const int CG_IF = 2;
 
 const string fileName = "cg.asm";
 
@@ -19,6 +21,7 @@ void CodeGeneration::init() {
 	processor.clear();
 	processor.insert(make_pair(CG_ASSIGN, new AssignGeneration()));
 	processor.insert(make_pair(CG_OUTPUT, new OutputGeneration()));
+	processor.insert(make_pair(CG_IF, new IfGeneration()));
 	generateHeadSeg();
 	generateFootSeg();
 }
@@ -38,6 +41,9 @@ void CodeGeneration::generateCode(TreeNode* tn) {
 		processor[CG_OUTPUT]->generateCode(tn);
 		break;
 	case S_PROC_READ:
+		break;
+	case S_IF:
+		processor[CG_IF]->generateCode(tn);
 		break;
 	}
 }
