@@ -4,5 +4,5 @@
 
 class OutputGeneration : public Generator {
 public:
-	string generateCode(TreeNode*);
+	void generateCode(TreeNode*);
 };

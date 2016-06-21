@@ -3,5 +3,5 @@
 
 class AssignGeneration : public Generator{
 public:
-	string generateCode(TreeNode*);
+	void generateCode(TreeNode*);
 };

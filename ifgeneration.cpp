@@ -1,7 +1,15 @@
 #include "ifgeneration.h"
 
-string IfGeneration::generateCode(TreeNode * tn)
+void IfGeneration::generateCode(TreeNode * tn)
 {
-	
-	return string();
+	auto equal = tn->leftChild;
+	auto stmt = equal->rightSibling;
+	auto elseclause = stmt->rightSibling;
+	CodeGeneration::generateCode(equal);
+	CodeGeneration::writeCodeSeg(".IF eax==1");
+	CodeGeneration::generateCode(stmt->leftChild);
+	CodeGeneration::writeCodeSeg(".ELSE");
+	CodeGeneration::generateCode(elseclause->leftChild);
+	CodeGeneration::writeCodeSeg(".ENDIF");
+	return;
 }

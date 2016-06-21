@@ -2,7 +2,7 @@
 #include "codegeneration.h"
 #include "stringutils.h"
 
-string AssignGeneration::generateCode(TreeNode *tn) {
+void AssignGeneration::generateCode(TreeNode *tn) {
 	string ret = "";
 	TreeNode* id = tn->leftChild;
 	TreeNode* type = tn->rightSibling->leftChild;
@@ -13,5 +13,4 @@ string AssignGeneration::generateCode(TreeNode *tn) {
 	case S_CONST_VALUE_REAL:
 		break;
 	}
-	return ret;
 }
