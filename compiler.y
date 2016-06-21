@@ -540,7 +540,7 @@ proc_stmt		: ID
 				}
 				| ID LP args RP
 				{
-					$$=newTreeNode({$3},NODE_STMT,S_PROC_FUNC,E_NONE);
+					$$=newTreeNode({$1, $3},NODE_STMT,S_PROC_FUNC,E_NONE);
 					computeAttrGrammar($$);
 				}
 				| SYS_PROC

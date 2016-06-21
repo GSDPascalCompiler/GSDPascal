@@ -185,14 +185,24 @@ bool computeStmt(YYSTYPE &root)
 				errMsg.push_back(msg);
 				return false;
 			}
-			else if (symbolOfID->symbolType != getNthChild(root, 2)->attribute.attrType)
-			{
-				//TODO 
-			//assign type unmatched
+			else if (symbolOfID->leftable == false){
 				ErrMsg msg;
 				msg.lineno = root.data.treeNode->leftChild->lineno;
 				msg.column = root.data.treeNode->leftChild->column;
-				msg.msg = "Unmatched type";
+				msg.msg = string("\'") + root.data.treeNode->leftChild->value.nodeId.id + "\' cannot be a left value";
+				errMsg.push_back(msg);
+				return false;
+			}
+			else if (testType(symbolOfID->symbolType, getNthChild(root, 2)->attribute.attrType) == false)
+			{
+				//TODO 
+			//assign type unmatched
+				TreeNode *t = getNthChild(root, 2);
+
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = "Unmatched type to assign";
 				errMsg.push_back(msg);
 				return false;
 			}
@@ -205,18 +215,46 @@ bool computeStmt(YYSTYPE &root)
 			SymbolItem* symbolOfID = symtable.getFromSymtable(idArrayStr);
 			if (symbolOfID == nullptr)
 			{
-				//TODO 
-			//unknown id
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = string("Unknown ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\'";
+				errMsg.push_back(msg);
+				return false;
 			}
-			if (getNthChild(root, 2)->attribute.attrType != T_INTEGER)
+			if (symbolOfID->symbolType != A_ARRAY)
+			{
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = string("\'") + root.data.treeNode->leftChild->value.nodeId.id + "\' isn't an array";
+				errMsg.push_back(msg);
+				return false;
+			}
+			int flag = 0;
+			if (getNthChild(root, 2)->attribute.attrType != A_INTEGER
+				&& getNthChild(root, 2)->attribute.attrType != A_CONST_INTEGER)
 			{
 				//The index of array is not integer
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+				msg.column = root.data.treeNode->leftChild->rightSibling->column;
+				msg.msg = "Index isn't in correct type";
+				errMsg.push_back(msg);
+				flag = 1;
 			}
-			else if (symbolOfID->arrayItemType->symbolType != getNthChild(root, 3)->attribute.attrType)
+			if (!testType(symbolOfID->arrayItemType->symbolType, getNthChild(root, 3)->attribute.attrType))
 			{
 				//TODO
 			//assign type unmatched
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = "Unmatched type to assign";
+				errMsg.push_back(msg);
+				flag = 1;
 			}
+			if (flag) return false;
 			Debug("S_ASSIGN_ARRAY type check ok");
 			break;
 		}
@@ -229,16 +267,42 @@ bool computeStmt(YYSTYPE &root)
 			{
 				//TODO 
 			//unknown id
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = string("Unknown ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\'";
+				errMsg.push_back(msg);
+				return false;
+			}
+			else if (symbolOfID->symbolType != A_RECORD){
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = string("Unknown ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\'";
+				errMsg.push_back(msg);
+				return false;
 			}
 			else if (symbolOfID->recordDef.find(idRecEleStr) == symbolOfID->recordDef.end())	//undefined record element
 			{
 				//TODO
 			//record has no this element
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+				msg.column = root.data.treeNode->leftChild->rightSibling->column;
+				msg.msg = string("\'") + root.data.treeNode->leftChild->rightSibling->value.nodeId.id + "\' isn't in the record";
+				errMsg.push_back(msg);
+				return false;
 			}
-			else if (symbolOfID->recordDef[idRecEleStr]->symbolType != getNthChild(root, 3)->attribute.attrType)
+			else if (!testType(symbolOfID->recordDef[idRecEleStr]->symbolType, getNthChild(root, 3)->attribute.attrType))
 			{
 				//TODO
 			//assign type unmatched
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = "Unmatched type to assign";
+				errMsg.push_back(msg);
+				return false;
 			}
 			Debug("S_ASSIGN_RECORD type check ok");
 			break;
@@ -246,6 +310,80 @@ bool computeStmt(YYSTYPE &root)
 		case S_PROC:
 		case S_PROC_FUNC:
 		{
+			SymbolItem *sym = symtable.getFromSymtable(root.data.treeNode->leftChild->value.nodeId.id);
+			if (sym == nullptr){
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = string("Unknown ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\'";
+				errMsg.push_back(msg);
+				return false;
+			}
+			if (sym->symbolType != A_FUNC){
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = string("\'") + root.data.treeNode->leftChild->value.nodeId.id + "\' isn't a function";
+				errMsg.push_back(msg);
+				return false;
+			}
+			root.data.treeNode->attribute.attrType = sym->returnType->symbolType;
+			if (sym->argList.size() != 0 && root.data.treeNode->leftChild->rightSibling == nullptr){
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = "Wrong number of arguments";
+				errMsg.push_back(msg);
+				return false;
+			}
+			TreeNode *args = root.data.treeNode->leftChild->rightSibling->leftChild;
+			TreeNode *p = nullptr;
+			if (args) p = args->leftChild;
+			int flag = 0;
+			for (int i = 0; i < sym->argList.size(); ++i){
+				if (args == nullptr){
+					ErrMsg msg;
+					msg.lineno = root.data.treeNode->leftChild->lineno;
+					msg.column = root.data.treeNode->leftChild->column;
+					msg.msg = "Wrong number of arguments";
+					errMsg.push_back(msg);
+					return false;
+				}
+				if (p == nullptr){
+					ErrMsg msg;
+					msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+					msg.column = root.data.treeNode->leftChild->rightSibling->column;
+					msg.msg = "Wrong number of arguments";
+					errMsg.push_back(msg);
+					return false;
+				}
+				if (sym->argList[i]->symbolType != p->attribute.attrType
+					&& !(sym->argList[i]->symbolType == A_INTEGER && p->attribute.attrType == A_CONST_INTEGER)
+					&& !(sym->argList[i]->symbolType == A_REAL && p->attribute.attrType == A_CONST_REAL)
+					&& !(sym->argList[i]->symbolType == A_CHAR && p->attribute.attrType == A_CONST_CHAR)
+					&& !(sym->argList[i]->symbolType == A_STRING && p->attribute.attrType == A_CONST_STRING)){
+					ErrMsg msg;
+					msg.lineno = p->lineno;
+					msg.column = p->column;
+					msg.msg = "Wrong type of argument";
+					errMsg.push_back(msg);
+					flag = 1;
+				}
+				p = p->rightSibling;
+			}
+			if (p){
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+				msg.column = root.data.treeNode->leftChild->rightSibling->column;
+				msg.msg = "Wrong number of arguments";
+				errMsg.push_back(msg);
+				return false;
+			}
+			if (flag == 1) return false;
+
+			return true;
+
+
 			string idStr = getID(getNthChild(root, 1));
 			SymbolItem* symbolOfID = symtable.getFromSymtable(idStr);
 			if (symbolOfID == nullptr)	//undefined id
@@ -262,6 +400,12 @@ bool computeStmt(YYSTYPE &root)
 			if (getNthChild(root, 1)->attribute.attrType != A_BOOLEAN)
 			{
 				//unmatch type
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = "Expressiong type isn't BOOLEAN";
+				errMsg.push_back(msg);
+				return false;
 			}
 			Debug("S_IF/S_WHILE type check ok");
 			break;
@@ -271,6 +415,12 @@ bool computeStmt(YYSTYPE &root)
 			if (getNthChild(root, 2)->attribute.attrType != A_BOOLEAN)
 			{
 				//unmatch type
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = "Expressiong type isn't BOOLEAN";
+				errMsg.push_back(msg);
+				return false;
 			}
 			Debug("S_REPEAT type check ok");
 			break;
@@ -279,21 +429,57 @@ bool computeStmt(YYSTYPE &root)
 		{
 			string idStr = getID(getNthChild(root, 1));
 			SymbolItem* symbolOfID = symtable.getFromSymtable(idStr);
-			getNthChild(root, 1)->attribute.attrName = string(getNthChild(root, 1)->value.nodeId.id);
-			getNthChild(root, 1)->attribute.attrType = symbolOfID->symbolType;
+			int flag = 0;
 			if (symbolOfID == nullptr)	//undefined id
 			{
 				//TODO 
 			//unknown id
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = string("Unknown ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\'";
+				errMsg.push_back(msg);
+				flag = 1;
 			}
-			else if (symbolOfID->symbolType != getNthChild(root, 2)->attribute.attrType)
+			else{
+				if (symbolOfID){
+					getNthChild(root, 1)->attribute.attrName = string(getNthChild(root, 1)->value.nodeId.id);
+					getNthChild(root, 1)->attribute.attrType = symbolOfID->symbolType;
+				}
+				if (symbolOfID->symbolType != A_INTEGER
+					&& symbolOfID->symbolType != A_CONST_INTEGER){
+					ErrMsg msg;
+					msg.lineno = root.data.treeNode->leftChild->lineno;
+					msg.column = root.data.treeNode->leftChild->column;
+					msg.msg = string("\'") + root.data.treeNode->leftChild->value.nodeId.id + "\' should be an integer";
+					errMsg.push_back(msg);
+					flag = 1;
+				}
+			}
+			
+			if (getNthChild(root, 2)->attribute.attrType != A_INTEGER
+				&& getNthChild(root, 2)->attribute.attrType != A_CONST_INTEGER)
 			{
 				//unmatch type
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+				msg.column = root.data.treeNode->leftChild->rightSibling->column;
+				msg.msg = "Expression should be integer";
+				errMsg.push_back(msg);
+				flag = 1;
 			}
-			else if (symbolOfID->symbolType != getNthChild(root, 4)->attribute.attrType)
+			if (getNthChild(root, 4)->attribute.attrType != A_INTEGER
+				&& getNthChild(root, 4)->attribute.attrType != A_CONST_INTEGER)
 			{
 				//unmatch type
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->rightSibling->rightSibling->lineno;
+				msg.column = root.data.treeNode->leftChild->rightSibling->rightSibling->column;
+				msg.msg = "Expression should be integer";
+				errMsg.push_back(msg);
+				flag = 1;
 			}
+			if (flag) return false;
 			Debug("S_FOR type check ok");
 			break;
 		}
@@ -603,7 +789,8 @@ bool computeStmt(YYSTYPE &root)
 			}
 			}
 			root.data.treeNode->leftChild->attribute.attrType = root.data.treeNode->attribute.attrType;
-			
+			return true;
+			break;
 		}
 		case S_FACTOR_ARRAY:return computeStmtFactorArray(root);
 		case S_FACTOR_FUNC:return computeStmtFactorFunc(root);
@@ -807,8 +994,15 @@ bool computeStmtExpressionCompare(YYSTYPE & root)
 {
 	auto leftOperand = root.data.treeNode->leftChild;
 	auto rightOperand = root.data.treeNode->leftChild->rightSibling;
-	if (leftOperand->attribute.attrType != rightOperand->attribute.attrType)
+	if (!testType(leftOperand->attribute.attrType, rightOperand->attribute.attrType)
+		&& !testType(rightOperand->attribute.attrType, leftOperand->attribute.attrType))
 	{
+		root.data.treeNode->attribute.attrType = A_WRONG_TYPE;
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+		msg.column = root.data.treeNode->leftChild->rightSibling->column;
+		msg.msg = "Left hand side operand does not match right hand side operand";
+		errMsg.push_back(msg);
 		Debug("Left hand side operand does not match right hand side operand");
 		return false;
 	}
@@ -830,6 +1024,12 @@ bool computeStmtExpressionArithmetic(YYSTYPE &root)
 		if (!(leftOperand->attribute.attrType == A_INTEGER&&rightOperand->attribute.attrType == A_CONST_INTEGER
 			|| leftOperand->attribute.attrType == A_CONST_INTEGER&&rightOperand->attribute.attrType == A_INTEGER))
 		{
+			root.data.treeNode->attribute.attrType = A_WRONG_TYPE;
+			ErrMsg msg;
+			msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+			msg.column = root.data.treeNode->leftChild->rightSibling->column;
+			msg.msg = "Left hand side operand does not match right hand side operand";
+			errMsg.push_back(msg);
 			Debug("Left hand side operand does not match right hand side operand");
 			return false;
 		}
@@ -950,16 +1150,133 @@ bool computeStmtAssignToParent(YYSTYPE & root)
 
 bool computeStmtFactorArray(YYSTYPE & root)
 {
+	SymbolItem *sym = symtable.getFromSymtable(root.data.treeNode->leftChild->value.nodeId.id);
+	if (sym == nullptr){
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->lineno;
+		msg.column = root.data.treeNode->leftChild->column;
+		msg.msg = string("Unknown ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\'";
+		errMsg.push_back(msg);
+		return false;
+	}
+	if (sym->symbolType != A_ARRAY){
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->lineno;
+		msg.column = root.data.treeNode->leftChild->column;
+		msg.msg = string("\'") + root.data.treeNode->leftChild->value.nodeId.id + "\' isn't an array";
+		errMsg.push_back(msg);
+		return false;
+	}
+	if (root.data.treeNode->leftChild->rightSibling->attribute.attrType != A_INTEGER
+		&& root.data.treeNode->leftChild->rightSibling->attribute.attrType != A_CONST_INTEGER){
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+		msg.column = root.data.treeNode->leftChild->rightSibling->column;
+		msg.msg = "Index isn't in correct type";
+		errMsg.push_back(msg);
+		return false;
+	}
+	root.data.treeNode->attribute.attrType = sym->arrayItemType->symbolType;
 	return true;
 }
 
 bool computeStmtFactorFunc(YYSTYPE & root)
 {
+	SymbolItem *sym = symtable.getFromSymtable(root.data.treeNode->leftChild->value.nodeId.id);
+	if (sym == nullptr){
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->lineno;
+		msg.column = root.data.treeNode->leftChild->column;
+		msg.msg = string("Unknown ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\'";
+		errMsg.push_back(msg);
+		return false;
+	}
+	if (sym->symbolType != A_FUNC){
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->lineno;
+		msg.column = root.data.treeNode->leftChild->column;
+		msg.msg = string("\'") + root.data.treeNode->leftChild->value.nodeId.id + "\' isn't a function";
+		errMsg.push_back(msg);
+		return false;
+	}
+	root.data.treeNode->attribute.attrType = sym->returnType->symbolType;
+	TreeNode *args = root.data.treeNode->leftChild->rightSibling->leftChild;
+	TreeNode *p = nullptr;
+	if (args) p = args->leftChild;
+	int flag = 0;
+	for (int i = 0; i < sym->argList.size(); ++i){
+		if (args == nullptr){
+			ErrMsg msg;
+			msg.lineno = root.data.treeNode->leftChild->lineno;
+			msg.column = root.data.treeNode->leftChild->column;
+			msg.msg = "Wrong number of arguments";
+			errMsg.push_back(msg);
+			return false;
+		}
+		if (p == nullptr){
+			ErrMsg msg;
+			msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+			msg.column = root.data.treeNode->leftChild->rightSibling->column;
+			msg.msg = "Wrong number of arguments";
+			errMsg.push_back(msg);
+			return false;
+		}
+		if (sym->argList[i]->symbolType != p->attribute.attrType
+			&& !(sym->argList[i]->symbolType == A_INTEGER && p->attribute.attrType == A_CONST_INTEGER)
+			&& !(sym->argList[i]->symbolType == A_REAL && p->attribute.attrType == A_CONST_REAL)
+			&& !(sym->argList[i]->symbolType == A_CHAR && p->attribute.attrType == A_CONST_CHAR)
+			&& !(sym->argList[i]->symbolType == A_STRING && p->attribute.attrType == A_CONST_STRING)){
+			ErrMsg msg;
+			msg.lineno = p->lineno;
+			msg.column = p->column;
+			msg.msg = "Wrong type of argument";
+			errMsg.push_back(msg);
+			flag = 1;
+		}
+		p = p->rightSibling;
+	}
+	if (p){
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+		msg.column = root.data.treeNode->leftChild->rightSibling->column;
+		msg.msg = "Wrong number of arguments";
+		errMsg.push_back(msg);
+		return false;
+	}
+	if (flag == 1) return false;
+	
 	return true;
 }
 
 bool computeStmtFactorRecord(YYSTYPE & root)
 {
+	SymbolItem *sym = symtable.getFromSymtable(root.data.treeNode->leftChild->value.nodeId.id);
+	if (sym == nullptr){
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->lineno;
+		msg.column = root.data.treeNode->leftChild->column;
+		msg.msg = string("Unknown ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\'";
+		errMsg.push_back(msg);
+		return false;
+	}
+	if (sym->symbolType != A_RECORD){
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->lineno;
+		msg.column = root.data.treeNode->leftChild->column;
+		msg.msg = string("\'") + root.data.treeNode->leftChild->value.nodeId.id + "\' isn't a record";
+		errMsg.push_back(msg);
+		return false;
+	}
+	if (sym->recordDef.find(root.data.treeNode->leftChild->rightSibling->value.nodeId.id) == sym->recordDef.end()){
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+		msg.column = root.data.treeNode->leftChild->rightSibling->column;
+		msg.msg = string("\'") + root.data.treeNode->leftChild->rightSibling->value.nodeId.id + "\' isn't in the record";
+		errMsg.push_back(msg);
+		return false;
+	}
+	SymbolItem *t = sym->recordDef[root.data.treeNode->leftChild->rightSibling->value.nodeId.id];
+	root.data.treeNode->attribute.attrType = t->symbolType;
 	return true;
 }
 
@@ -967,7 +1284,11 @@ bool computeStmtFactorID(YYSTYPE & root)
 {
 	SymbolItem *id = symtable.getFromSymtable(root.data.treeNode->leftChild->value.nodeId.id);
 	if (id == nullptr){
-		Debug("id not found");
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->lineno;
+		msg.column = root.data.treeNode->leftChild->column;
+		msg.msg = string("Unknown ID \'") + root.data.treeNode->leftChild->value.nodeId.id + "\'";
+		errMsg.push_back(msg);
 		return false;
 	}
 	root.data.treeNode->leftChild->attribute.attrName = root.data.treeNode->leftChild->value.nodeId.id;
@@ -1200,7 +1521,7 @@ int computeConstId(TreeNode *constId, int &res){
 		ErrMsg msg;
 		msg.lineno = constId->lineno;
 		msg.column = constId->column;
-		msg.msg = string("Unknown ID: ") + constId->value.nodeId.id;
+		msg.msg = string("Unknown ID \'") + constId->value.nodeId.id + "\'";
 		errMsg.push_back(msg);
 		return 0;
 	}
@@ -1266,6 +1587,15 @@ int computeArrayIndex(TreeNode *index, int &low, int &high){
 	}
 	}
 	return 1;
+}
+
+bool testType(AttrType a, AttrType b){
+	if (a == b) return true;
+	if (a == A_INTEGER && b == A_CONST_INTEGER) return true;
+	if (a == A_REAL && b == A_CONST_REAL) return true;
+	if (a == A_CHAR && b == A_CONST_CHAR) return true;
+	if (a == A_STRING && b == A_CONST_STRING) return true;
+	return false;
 }
 
 void showErrMsg()
