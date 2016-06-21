@@ -44,7 +44,6 @@ program_head	: PROGRAM ID SEMI
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_PROGRAM_HEAD, E_NONE);
 	computeAttrGrammar($$);
-	symtable.showCurrentTable();
 }
 			;
 
@@ -95,8 +94,7 @@ label_part	:
 const_part	: CONST const_expr_list
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_CONST_PART, E_NONE);;
-	symtable.showCurrentTable();
-	showErrMsg();
+
 }
 			|
 {
@@ -117,8 +115,7 @@ const_expr_list	: const_expr_list const_expr
 const_expr 	: ID EQUAL const_value SEMI
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_CONST_EXPR, E_NONE);
-	if(computeAttrGrammar($$) == false)
-		showErrMsg();
+	computeAttrGrammar($$);
 	
 }
 			;
@@ -126,30 +123,33 @@ const_expr 	: ID EQUAL const_value SEMI
 const_value	: INTEGER
 {
 	$$ = newTreeNode({$1},NODE_STMT,S_CONST_VALUE_INT,E_NONE);
+	computeAttrGrammar($$);
 }
 			| REAL
 {
 	$$ = newTreeNode({$1},NODE_STMT,S_CONST_VALUE_REAL,E_NONE);
+	computeAttrGrammar($$);
 }
 			| CHAR
 {
 	$$ = newTreeNode({$1},NODE_STMT,S_CONST_VALUE_CHAR,E_NONE);
+	computeAttrGrammar($$);
 }
 			| STRING
 {
 	$$ = newTreeNode({$1},NODE_STMT,S_CONST_VALUE_STRING,E_NONE);
+	computeAttrGrammar($$);
 }
 			| SYS_CON
 {
 	$$ = newTreeNode({$1},NODE_STMT,S_CONST_VALUE_SYS_CON,E_NONE);
+	computeAttrGrammar($$);
 }
 			;
 
 type_part	: TYPE type_decl_list
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_TYPE_PART, E_NONE);
-	symtable.showCurrentTable();
-	showErrMsg();
 }
 			|
 {
@@ -276,8 +276,6 @@ $$ = newTreeNode({$1}, NODE_STMT, S_NAME,E_NONE);
 var_part	: VAR var_decl_list
 {
 	$$ = newTreeNode({$2}, NODE_STMT, S_VAR_PART, E_NONE);
-	symtable.showCurrentTable();
-	showErrMsg();
 }
 			|
 {
@@ -350,8 +348,6 @@ function_decl	: function_head SEMI sub_routine SEMI
 	memcpy(procFunc, symtable.getFromSymtable($1.data.treeNode->leftChild->value.nodeId.id), sizeof(SymbolItem));
 	symtable.leaveScope();
 	computeAttrGrammar($$);
-	symtable.showCurrentTable();
-	showErrMsg();
 }
 				;
 
@@ -360,7 +356,6 @@ function_head	: FUNCTION ID parameters COLON simple_type_decl
 	$$ = newTreeNode({$2, $3, $5}, NODE_STMT, S_FUNCTION_HEAD, E_NONE);
 	symtable.setFuncName($$.data.treeNode->leftChild->value.nodeId.id);
 	computeAttrGrammar($$);
-	symtable.showCurrentTable();
 }
 				;
 
@@ -371,8 +366,6 @@ procedure_decl	: procedure_head SEMI sub_routine SEMI
 	memcpy(procFunc, symtable.getFromSymtable($1.data.treeNode->leftChild->value.nodeId.id), sizeof(SymbolItem));
 	symtable.leaveScope();
 	computeAttrGrammar($$);
-	symtable.showCurrentTable();
-	showErrMsg();
 }
 				;
 
@@ -381,8 +374,6 @@ procedure_head	: PROCEDURE ID parameters
 	$$ = newTreeNode({$2, $3}, NODE_STMT, S_PROCEDURE_HEAD, E_NONE);
 	symtable.setFuncName($$.data.treeNode->leftChild->value.nodeId.id);
 	computeAttrGrammar($$);
-	symtable.showCurrentTable();
-	showErrMsg();
 }
 				;
 
@@ -410,13 +401,11 @@ para_type_list	: var_para_list COLON simple_type_decl
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_PARA_TYPE_LIST_VAR, E_NONE);
 	computeAttrGrammar($$);
-	symtable.showCurrentTable();
 }
 				| val_para_list COLON simple_type_decl
 {
 	$$ = newTreeNode({$1, $3}, NODE_STMT, S_PARA_TYPE_LIST_VAL, E_NONE);
 	computeAttrGrammar($$);
-	symtable.showCurrentTable();
 }
 				;
 
@@ -467,7 +456,7 @@ stmt_list	: stmt_list stmt SEMI
 stmt 		: INTEGER COLON non_label_stmt
 			{
 				$$=newTreeNode({$1,$3},NODE_STMT,S_STMT,E_NONE);
-				
+				computeAttrGrammar($$);
 			}
 			| non_label_stmt
 			{
@@ -543,10 +532,12 @@ proc_stmt		: ID
 				| SYS_PROC
 				{
 					$$=newTreeNode({$1},NODE_STMT,S_PROC_SYS,E_NONE);
+					computeAttrGrammar($$);
 				}
 				| SYS_PROC LP expression_list RP
 				{
 					$$=newTreeNode({$1,$3},NODE_STMT,S_PROC_SYS_ARG,E_NONE);
+					computeAttrGrammar($$);
 				}
 				| READ LP factor RP
 				{
@@ -609,12 +600,12 @@ case_stmt		: CASE expression OF case_expr_list END
 case_expr_list	: case_expr_list case_expr
 				{
 					$$=linkTreeNode($1, $2);
-					computeAttrGrammar($$);
+					//computeAttrGrammar($$);
 				}
 				| case_expr
 				{
 					$$=newTreeNode({$1},NODE_STMT,S_CASE_EXPR_LIST,E_NONE);
-					computeAttrGrammar($$);
+					//computeAttrGrammar($$);
 				}
 				;
 

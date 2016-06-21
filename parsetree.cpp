@@ -9,7 +9,7 @@ struct ErrMsg{
 	int column;
 	string msg;
 };
-
+set<int> labels;
 vector<ErrMsg> errMsg;
 SymbolItem *procFunc;
 int tmpSymCount = 0;
@@ -151,11 +151,11 @@ bool computeExp(YYSTYPE &root)
 	case E_UNEQUAL: return computeStmtExpressionCompare(root);
 	case E_PLUS:
 	case E_MINUS:
-	case E_OR:
 	case E_MUL:
-	case E_DIV:
+	case E_DIV:return computeStmtExpressionArithmetic(root);
+	case E_OR:
 	case E_MOD:
-	case E_AND: return computeStmtExpressionArithmetic(root);
+	case E_AND: return computeStmtExpressionArithmeticInt(root);
 	}
 	return true;
 }
@@ -166,6 +166,10 @@ bool computeStmt(YYSTYPE &root)
 {
 	switch (root.data.treeNode->typeValue.stmtType)
 	{
+		case S_STMT:{
+			labels.insert(root.data.treeNode->leftChild->value.nodeInteger.i);
+			return true;
+		}
 		case S_ASSIGN:
 		{
 			string idStr = getID(getNthChild(root, 1));
@@ -319,7 +323,7 @@ bool computeStmt(YYSTYPE &root)
 				errMsg.push_back(msg);
 				return false;
 			}
-			if (sym->symbolType != A_FUNC){
+			if (sym->symbolType != A_PROC){
 				ErrMsg msg;
 				msg.lineno = root.data.treeNode->leftChild->lineno;
 				msg.column = root.data.treeNode->leftChild->column;
@@ -382,17 +386,40 @@ bool computeStmt(YYSTYPE &root)
 			if (flag == 1) return false;
 
 			return true;
-
-
-			string idStr = getID(getNthChild(root, 1));
-			SymbolItem* symbolOfID = symtable.getFromSymtable(idStr);
-			if (symbolOfID == nullptr)	//undefined id
-			{
-				//TODO 
-				//unknown id
+		}
+		case S_PROC_SYS:{
+			ErrMsg msg;
+			msg.lineno = root.data.treeNode->leftChild->lineno;
+			msg.column = root.data.treeNode->leftChild->column;
+			msg.msg = "Wrong number of arguments";
+			errMsg.push_back(msg);
+			return false;
+		}
+		case S_PROC_SYS_ARG:
+		{
+			
+			
+			TreeNode *args = root.data.treeNode->leftChild->rightSibling->leftChild;
+			
+			int flag = 0;
+			for (; args; args = args->rightSibling){
+				
+				if (args->attribute.attrType != A_INTEGER && args->attribute.attrType != A_CONST_INTEGER
+					&& args->attribute.attrType != A_REAL && args->attribute.attrType != A_CONST_REAL
+					&& args->attribute.attrType != A_CHAR && args->attribute.attrType != A_CONST_CHAR
+					&& args->attribute.attrType != A_STRING && args->attribute.attrType != A_CONST_STRING){
+					ErrMsg msg;
+					msg.lineno = args->lineno;
+					msg.column = args->column;
+					msg.msg = "Argument in wrong type";
+					errMsg.push_back(msg);
+					flag = 1;
+				}
 			}
-			Debug("S_PROC/S_PROC_FUNC type check ok");
-			break;
+		
+			if (flag == 1) return false;
+
+			return true;
 		}
 		case S_IF:
 		case S_WHILE:
@@ -792,16 +819,52 @@ bool computeStmt(YYSTYPE &root)
 			return true;
 			break;
 		}
+		case S_GOTO:{
+			if (labels.find(root.data.treeNode->leftChild->value.nodeInteger.i) == labels.end()){
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->lineno;
+				msg.column = root.data.treeNode->leftChild->column;
+				msg.msg = "Unknown label";
+				errMsg.push_back(msg);
+				return false;
+			}
+			return false;
+		}
 		case S_FACTOR_ARRAY:return computeStmtFactorArray(root);
 		case S_FACTOR_FUNC:return computeStmtFactorFunc(root);
 		case S_FACTOR_RECORD:return computeStmtFactorRecord(root);
 		case S_FACTOR_ID:return computeStmtFactorID(root);
 		case S_ARGS:
 		case S_ARGS_NULL:
-		case S_GOTO:
+		
 		case S_FACTOR_NOT:
 		case S_FACTOR_MINUS:
 			return computeStmtAssignToParent(root);
+
+		case S_CONST_VALUE_INT:{
+			root.data.treeNode->attribute.attrType = A_CONST_INTEGER;
+			return true;;
+		}
+		case S_CONST_VALUE_REAL:{
+			root.data.treeNode->attribute.attrType = A_CONST_REAL;
+			return true;
+		}
+		case S_CONST_VALUE_CHAR:{
+			root.data.treeNode->attribute.attrType = A_CONST_CHAR;
+			return true;
+		}
+		case S_CONST_VALUE_STRING:{
+			root.data.treeNode->attribute.attrType = A_CONST_STRING;
+			return true;
+		}
+		case S_CONST_VALUE_SYS_CON:{
+			switch (root.data.treeNode->value.nodeSysConVal.sysConVal){
+			case CON_FALSE: case CON_TRUE: root.data.treeNode->attribute.attrType = A_BOOLEAN; break;
+			case CON_MAXINT: root.data.treeNode->attribute.attrType = A_CONST_INTEGER; break;
+			case CON_PI: root.data.treeNode->attribute.attrType = A_CONST_REAL; break;
+			}
+			return true;
+		}
 	}
 	if (root.data.treeNode->leftChild!=nullptr)
 		return computeStmtAssignToParent(root);
@@ -813,14 +876,32 @@ bool computeStmtCase(YYSTYPE &root)
 	//case_stmt		: CASE expression OF case_expr_list END
 	auto expression = root.data.treeNode->leftChild;
 	auto caseType = expression->attribute.attrType;
-	if (caseType == A_STRING)
+	if (caseType != A_INTEGER && caseType != A_CONST_INTEGER
+		&& caseType != A_CHAR && caseType != A_CONST_CHAR
+		&& caseType != A_BOOLEAN)
 	{
-		Debug("Invalid type in case expression");
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->lineno;
+		msg.column = root.data.treeNode->leftChild->column;
+		msg.msg = "Expressiong type isn't BOOLEAN/CHAR/INTEGER";
+		errMsg.push_back(msg);
 		return false;
 	}
-	if (expression->rightSibling->attribute.attrType != caseType)
+	TreeNode *p = expression->rightSibling->leftChild;
+	int flag = 0;
+	for (; p; p = p->rightSibling){
+		if (!testType(p->leftChild->attribute.attrType, caseType)
+			&& !testType(caseType, p->leftChild->attribute.attrType)){
+			ErrMsg msg;
+			msg.lineno = p->lineno;
+			msg.column = p->column;
+			msg.msg = "Case type doesn't match";
+			errMsg.push_back(msg);
+			flag = 1;
+		}
+	}
+	if (flag)
 	{
-		Debug("Type doesn't match in case expression");
 		return false;
 	}
 	return true;
@@ -1019,22 +1100,156 @@ bool computeStmtExpressionArithmetic(YYSTYPE &root)
 {
 	auto leftOperand = root.data.treeNode->leftChild;
 	auto rightOperand = root.data.treeNode->leftChild->rightSibling;
-	if (leftOperand->attribute.attrType != rightOperand->attribute.attrType)
-	{
-		if (!(leftOperand->attribute.attrType == A_INTEGER&&rightOperand->attribute.attrType == A_CONST_INTEGER
-			|| leftOperand->attribute.attrType == A_CONST_INTEGER&&rightOperand->attribute.attrType == A_INTEGER))
-		{
-			root.data.treeNode->attribute.attrType = A_WRONG_TYPE;
-			ErrMsg msg;
-			msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
-			msg.column = root.data.treeNode->leftChild->rightSibling->column;
-			msg.msg = "Left hand side operand does not match right hand side operand";
-			errMsg.push_back(msg);
-			Debug("Left hand side operand does not match right hand side operand");
-			return false;
-		}
+	int flag = 0;
+	if (leftOperand->attribute.attrType != A_INTEGER && leftOperand->attribute.attrType != A_CONST_INTEGER
+		&& leftOperand->attribute.attrType != A_REAL && leftOperand->attribute.attrType != A_CONST_REAL){
+		root.data.treeNode->attribute.attrType = A_WRONG_TYPE;
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->lineno;
+		msg.column = root.data.treeNode->leftChild->column;
+		msg.msg = "Type not of INT/REAL cannot be calculated";
+		errMsg.push_back(msg);
+		flag = 1;
 	}
-	root.data.treeNode->attribute.attrType = leftOperand->attribute.attrType;
+	if (rightOperand->attribute.attrType != A_INTEGER && rightOperand->attribute.attrType != A_CONST_INTEGER
+		&& rightOperand->attribute.attrType != A_REAL && rightOperand->attribute.attrType != A_CONST_REAL){
+		root.data.treeNode->attribute.attrType = A_WRONG_TYPE;
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+		msg.column = root.data.treeNode->leftChild->rightSibling->column;
+		msg.msg = "Type not of INT/REAL cannot be calculated";
+		errMsg.push_back(msg);
+		flag = 1;
+	}
+	if (flag) return false;
+	if ((!(leftOperand->attribute.attrType == A_INTEGER&&rightOperand->attribute.attrType == A_CONST_INTEGER
+		|| leftOperand->attribute.attrType == A_CONST_INTEGER&&rightOperand->attribute.attrType == A_INTEGER
+		|| leftOperand->attribute.attrType == A_INTEGER&&rightOperand->attribute.attrType == A_INTEGER
+		|| leftOperand->attribute.attrType == A_CONST_INTEGER&&rightOperand->attribute.attrType == A_CONST_INTEGER))
+		&& !(leftOperand->attribute.attrType == A_REAL&&rightOperand->attribute.attrType == A_CONST_REAL
+		|| leftOperand->attribute.attrType == A_CONST_REAL&&rightOperand->attribute.attrType == A_REAL
+		|| leftOperand->attribute.attrType == A_REAL&&rightOperand->attribute.attrType == A_REAL
+		|| leftOperand->attribute.attrType == A_CONST_REAL&&rightOperand->attribute.attrType == A_CONST_REAL))
+	{
+		root.data.treeNode->attribute.attrType = A_WRONG_TYPE;
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+		msg.column = root.data.treeNode->leftChild->rightSibling->column;
+		msg.msg = "Left hand side operand does not match right hand side operand";
+		errMsg.push_back(msg);
+		Debug("Left hand side operand does not match right hand side operand");
+		return false;
+	}
+	
+	if (leftOperand->attribute.attrType == A_CONST_INTEGER&&rightOperand->attribute.attrType == A_CONST_INTEGER){
+		switch (root.data.treeNode->typeValue.expType){
+		case E_PLUS: leftOperand->leftChild->leftChild->value.nodeInteger.i += rightOperand->leftChild->leftChild->value.nodeInteger.i; break;
+		case E_MINUS: leftOperand->leftChild->leftChild->value.nodeInteger.i -= rightOperand->leftChild->leftChild->value.nodeInteger.i; break;
+		case E_MUL: leftOperand->leftChild->leftChild->value.nodeInteger.i *= rightOperand->leftChild->leftChild->value.nodeInteger.i; break;
+		case E_DIV: 
+			if (rightOperand->leftChild->leftChild->value.nodeInteger.i == 0){
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+				msg.column = root.data.treeNode->leftChild->rightSibling->column;
+				msg.msg = "Divisor cannot be zero";
+				errMsg.push_back(msg);
+				return false;
+			}
+			leftOperand->leftChild->leftChild->value.nodeInteger.i /= rightOperand->leftChild->leftChild->value.nodeInteger.i; break;
+		}
+		leftOperand->rightSibling = nullptr;
+		root.data.treeNode = leftOperand;
+		return true;
+	}
+	if (leftOperand->attribute.attrType == A_CONST_REAL&&rightOperand->attribute.attrType == A_CONST_REAL){
+		switch (root.data.treeNode->typeValue.expType){
+		case E_PLUS: leftOperand->leftChild->leftChild->value.nodeReal.r += rightOperand->leftChild->leftChild->value.nodeReal.r; break;
+		case E_MINUS: leftOperand->leftChild->leftChild->value.nodeReal.r -= rightOperand->leftChild->leftChild->value.nodeReal.r; break;
+		case E_MUL: leftOperand->leftChild->leftChild->value.nodeReal.r *= rightOperand->leftChild->leftChild->value.nodeReal.r; break;
+		case E_DIV:
+			if (rightOperand->leftChild->leftChild->value.nodeReal.r == 0){
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+				msg.column = root.data.treeNode->leftChild->rightSibling->column;
+				msg.msg = "Divisor cannot be zero";
+				errMsg.push_back(msg);
+				return false;
+			}
+			leftOperand->leftChild->leftChild->value.nodeReal.r /= rightOperand->leftChild->leftChild->value.nodeReal.r; break;
+		}
+		leftOperand->rightSibling = nullptr;
+		root.data.treeNode = leftOperand;
+		return true;
+	}
+	root.data.treeNode->attribute.attrType = min(leftOperand->attribute.attrType, rightOperand->attribute.attrType);
+	string tmpStr;
+	stringstream ss;
+	ss << tmpSymCount++;
+	ss >> tmpStr;
+	root.data.treeNode->attribute.attrName = "$t" + tmpStr;
+	return true;
+}
+
+bool computeStmtExpressionArithmeticInt(YYSTYPE &root)
+{
+	auto leftOperand = root.data.treeNode->leftChild;
+	auto rightOperand = root.data.treeNode->leftChild->rightSibling;
+	int flag = 0;
+	if (leftOperand->attribute.attrType != A_INTEGER && leftOperand->attribute.attrType != A_CONST_INTEGER){
+		root.data.treeNode->attribute.attrType = A_WRONG_TYPE;
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->lineno;
+		msg.column = root.data.treeNode->leftChild->column;
+		msg.msg = "Type not of INT cannot be calculated";
+		errMsg.push_back(msg);
+		flag = 1;
+	}
+	if (rightOperand->attribute.attrType != A_INTEGER && rightOperand->attribute.attrType != A_CONST_INTEGER){
+		root.data.treeNode->attribute.attrType = A_WRONG_TYPE;
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+		msg.column = root.data.treeNode->leftChild->rightSibling->column;
+		msg.msg = "Type not of INT cannot be calculated";
+		errMsg.push_back(msg);
+		flag = 1;
+	}
+	if (flag) return false;
+	if ((!(leftOperand->attribute.attrType == A_INTEGER&&rightOperand->attribute.attrType == A_CONST_INTEGER
+		|| leftOperand->attribute.attrType == A_CONST_INTEGER&&rightOperand->attribute.attrType == A_INTEGER
+		|| leftOperand->attribute.attrType == A_INTEGER&&rightOperand->attribute.attrType == A_INTEGER
+		|| leftOperand->attribute.attrType == A_CONST_INTEGER&&rightOperand->attribute.attrType == A_CONST_INTEGER)))
+	{
+		root.data.treeNode->attribute.attrType = A_WRONG_TYPE;
+		ErrMsg msg;
+		msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+		msg.column = root.data.treeNode->leftChild->rightSibling->column;
+		msg.msg = "Left hand side operand does not match right hand side operand";
+		errMsg.push_back(msg);
+		Debug("Left hand side operand does not match right hand side operand");
+		return false;
+	}
+
+	if (leftOperand->attribute.attrType == A_CONST_INTEGER&&rightOperand->attribute.attrType == A_CONST_INTEGER){
+		switch (root.data.treeNode->typeValue.expType){
+		case E_OR: leftOperand->leftChild->leftChild->value.nodeInteger.i |= rightOperand->leftChild->leftChild->value.nodeInteger.i; break;
+		case E_AND: leftOperand->leftChild->leftChild->value.nodeInteger.i &= rightOperand->leftChild->leftChild->value.nodeInteger.i; break;
+		case E_MOD:
+			if (rightOperand->leftChild->leftChild->value.nodeInteger.i == 0){
+				ErrMsg msg;
+				msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
+				msg.column = root.data.treeNode->leftChild->rightSibling->column;
+				msg.msg = "Divisor cannot be zero";
+				errMsg.push_back(msg);
+				return false;
+			}
+			leftOperand->leftChild->leftChild->value.nodeInteger.i %= rightOperand->leftChild->leftChild->value.nodeInteger.i; break;
+		}
+		leftOperand->rightSibling = nullptr;
+		root.data.treeNode = leftOperand;
+		return true;
+	}
+	
+	root.data.treeNode->attribute.attrType = min(leftOperand->attribute.attrType, rightOperand->attribute.attrType);
 	string tmpStr;
 	stringstream ss;
 	ss << tmpSymCount++;
