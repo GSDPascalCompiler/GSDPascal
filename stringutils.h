@@ -8,3 +8,4 @@ using namespace std;
 
 int string2int(string);
 string int2string(int);
+string globalParaName(string name);

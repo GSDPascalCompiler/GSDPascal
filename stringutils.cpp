@@ -12,3 +12,7 @@ string int2string(int x)
 	_itoa(x, tmp, 10);
 	return string(tmp);
 }
+
+string globalParaName(string name) {
+	return "para_" + name;
+}

@@ -3,6 +3,8 @@
 #include <map>
 #include "generator.h"
 #include <iostream>
+#include "savedTable.h"
+#include "symtable.h"
 
 class CodeGeneration {
 private:
@@ -15,6 +17,7 @@ private:
 	static void writeFootSeg(string s);
 	static void writeDataSeg(string s);
 	static void writeCodeSeg(string s);
+	static void generateGlobalList();
 public:
 	static void init();
 	static void generateCode(TreeNode* tn);

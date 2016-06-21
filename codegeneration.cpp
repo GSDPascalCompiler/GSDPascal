@@ -1,8 +1,10 @@
 #include "codegeneration.h"
 #include "assigngeneration.h"
 #include "outputgeneration.h"
+#include "stringutils.h"
 
-
+const int CG_ASSIGN = 0;
+const int CG_OUTPUT = 1;
 
 const string fileName = "cg.asm";
 
@@ -13,9 +15,10 @@ string CodeGeneration::dataSeg = "";
 string CodeGeneration::codeSeg = "";
 
 void CodeGeneration::init() {
+	headSeg = footSeg = dataSeg = codeSeg = "";
 	processor.clear();
-	processor.insert(make_pair(0, new AssignGeneration()));
-	processor.insert(make_pair(1, new OutputGeneration()));
+	processor.insert(make_pair(CG_ASSIGN, new AssignGeneration()));
+	processor.insert(make_pair(CG_OUTPUT, new OutputGeneration()));
 	generateHeadSeg();
 	generateFootSeg();
 }
@@ -25,14 +28,14 @@ void CodeGeneration::generateCode(TreeNode* tn) {
 	case S_ASSIGN:
 	case S_ASSIGN_ARRAY:
 	case S_ASSIGN_RECORD:
-		processor[0]->generateCode(tn);
+		processor[CG_ASSIGN]->generateCode(tn);
 		break;
 	case S_PROC:
 		break;
 	case S_PROC_FUNC:
 		break;
 	case S_PROC_SYS_ARG:
-		processor[1]->generateCode(tn);
+		processor[CG_OUTPUT]->generateCode(tn);
 		break;
 	case S_PROC_READ:
 		break;
@@ -53,6 +56,12 @@ void CodeGeneration::writeDataSeg(string s) {
 
 void CodeGeneration::writeCodeSeg(string s) {
 	codeSeg += s;
+}
+
+void CodeGeneration::generateGlobalList() {
+	for (auto item : *(symtable.getAllGlobal())) {
+		dataSeg += globalParaName(item.second->symbolName) + "DD 0\n";
+	}
 }
 
 void CodeGeneration::generateHeadSeg() {
