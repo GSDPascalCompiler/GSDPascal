@@ -13,14 +13,16 @@ string CodeGeneration::headSeg = "";
 string CodeGeneration::footSeg = "";
 string CodeGeneration::dataSeg = "";
 string CodeGeneration::codeSeg = "";
+string CodeGeneration::currentPath = "";
 
 void CodeGeneration::init() {
-	headSeg = footSeg = dataSeg = codeSeg = "";
+	headSeg = footSeg = dataSeg = codeSeg = currentPath = "";
 	processor.clear();
 	processor.insert(make_pair(CG_ASSIGN, new AssignGeneration()));
 	processor.insert(make_pair(CG_OUTPUT, new OutputGeneration()));
 	generateHeadSeg();
 	generateFootSeg();
+	currentPath = "$main/";
 }
 
 void CodeGeneration::generateCode(TreeNode* tn) {

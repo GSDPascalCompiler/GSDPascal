@@ -3,5 +3,5 @@
 
 class Generator {
 public:
-	virtual string generateCode(TreeNode* tn) = 0;
+	virtual void generateCode(TreeNode* tn) = 0;
 };
