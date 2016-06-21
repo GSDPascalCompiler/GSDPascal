@@ -169,6 +169,12 @@ typedef struct SymbolItem {
 	map<string, SymbolItem*> recordDef;
 	SymbolItem *returnType;
 	vector<SymbolItem*> argList;
+	struct tagConstValue{
+		double r;
+		int i;
+		char c;
+		string s;
+	}constValue;
 	bool leftable;
 
 }SymbolItem;

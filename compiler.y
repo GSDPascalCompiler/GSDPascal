@@ -818,6 +818,7 @@ args_list	: args_list COMMA expression
 %%
 int main(){
 	int ret = yyparse();
+	showErrMsg();
 	savedTable.showAllTable();
 	return ret;
 }

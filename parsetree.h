@@ -63,4 +63,5 @@ void dealId(TreeNode* tn, vector<string> vec);
 SymbolItem* computeType(TreeNode *type);
 SymbolItem* computeVarSimpleType(TreeNode *type);
 SymbolItem* computeVarType(TreeNode *type);
+int computeArrayIndex(TreeNode *index, int &low, int &high);
 #endif

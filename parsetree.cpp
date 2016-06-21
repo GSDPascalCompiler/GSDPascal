@@ -312,17 +312,42 @@ bool computeStmt(YYSTYPE &root)
 			SymbolItem *sym = new SymbolItem();
 			switch(root.data.treeNode->leftChild->rightSibling->typeValue.stmtType)
 			{
-				case S_CONST_VALUE_INT: sym->symbolType = A_INTEGER; break;
-				case S_CONST_VALUE_REAL: sym->symbolType = A_REAL; break;
-				case S_CONST_VALUE_CHAR: sym->symbolType = A_CHAR; break;
-				case S_CONST_VALUE_STRING: sym->symbolType = A_STRING; break;
+				case S_CONST_VALUE_INT: 
+					sym->symbolType = A_CONST_INTEGER;
+					sym->constValue.i = root.data.treeNode->leftChild->rightSibling->leftChild->value.nodeInteger.i;
+					break;
+				case S_CONST_VALUE_REAL: 
+					sym->symbolType = A_CONST_REAL;
+					sym->constValue.r = root.data.treeNode->leftChild->rightSibling->leftChild->value.nodeReal.r;
+					break;
+				case S_CONST_VALUE_CHAR:
+					sym->symbolType = A_CONST_CHAR;
+					sym->constValue.c = root.data.treeNode->leftChild->rightSibling->leftChild->value.nodeChar.c;
+					break;
+				case S_CONST_VALUE_STRING: 
+					sym->symbolType = A_CONST_STRING;
+					sym->constValue.s = root.data.treeNode->leftChild->rightSibling->leftChild->value.nodeString.s;
+					break;
 				case S_CONST_VALUE_SYS_CON:
 				{
 					switch (root.data.treeNode->leftChild->rightSibling->leftChild->value.nodeSysConVal.sysConVal)
 					{
-					case CON_FALSE: case CON_TRUE: sym->symbolType = A_BOOLEAN; break;
-					case CON_MAXINT: sym->symbolType = A_INTEGER; break;
-					case CON_PI: sym->symbolType = A_REAL; break;
+					case CON_FALSE:
+						sym->symbolType = A_BOOLEAN;
+						sym->constValue.i = false;
+						break;
+					case CON_TRUE: 
+						sym->symbolType = A_BOOLEAN;
+						sym->constValue.i = true;
+						break;
+					case CON_MAXINT: 
+						sym->symbolType = A_CONST_INTEGER;
+						sym->constValue.i = 0x7fffffff;
+						break;
+					case CON_PI: 
+						sym->symbolType = A_CONST_REAL;
+						sym->constValue.r = atan2(0, -1);
+						break;
 					}
 					break;
 				}
@@ -345,11 +370,6 @@ bool computeStmt(YYSTYPE &root)
 			SymbolItem *sym = computeType(root.data.treeNode->leftChild->rightSibling);
 			if (sym == nullptr)
 			{
-				ErrMsg msg;
-				msg.lineno = root.data.treeNode->leftChild->rightSibling->lineno;
-				msg.column = root.data.treeNode->leftChild->rightSibling->column;
-				msg.msg = "Unknown type";
-				errMsg.push_back(msg);
 				return false;
 			}
 			sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
@@ -374,11 +394,6 @@ bool computeStmt(YYSTYPE &root)
 				SymbolItem *sym = computeVarType(nameList->rightSibling);
 				if (sym == nullptr)
 				{
-					ErrMsg msg;
-					msg.lineno = nameList->rightSibling->lineno;
-					msg.column = nameList->rightSibling->column;
-					msg.msg = "Unknown type";
-					errMsg.push_back(msg);
 					return false;
 				}
 				sym->symbolName = p->leftChild->value.nodeId.id;
@@ -405,11 +420,6 @@ bool computeStmt(YYSTYPE &root)
 				SymbolItem *sym = computeVarSimpleType(root.data.treeNode->leftChild->rightSibling);
 				if (sym == nullptr)
 				{
-					ErrMsg msg;
-					msg.lineno = root.data.treeNode->leftChild->lineno;
-					msg.column = root.data.treeNode->leftChild->column;
-					msg.msg = "Unknown type or too difficult type";
-					errMsg.push_back(msg);
 					return false;
 				}
 				sym->symbolName = p->leftChild->value.nodeId.id;
@@ -677,7 +687,7 @@ bool computeStmtExpressionList(YYSTYPE & root)
 	return false;
 }
 
-bool computeStmtFunctionHead(YYSTYPE & root)
+/*bool computeStmtFunctionHead(YYSTYPE & root)
 {
 	SymbolItem *sym = new SymbolItem;
 	sym->symbolName = root.data.treeNode->leftChild->value.nodeId.id;
@@ -727,7 +737,7 @@ void dealValParaList(TreeNode* tn, SymbolItem* sym) {
 			Debug("DealValParaList: redefined");
 		sym->recordDef.insert(make_pair(vec[i], s));
 	}
- }
+ }*/
 
 SymbolItem* dealSimpleTypeDecl(TreeNode* type) {
 	SymbolItem *sym = new SymbolItem();
@@ -996,8 +1006,21 @@ SymbolItem* computeVarType(TreeNode *type){
 	}
 	case S_ARRAY_TYPE_DECL:
 	{
+		TreeNode *index = type->leftChild->leftChild;
+		int low, high;
+		int ret = computeArrayIndex(index, low, high);
+		if (ret == 0){
+			ErrMsg msg;
+			msg.lineno = type->leftChild->leftChild->lineno;
+			msg.column = type->leftChild->leftChild->column;
+			msg.msg = "Wrong format of array index";
+			errMsg.push_back(msg);
+			break;
+		}
 		sym = new SymbolItem();
 		sym->symbolType = A_ARRAY;
+		sym->beginIndex = low;
+		sym->endIndex = high;
 		sym->arrayItemType = computeVarType(type->leftChild->leftChild->rightSibling);
 		break;
 	}
@@ -1015,6 +1038,15 @@ SymbolItem* computeVarType(TreeNode *type){
 				sym->recordDef[pname->leftChild->value.nodeId.id] = stype;
 			}
 		}
+		break;
+	}
+	default:
+	{
+		ErrMsg msg;
+		msg.lineno = type->lineno;
+		msg.column = type->column;
+		msg.msg = "Unknown type or too difficult type";
+		errMsg.push_back(msg);
 		break;
 	}
 	}
@@ -1048,29 +1080,16 @@ SymbolItem* computeVarSimpleType(TreeNode *type){
 		//*(sym->typeDef) = *(symtable.getFromSymtable(type->value.nodeId.id)->typeDef);
 		break;
 	}
-	/*case S_ARRAY_TYPE_DECL:
+	
+	default:
 	{
-		sym = new SymbolItem();
-		sym->symbolType = A_ARRAY;
-		sym->arrayItemType = computeVarType(type->leftChild->rightSibling);
+		ErrMsg msg;
+		msg.lineno = type->lineno;
+		msg.column = type->column;
+		msg.msg = "Unknown type or too difficult type";
+		errMsg.push_back(msg);
 		break;
 	}
-	case S_RECORD_TYPE_DECL:
-	{
-		sym = new SymbolItem();
-		sym->symbolType = A_RECORD;
-		for (TreeNode *p = type->leftChild->leftChild; p != nullptr; p = p->rightSibling)
-		{
-
-			for (TreeNode *pname = p->leftChild->leftChild; pname != nullptr; pname = pname->rightSibling)
-			{
-				SymbolItem *stype = computeVarType(p->leftChild->rightSibling);
-				stype->symbolName = pname->leftChild->value.nodeId.id;
-				sym->recordDef[pname->leftChild->value.nodeId.id] = stype;
-			}
-		}
-		break;
-	}*/
 	}
 	return sym;
 }
@@ -1108,10 +1127,23 @@ SymbolItem* computeType(TreeNode *type){
 		}
 		case S_ARRAY_TYPE_DECL:
 		{
+			TreeNode *index = type->leftChild->leftChild;
+			int low, high;
+			int ret = computeArrayIndex(index, low, high);
+			if (ret == 0){
+				ErrMsg msg;
+				msg.lineno = type->leftChild->leftChild->lineno;
+				msg.column = type->leftChild->leftChild->column;
+				msg.msg = "Wrong format of array index";
+				errMsg.push_back(msg);
+				break;
+			}
 			sym = new SymbolItem();
 			sym->symbolType = A_TYPE;
 			sym->typeDef = new SymbolItem();
 			sym->typeDef->symbolType = A_ARRAY;
+			sym->typeDef->beginIndex = low;
+			sym->typeDef->endIndex = high;
 			sym->typeDef->arrayItemType = computeVarType(type->leftChild->leftChild->rightSibling);
 			break;
 		}
@@ -1133,8 +1165,107 @@ SymbolItem* computeType(TreeNode *type){
 			}
 			break;
 		}
+		default:
+		{
+			ErrMsg msg;
+			msg.lineno = type->lineno;
+			msg.column = type->column;
+			msg.msg = "Unknown type or too difficult type";
+			errMsg.push_back(msg);
+			break;
+		}
 	}
 	return sym;
+}
+ 
+int computeConstValue(TreeNode *constValue, int &res){
+	switch (constValue->typeValue.stmtType){
+	case S_CONST_VALUE_INT:{
+		res = constValue->leftChild->value.nodeInteger.i;
+		return 1;
+	}
+	case S_CONST_VALUE_SYS_CON:{
+		if (constValue->value.nodeSysConVal.sysConVal == CON_MAXINT){
+			res = 0x7fffffff;
+			return 1;
+		}
+	}
+	}
+	return 0;
+}
+
+int computeConstId(TreeNode *constId, int &res){
+	SymbolItem *id = symtable.getFromSymtable(constId->value.nodeId.id);
+	if (id == nullptr){
+		ErrMsg msg;
+		msg.lineno = constId->lineno;
+		msg.column = constId->column;
+		msg.msg = string("Unknown ID: ") + constId->value.nodeId.id;
+		errMsg.push_back(msg);
+		return 0;
+	}
+	if (id->symbolType != A_CONST_INTEGER) return 0;
+	res = id->constValue.i;
+	return 1;
+}
+
+int computeArrayIndex(TreeNode *index, int &low, int &high){
+	if (index->leftChild->rightSibling == nullptr)
+		return 0;
+	switch (index->typeValue.stmtType){
+	case S_SIMPLE_TYPE_DECL_CDC:{
+		int ret = computeConstValue(index->leftChild, low);
+		if (ret == 0) return 0;
+		ret = computeConstValue(index->leftChild->rightSibling, high);
+		if (ret == 0) return 0;
+		if (low > high) return 0;
+		break;
+	}
+	case S_SIMPLE_TYPE_DECL_MCDC:{
+		int ret = computeConstValue(index->leftChild, low);
+		if (ret == 0) return 0;
+		low = -low;
+		ret = computeConstValue(index->leftChild->rightSibling, high);
+		if (ret == 0) return 0;
+		if (low > high) return 0;
+		break;
+	}
+	case S_SIMPLE_TYPE_DECL_MCDMC:{
+		int ret = computeConstValue(index->leftChild, low);
+		if (ret == 0) return 0;
+		low = -low;
+		ret = computeConstValue(index->leftChild->rightSibling, high);
+		if (ret == 0) return 0;
+		high = -high;
+		if (low > high) return 0;
+		break;
+	}
+	case S_SIMPLE_TYPE_DECL_IDI:{
+		int ret = computeConstId(index->leftChild, low);
+		if (ret == 0) return 0;
+		ret = computeConstId(index->leftChild->rightSibling, high);
+		if (ret == 0) return 0;
+		if (low > high) return 0;
+		break;
+	}
+	case S_SIMPLE_TYPE_DECL_CDI:{
+		int ret = computeConstValue(index->leftChild, low);
+		if (ret == 0) return 0;
+		ret = computeConstId(index->leftChild->rightSibling, high);
+		if (ret == 0) return 0;
+		if (low > high) return 0;
+		break;
+	}
+	case S_SIMPLE_TYPE_DECL_IDC:{
+		int ret = computeConstId(index->leftChild, low);
+		if (ret == 0) return 0;
+		ret = computeConstValue(index->leftChild->rightSibling, high);
+		if (ret == 0) return 0;
+		if (low > high) return 0;
+		break;
+	}
+	}
+	return 1;
 }
 
 void showErrMsg()
