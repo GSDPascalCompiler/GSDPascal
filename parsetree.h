@@ -5,6 +5,7 @@
 #include "util.h"
 #include <string.h>
 #include <iostream>
+#include <set>
 #include <exception>
 #include <initializer_list>
 
@@ -13,6 +14,7 @@ using namespace std;
 void showErrMsg();
 
 extern Symtable symtable;
+
 
 /*Creating Tree Node*/
 TreeNode *newALeafNode(YYSTYPE &child);
@@ -45,6 +47,7 @@ bool computeStmtFunctionHead(YYSTYPE &root);
 bool computeStmtExpressionList(YYSTYPE &root);
 bool computeStmtExpressionCompare(YYSTYPE &root);
 bool computeStmtExpressionArithmetic(YYSTYPE &root);
+bool computeStmtExpressionArithmeticInt(YYSTYPE &root);
 bool computeStmtFactorSysFunct(YYSTYPE &root);
 bool computeStmtAssignToParent(YYSTYPE &root);
 bool computeStmtFactorArray(YYSTYPE &root);
