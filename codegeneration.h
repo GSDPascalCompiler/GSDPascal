@@ -1,10 +1,22 @@
 #pragma once
-
-#include "intermedia.h"
-#include <vector>
+#include "global.h"
+#include <map>
+#include "generator.h"
 #include <iostream>
-#include <string>
-#include "symtable.h"
-using namespace std;
 
-void generateCode(vector<Quad*> inst);
+class CodeGeneration {
+private:
+	static map<int, Generator*> processor;
+	static string headSeg, footSeg, dataSeg, codeSeg;
+
+	static void generateHeadSeg();
+	static void generateFootSeg();
+	static void writeHeadSeg(string s);
+	static void writeFootSeg(string s);
+	static void writeDataSeg(string s);
+	static void writeCodeSeg(string s);
+public:
+	static void init();
+	static void generateCode(TreeNode* tn);
+	static void endGeneration();
+};
