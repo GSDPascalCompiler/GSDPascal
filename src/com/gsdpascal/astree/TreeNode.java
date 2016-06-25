@@ -3,31 +3,33 @@ package com.gsdpascal.astree;
  * Created by Xiecihui on 16/6/22.
  */
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 public class TreeNode {
-    /*语法树的多个儿子节点，避免层数过深*/
+    /*�﷨���Ķ�����ӽڵ㣬�����������*/
     private List<TreeNode> childNode = new ArrayList<>();
-    /*语法树兄弟节点*/
+    /*�﷨���ֵܽڵ�*/
     private TreeNode siblingNode = null;
-    /*语法树节点的类型*/
+    /*�﷨���ڵ������*/
     private Object nodeType = null;
-    /*语法树节点的属性*/
+    /*�﷨���ڵ������*/
     private Object attribute = null;
-    /*语法树节点在的表达式类型Type*/
+    /*�﷨���ڵ��ڵı��ʽ����Type*/
     private ExpressionType ExpressionType = null;
-    /*语法树节点在运行时的类型*/
+    /*�﷨���ڵ�������ʱ������*/
     private ExpressionType runtimeType = null;
-    /*语法树节点行号*/
+    /*�﷨���ڵ��к�*/
     private int lineNumber = 0;
-    /*语法树节点列号*/
+    /*�﷨���ڵ��к�*/
     private int columnNumber = 0;
+    private BitSet bitSet = new BitSet();
 
-    /*默认构造函数*/
+    /*Ĭ�Ϲ��캯��*/
     public TreeNode() {
 
     }
-    /*用于终结符的构造函数*/
+    /*�����ս���Ĺ��캯��*/
     public TreeNode(Object nodeType, int lineNumber) {
         this.nodeType = nodeType;
         this.lineNumber = lineNumber;
@@ -35,7 +37,7 @@ public class TreeNode {
             this.ExpressionType = ExpressionType.VOID;
         }
     }
-    /*用于非终结符的构造函数*/
+    /*���ڷ��ս���Ĺ��캯��*/
     public TreeNode(TreeNode first, TreeNode second, OperationKind op, int lineNumber) {
         this.nodeType = ExpressionKind.OP;
         this.attribute = op;
@@ -107,26 +109,65 @@ public class TreeNode {
         this.runtimeType = runtimeType;
     }
 
-    public void printTree(TreeNode tree){
-        int i;
-        while(tree!=null){
-           System.out.println("line number "+" nodeType       "+
-        "  attribute "+" ExpressionType "+" runtimeType ");
-           System.out.print("     "+tree.getLineNumber());
-           System.out.print("       "+tree.getNodeType());
-           System.out.print("  "+tree.getAttribute());
-           System.out.print("       "+tree.getExpType());
-           System.out.print("     "+tree.getRunTimeType()+"\n");
-
-            for(i=0;i<tree.getChildren().size();i++){
-              if(tree.getChildren().get(i)==null){
-            	  System.out.println("childNode:"+i+" is null ");
-              }else{
-            	  System.out.println("childNode:"+i);
-                  printTree(tree.getChildren().get(i));
-              }
+    public void printTree(TreeNode root, int level){
+        if(level == 0)
+            if(root == null) return;
+        for(int i = 0; i < level; ++i){
+            if(bitSet.get(i) == false){
+                System.out.print("|");
             }
-            tree=tree.getSibling();
+            else{
+                System.out.print(" ");
+            }
+            System.out.print("    ");
         }
+        System.out.print("|-");
+        //System.out.print(root.getKind());
+        System.out.print(" " +  root.getNodeType());
+        System.out.print(" " +  root.getExpType());
+        System.out.print(" " +  root.getAttribute());
+        System.out.println("");
+        if(root.getSibling() == null){
+            bitSet.set(level);
+        }
+        else{
+            bitSet.clear(level);
+        }
+        int cnt = 0;
+        for(int i=0;i<root.getChildren().size();i++){
+            if(root.getChildren().get(i) != null) cnt++;
+        }
+        int cnt2 = 0;
+        for(int i=0;i<root.getChildren().size();i++){
+            if(root.getChildren().get(i) != null){
+                cnt2++;
+                for(int j = 0; j < level + 1; ++j){
+                    if(bitSet.get(j) == false){
+                        System.out.print("|");
+                    }
+                    else{
+                        System.out.print(" ");
+                    }
+                    System.out.print("    ");
+                }
+                if(cnt2 == cnt)
+                    bitSet.set(level + 1);
+                else
+                    bitSet.clear(level + 1);
+                System.out.println("|-" + root.getChildren().get(i).getNodeType());
+                printTree(root.getChildren().get(i), level + 2);
+            }
+        }
+        TreeNode t = root.getSibling();
+        if(t != null){
+            if(t.getSibling() == null){
+                bitSet.set(level);
+            }
+            else{
+                bitSet.clear(level);
+            }
+            printTree(t, level);
+        }
+
     }
 }

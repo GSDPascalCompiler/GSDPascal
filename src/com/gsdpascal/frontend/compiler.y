@@ -2,6 +2,8 @@
 package com.gsdpascal.frontend;
 import java.io.*;
 import com.gsdpascal.astree.*;
+import com.gsdpascal.codegen.*;
+import java.util.ArrayList;
 %}
 
 %token T_PROGRAM T_CONST T_TYPE T_VAR
@@ -32,7 +34,26 @@ program             :   T_PROGRAM T_ID T_SEMI routine T_DOT
                         {   $$ = $4;
                             $$.setAttribute($2);
                             savedTree = $$;
-                        };
+                        }
+                    | 	T_PROGRAM T_ID T_SEMI routine
+                        {   $$ = $4;
+                            $$.setAttribute($2);
+                            savedTree = $$;
+                            errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of end dot");
+                        }
+                    | 	T_PROGRAM T_ID routine T_DOT
+                        {   $$ = $3;
+                            $$.setAttribute($2);
+                            savedTree = $$;
+                            errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of semicolon");
+                        }
+                    | 	T_PROGRAM T_ID routine
+                    	{   $$ = $3;
+                            $$.setAttribute($2);
+                            savedTree = $$;
+                            errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of semicolon and end dot");
+                        }
+                    ;
 routine             :   routine_head routine_body
                         {
                             $$ =$1;
@@ -78,6 +99,27 @@ function_decl       :   function_head T_SEMI routine T_SEMI
                             $$=new TreeNode(DeclarationKind.FUNCTION,yyline);
                             $$.addChild($1);
                             $$.addChild($3);
+                        }
+                    |	function_head T_SEMI routine
+                        {
+                            $$=new TreeNode(DeclarationKind.FUNCTION,yyline);
+                            $$.addChild($1);
+                            $$.addChild($3);
+                            errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of semicolon");
+                        }
+                    |	function_head routine T_SEMI
+                        {
+                            $$=new TreeNode(DeclarationKind.FUNCTION,yyline);
+                            $$.addChild($1);
+                            $$.addChild($2);
+                            errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of semicolon");
+                        }
+                    |	function_head routine
+                        {
+                            $$=new TreeNode(DeclarationKind.FUNCTION,yyline);
+                            $$.addChild($1);
+                            $$.addChild($2);
+                            errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of semicolon");
                         }
                     ;
 function_head       :   T_FUNCTION T_ID parameters  T_COLON simple_type_decl
@@ -157,6 +199,12 @@ var_decl            :   name_list T_COLON type_decl T_SEMI
                             $$.addChild($1);
                             $$.addChild($3);
                         }
+                    |   name_list T_COLON type_decl
+                        {   $$=new TreeNode(DeclarationKind.VAR,yyline);
+                            $$.addChild($1);
+                            $$.addChild($3);
+                            errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of semicolon");
+                        }
                     ;
 const_part          :
                         {   $$ = null; }
@@ -185,6 +233,14 @@ const_expr          :    ID T_EQUAL const_value T_SEMI
                             $$.setAttribute($1.getAttribute());
                             $$.addChild($3);
                             $$.setExpType($3.getExpType());
+                        }
+                    |	ID T_EQUAL const_value
+                        {
+                            $$=new TreeNode(DeclarationKind.CONST,yyline);
+                            $$.setAttribute($1.getAttribute());
+                            $$.addChild($3);
+                            $$.setExpType($3.getExpType());
+                            errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of semicolon");
                         }
                     ;
 const_value         :   T_INT
@@ -255,6 +311,12 @@ type_definition     :   ID T_EQUAL type_decl T_SEMI
                             $$.addChild($1);
                             $$.addChild($3);
                         }
+                    |   ID T_EQUAL type_decl
+                        {   $$=new TreeNode(DeclarationKind.TYPE,yyline);
+                            $$.addChild($1);
+                            $$.addChild($3);
+                            errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of semicolon");
+                        }
                     ;
 type_decl           :   simple_type_decl    {$$=$1;}
                     |   array_type_decl     {$$=$1;}
@@ -282,6 +344,13 @@ field_decl          :   name_list T_COLON type_decl T_SEMI
                             $$=new TreeNode(TypeKind.RECORD,yyline);
                             $$.addChild($1);
                             $$.addChild($3);
+                        }
+                    |   name_list T_COLON type_decl
+                        {
+                            $$=new TreeNode(TypeKind.RECORD,yyline);
+                            $$.addChild($1);
+                            $$.addChild($3);
+                            errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of semicolon");
                         }
                     ;
 array_type_decl     :   T_ARRAY T_LB simple_type_decl T_RB T_OF type_decl
@@ -368,7 +437,8 @@ ID                  :   T_ID
                             $$.setAttribute($1);
                         } ;
 routine_body        :   compound_stmt   {$$=$1;} ;
-compound_stmt       :   T_BEGIN stmt_list T_END {$$=$2;} ;
+compound_stmt       :   T_BEGIN stmt_list T_END {$$=$2;} 
+					|	T_BEGIN stmt_list {$$=$2; errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of end");} ;
 stmt_list           :
                         {$$=null;}
                     |   stmt_list stmt T_SEMI
@@ -382,6 +452,19 @@ stmt_list           :
                             }
                             else
                                 $$=$2;
+                        }
+                    |	stmt_list stmt
+                        {
+                            TreeNode t=$1;
+                            if(t!=null){
+                                while(t.getSibling()!=null)
+                                  t=t.getSibling();
+                                t.setSibling($2);
+                                $$=$1;
+                            }
+                            else
+                                $$=$2;
+                           errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of semicolon");
                         }
                     ;
 stmt                :   T_INT T_COLON no_label_stmt
@@ -434,6 +517,13 @@ if_stmt             :   T_IF expression T_THEN stmt  else_clause
                             $$.addChild($2);
                             $$.addChild($4);
                             $$.addChild($5);
+                        }
+                    |	T_IF expression  stmt  else_clause
+                        {   $$=new TreeNode(StatementKind.IF,yyline);
+                            $$.addChild($2);
+                            $$.addChild($3);
+                            $$.addChild($4);
+                             errMsg.add("Error : error at line " + lex.getLineNumber() + ", lack of then");
                         }
                     ;
 else_clause         :   {$$=null;}
@@ -627,6 +717,7 @@ factor              :   ID
     private char[] savedName;
     private int savedNum;
     private int yyline;
+    private static ArrayList<String> errMsg = new ArrayList<String>();
 
     private int yylex() {
         int retVal = -1;
@@ -653,13 +744,21 @@ factor              :   ID
       Parser yyparser;
       String filePath = args[0];
       yyparser = new Parser(new FileReader(filePath));
-        System.err.println("YACC: Parsing...");
+        System.err.println("GSDPASCAL Parse Started");
         TreeNode syntaxTree = yyparser.parse();
-        System.out.println(syntaxTree);
-        System.err.println("YACC: Parsed...");
-        syntaxTree.printTree(syntaxTree);
-        CodeGenerator.getCodeGenerator().generate(syntaxTree);
-        System.err.println("code generation end");
+        
+        if(errMsg.size() != 0){
+        	for(String msg: errMsg){
+        		System.err.println(msg);
+        	}
+        }
+        System.err.println("GSDPASCAL Parse Error");
+        if(errMsg.size() == 0 && syntaxTree != null){
+            System.out.println(syntaxTree);
+            syntaxTree.printTree(syntaxTree, 0);
+        	CodeGenerator.getCodeGenerator().generate(syntaxTree);
+        	System.err.println("GSDPASCAL Parse Finished");
+      	}
     }
 
         /* error reporting */

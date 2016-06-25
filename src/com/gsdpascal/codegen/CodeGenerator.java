@@ -100,7 +100,7 @@ public class CodeGenerator {
         writeCodeLine(".code");
         SymbolTable.initScope();
         node.setAttribute("main");
-        node.printTree(node);
+        //node.printTree(node);
     }
 
     private void afterGC() {
